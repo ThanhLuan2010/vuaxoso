@@ -1,0 +1,323 @@
+import { create } from 'zustand';
+import api from '../services/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+export interface GameModel {
+  _id: string;
+  code: string;
+  name: string;
+  type: string;
+  brandColor?: string;
+  bgColor?: string;
+  badge?: string;
+  subtext?: string;
+  drawDurationMinutes?: number;
+}
+
+export interface DrawModel {
+  _id: string;
+  game: GameModel;
+  drawCode: string;
+  openTime: string;
+  closeTime: string;
+  status: 'open' | 'closed' | 'completed';
+  winningNumbers?: string[];
+  jackpotPrize?: number;
+}
+
+export interface CartItem {
+  id: string;
+  gameId: string;
+  gameName: string;
+  numbers: string[];
+  cost: number;
+  quantity: number;
+  playType?: string;
+  provinceName?: string;
+  drawDate?: string;
+}
+
+export interface PurchaseRecord {
+  id: string;
+  gameName: string;
+  numbers: string[];
+  cost: number;
+  quantity: number;
+  date: string;
+  status: 'pending' | 'success' | 'failed';
+  provinceName?: string;
+}
+
+interface AppState {
+  user: {
+    name: string;
+    balance: number;
+    phone: string;
+    address?: string;
+    email?: string;
+    cccdNumber?: string;
+    cccdImage?: string;
+    isInfoUpdated?: boolean;
+    hasWithdrawPassword?: boolean;
+    banks?: any[];
+    wallets?: any[];
+  } | null;
+  token: string | null;
+  cart: CartItem[];
+  purchaseHistory: PurchaseRecord[];
+  unreadNotifications: number;
+
+  games: GameModel[];
+  activeDraws: DrawModel[];
+  drawResults: DrawModel[];
+  banners: any[];
+  kienThietSchedule: any[];
+
+  fetchGames: () => Promise<void>;
+  fetchActiveDraws: () => Promise<void>;
+  fetchDrawResults: () => Promise<void>;
+  fetchBanners: () => Promise<void>;
+  fetchKienThietSchedule: () => Promise<void>;
+
+  // Auth
+  login: (phone: string, password: string) => Promise<{success: boolean, message?: string}>;
+  register: (phone: string, name: string, password: string) => Promise<{success: boolean, message?: string}>;
+  logout: () => void;
+  fetchProfile: () => Promise<void>;
+  updateProfile: (data: { name?: string; address?: string; email?: string; cccdNumber?: string; cccdImage?: string; banks?: any[]; wallets?: any[] }) => Promise<{success: boolean, message?: string}>;
+  restoreSession: () => Promise<void>;
+
+  // Wallet
+  requestDeposit: (amount: number) => Promise<{ success: boolean; message?: string }>;
+  requestWithdraw: (amount: number, withdrawPassword?: string, destinationInfo?: any) => Promise<{ success: boolean; message?: string }>;
+
+  // Cart
+  addToCart: (item: Omit<CartItem, 'id'>) => void;
+  removeFromCart: (itemId: string) => void;
+  clearCart: () => void;
+  checkout: () => Promise<{ success: boolean; message: string }>;
+  clearNotifications: () => void;
+  addPurchaseHistory: (records: Omit<PurchaseRecord, 'id' | 'date' | 'status'>[]) => void;
+}
+
+import { Alert } from 'react-native';
+
+export const useAppStore = create<AppState>((set, get) => ({
+  user: null,
+  token: null,
+  cart: [],
+  purchaseHistory: [],
+  unreadNotifications: 0,
+  games: [],
+  activeDraws: [],
+  drawResults: [],
+  banners: [],
+  kienThietSchedule: [],
+
+  fetchGames: async () => {
+    try {
+      const { data } = await api.get('/games');
+      set({ games: data });
+    } catch (e: any) { 
+      console.log('fetchGames error', e); 
+      Alert.alert('Network Error', e.message + ' - Vui lòng kiểm tra lại IP hoặc mạng.');
+    }
+  },
+
+  fetchBanners: async () => {
+    try {
+      const { data } = await api.get('/banners/active');
+      set({ banners: data });
+    } catch (e: any) {
+      console.log('fetchBanners error', e);
+    }
+  },
+
+  fetchActiveDraws: async () => {
+    try {
+      const { data } = await api.get('/draws/active');
+      set({ activeDraws: data });
+    } catch (e) { console.log('fetchActiveDraws error', e); }
+  },
+
+  fetchDrawResults: async () => {
+    try {
+      const { data } = await api.get('/draws/results');
+      set({ drawResults: data });
+    } catch (e) { console.log('fetchDrawResults error', e); }
+  },
+
+  fetchKienThietSchedule: async () => {
+    try {
+      const { data } = await api.get('/draws/kienthiet-schedule');
+      set({ kienThietSchedule: data });
+    } catch (e) { console.log('fetchKienThietSchedule error', e); }
+  },
+
+  login: async (phone, password) => {
+    try {
+      const { data } = await api.post('/auth/login', { phone, password });
+      await AsyncStorage.setItem('userToken', data.token);
+      set({ user: { name: data.name, balance: data.balance, phone: data.phone }, token: data.token });
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || 'Lỗi kết nối' };
+    }
+  },
+
+  register: async (phone, name, password) => {
+    try {
+      const { data } = await api.post('/auth/register', { phone, name, password });
+      await AsyncStorage.setItem('userToken', data.token);
+      set({ user: { name: data.name, balance: data.balance, phone: data.phone }, token: data.token });
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || 'Lỗi kết nối' };
+    }
+  },
+
+  logout: async () => {
+    await AsyncStorage.removeItem('userToken');
+    set({ user: null, token: null });
+  },
+
+  fetchProfile: async () => {
+    try {
+      const { data } = await api.get('/auth/profile');
+      set({ user: { 
+        name: data.name, 
+        balance: data.balance, 
+        phone: data.phone,
+        address: data.address,
+        email: data.email,
+        cccdNumber: data.cccdNumber,
+        cccdImage: data.cccdImage,
+        isInfoUpdated: data.isInfoUpdated,
+        hasWithdrawPassword: data.hasWithdrawPassword,
+        banks: data.banks,
+        wallets: data.wallets
+      } });
+    } catch (error) {
+      console.log('Failed to fetch profile', error);
+      get().logout();
+    }
+  },
+
+  updateProfile: async (payload) => {
+    try {
+      const { data } = await api.put('/auth/profile', payload);
+      set({ user: { 
+        name: data.name, 
+        balance: data.balance, 
+        phone: data.phone,
+        address: data.address,
+        email: data.email,
+        cccdNumber: data.cccdNumber,
+        cccdImage: data.cccdImage,
+        isInfoUpdated: data.isInfoUpdated,
+        hasWithdrawPassword: data.hasWithdrawPassword,
+        banks: data.banks,
+        wallets: data.wallets
+      } });
+      return { success: true, message: 'Cập nhật thành công' };
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || 'Cập nhật thất bại' };
+    }
+  },
+
+  restoreSession: async () => {
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      if (token) {
+        set({ token });
+        await get().fetchProfile();
+      }
+    } catch (error) {
+      console.log('Failed to restore session', error);
+    }
+  },
+
+  requestDeposit: async (amount: number = 0) => {
+    try {
+      const res = await api.post('/wallet/deposit', { amount });
+      return { success: true, message: 'Yêu cầu nạp tiền đã được gửi. Vui lòng chờ Admin xác nhận.' };
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || 'Lỗi khi nạp tiền' };
+    }
+  },
+
+  requestWithdraw: async (amount: number, withdrawPassword?: string, destinationInfo?: any) => {
+    try {
+      await api.post('/wallet/withdraw', { amount, withdrawPassword, destinationInfo });
+      await get().fetchProfile(); // Cập nhật lại số dư
+      return { success: true, message: 'Yêu cầu rút tiền thành công, đang chờ duyệt.' };
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || 'Lỗi kết nối' };
+    }
+  },
+
+  addToCart: (newItem) => set((state) => {
+    const id = Math.random().toString(36).substring(2, 9);
+    return { cart: [...state.cart, { ...newItem, id }] };
+  }),
+
+  removeFromCart: (itemId) => set((state) => ({
+    cart: state.cart.filter(item => item.id !== itemId)
+  })),
+
+  clearCart: () => set({ cart: [] }),
+
+  checkout: async () => {
+    const { cart, user } = get();
+    const totalCost = cart.reduce((acc, item) => acc + (item.cost * item.quantity), 0);
+
+    if (totalCost === 0) return { success: false, message: 'Giỏ hàng trống!' };
+    if (!user || user.balance < totalCost) return { success: false, message: 'Số dư không đủ! Vui lòng nạp thêm tiền.' };
+
+    try {
+      const itemsPayload = cart.map(item => ({
+        numbers: item.numbers,
+        cost: item.cost * item.quantity,
+      }));
+
+      // Gọi API mua vé
+      await api.post('/orders', {
+        gameType: cart[0].gameId,
+        playType: cart[0].playType,
+        drawId: 'DUMMY_DRAW_ID', // Thực tế sẽ lấy từ API /active
+        items: itemsPayload
+      });
+
+      // Cập nhật lại số dư và làm trống giỏ hàng
+      await get().fetchProfile();
+
+      set((state) => ({
+        cart: []
+      }));
+
+      return { success: true, message: 'Thanh toán thành công! Vé của bạn đã được ghi nhận.' };
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || 'Lỗi thanh toán.' };
+    }
+  },
+
+  clearNotifications: () => set({ unreadNotifications: 0 }),
+
+  addPurchaseHistory: (newItems) => set((state) => {
+    const now = new Date();
+    const dateStr = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')} ${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
+    const formattedRecords: PurchaseRecord[] = newItems.map((item, idx) => ({
+      id: `order_${now.getTime()}_${idx}`,
+      gameName: item.gameName,
+      numbers: item.numbers,
+      cost: item.cost,
+      quantity: item.quantity,
+      date: dateStr,
+      status: 'success',
+      provinceName: item.provinceName
+    }));
+    return {
+      purchaseHistory: [...formattedRecords, ...state.purchaseHistory]
+    };
+  }),
+}));
