@@ -4,6 +4,9 @@
 /Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/RelWithDebInfo/305554i6/arm64-v8a/AsyncStorageSpec_autolinked_build/CMakeFiles/react_codegen_AsyncStorageSpec.dir
 /Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/RelWithDebInfo/305554i6/arm64-v8a/AsyncStorageSpec_autolinked_build/CMakeFiles/edit_cache.dir
 /Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/RelWithDebInfo/305554i6/arm64-v8a/AsyncStorageSpec_autolinked_build/CMakeFiles/rebuild_cache.dir
+/Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/RelWithDebInfo/305554i6/arm64-v8a/RNImagePickerSpec_autolinked_build/CMakeFiles/react_codegen_RNImagePickerSpec.dir
+/Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/RelWithDebInfo/305554i6/arm64-v8a/RNImagePickerSpec_autolinked_build/CMakeFiles/edit_cache.dir
+/Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/RelWithDebInfo/305554i6/arm64-v8a/RNImagePickerSpec_autolinked_build/CMakeFiles/rebuild_cache.dir
 /Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/RelWithDebInfo/305554i6/arm64-v8a/safeareacontext_autolinked_build/CMakeFiles/react_codegen_safeareacontext.dir
 /Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/RelWithDebInfo/305554i6/arm64-v8a/safeareacontext_autolinked_build/CMakeFiles/edit_cache.dir
 /Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/RelWithDebInfo/305554i6/arm64-v8a/safeareacontext_autolinked_build/CMakeFiles/rebuild_cache.dir

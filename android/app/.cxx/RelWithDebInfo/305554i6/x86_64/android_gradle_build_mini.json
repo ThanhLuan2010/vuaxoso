@@ -1,6 +1,7 @@
 {
   "buildFiles": [
     "/Users/luannguyen/Documents/git/vuaxoso/node_modules/@react-native-async-storage/async-storage/android/build/generated/source/codegen/jni/CMakeLists.txt",
+    "/Users/luannguyen/Documents/git/vuaxoso/node_modules/react-native-image-picker/android/build/generated/source/codegen/jni/CMakeLists.txt",
     "/Users/luannguyen/Documents/git/vuaxoso/node_modules/react-native-safe-area-context/android/src/main/jni/CMakeLists.txt",
     "/Users/luannguyen/Documents/git/vuaxoso/node_modules/react-native-screens/android/src/main/jni/CMakeLists.txt",
     "/Users/luannguyen/Documents/git/vuaxoso/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt",
@@ -30,6 +31,11 @@
         "/Users/luannguyen/.gradle/caches/9.3.1/transforms/2454197a7a7bdd22c9814cde61f3ed7f/transformed/react-android-0.86.0-release/prefab/modules/jsi/libs/android.x86_64/libjsi.so",
         "/Users/luannguyen/.gradle/caches/9.3.1/transforms/2454197a7a7bdd22c9814cde61f3ed7f/transformed/react-android-0.86.0-release/prefab/modules/reactnative/libs/android.x86_64/libreactnative.so"
       ]
+    },
+    "react_codegen_RNImagePickerSpec::@f66ee9a2efecfb28bee4": {
+      "artifactName": "react_codegen_RNImagePickerSpec",
+      "abi": "x86_64",
+      "runtimeFiles": []
     },
     "react_codegen_rnscreens::@25bcbd507e98d3a854ad": {
       "artifactName": "react_codegen_rnscreens",
