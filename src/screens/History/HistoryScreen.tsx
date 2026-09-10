@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,10 +6,11 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
-  ActivityIndicator
+  ActivityIndicator,
+  RefreshControl
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Timer } from 'lucide-react-native';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
 import api from '../../services/api';
@@ -17,30 +18,39 @@ import api from '../../services/api';
 export default function HistoryScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
-  const isFocused = useIsFocused();
   
   const [activeTab, setActiveTab] = useState('Chờ in');
   const [activeFilter, setActiveFilter] = useState('Tất cả');
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    if (isFocused) {
+  useFocusEffect(
+    useCallback(() => {
       fetchOrders();
-    }
-  }, [isFocused]);
+    }, [])
+  );
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (isRefresh = false) => {
     try {
-      setLoading(true);
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
       const res = await api.get('/orders/my-orders');
       setOrders(res.data || []);
     } catch (error) {
       console.log('Error fetching orders:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
+
+  const onRefresh = useCallback(() => {
+    fetchOrders(true);
+  }, []);
 
   const renderTabs = () => (
     <View style={styles.tabContainer}>
@@ -90,7 +100,7 @@ export default function HistoryScreen() {
     
     // Map filter to game Type loosely
     const filterMap: any = {
-      'Vietlott': ['keno', 'bao_keno', 'power_655', 'mega_645', 'max_3d', 'max_3d_pro', 'lotto_535'],
+      'Vietlott': ['keno', 'bao_keno', 'power_655', 'mega_645', 'max_3d', 'max_3d_pro', 'max_4d', 'lotto_535', 'lotto_570'],
       'Điện toán': ['loto_235', 'loto_cap', 'dientoan_636', 'bao_loto_2', 'than_tai_4', 'bao_636'],
       'Kiến Thiết': ['kienthiet']
     };
@@ -120,14 +130,35 @@ export default function HistoryScreen() {
     }
 
     return (
-      <ScrollView contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        contentContainerStyle={styles.listContainer} 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+        }
+      >
         {Object.entries(groups).map(([dateGroup, tickets], gIdx) => (
           <View key={gIdx} style={styles.groupContainer}>
             <Text style={styles.groupTitle}>{dateGroup}</Text>
             
             {tickets.map((ticket, tIdx) => {
               const isKienThiet = ticket.gameType.startsWith('kienthiet');
-              const ticketTypeStr = isKienThiet ? 'KIẾN THIẾT' : ticket.gameType.toUpperCase();
+              let ticketTypeStr = ticket.gameType.toUpperCase();
+              if (isKienThiet) {
+                ticketTypeStr = 'KIẾN THIẾT';
+              } else {
+                switch(ticket.gameType) {
+                  case 'max_3d': ticketTypeStr = 'MAX 3D'; break;
+                  case 'max_4d': ticketTypeStr = 'MAX 4D'; break;
+                  case 'lotto_535': ticketTypeStr = 'LOTTO 5/35'; break;
+                  case 'lotto_570': ticketTypeStr = 'LOTTO 5/70'; break;
+                  case 'loto_235': ticketTypeStr = 'LÔ TÔ 235'; break;
+                  case 'loto_cap': ticketTypeStr = 'LÔ TÔ CẶP'; break;
+                  case 'than_tai_4': ticketTypeStr = 'THẦN TÀI 4'; break;
+                  case 'dientoan_636': ticketTypeStr = 'ĐIỆN TOÁN 636'; break;
+                  default: ticketTypeStr = ticket.gameType.replace(/_/g, ' ').toUpperCase(); break;
+                }
+              }
               const formattedPrice = ticket.totalCost.toLocaleString('vi-VN') + 'đ';
               const dateObj = new Date(ticket.createdAt);
               const timeStr = `${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}:${String(dateObj.getSeconds()).padStart(2, '0')} - ${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${dateObj.getFullYear()}`;

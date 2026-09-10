@@ -6,72 +6,53 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { COLORS, TYPOGRAPHY, SPACING } from '../../theme/theme';
+import api from '../../services/api';
 
-const GUIDE_DATA = [
-  {
-    id: '1',
-    title: 'Hướng dẫn chơi Xổ Số Loto 2,3,5 số',
-    subtitle: 'Lịch quay: 18h15 – 18h30 hàng ngày',
-    iconType: 'X',
-  },
-  {
-    id: '2',
-    title: 'Hướng dẫn chơi Xổ Số Điện Toán 6x36',
-    subtitle: 'Lịch quay: 18h15 thứ 4 và thứ 7 hàng tuần',
-    iconType: 'X',
-  },
-  {
-    id: '3',
-    title: 'Hướng dẫn cách chơi xổ số kiến thiết Bắc, Trung, Nam',
-    subtitle: 'Lịch quay: 18h15 – 18h30 hàng ngày',
-    iconType: 'X',
-  },
-  {
-    id: '4',
-    title: 'Hướng dẫn chơi Xổ Số Loto 2,3,4 cặp số',
-    subtitle: 'Lịch quay: 18h15 – 18h30 hàng ngày',
-    iconType: 'X',
-  },
-  {
-    id: '5',
-    title: 'Hướng dẫn chơi KENO',
-    subtitle: 'Lịch quay: 8 phút quay số một lần, 119 kỳ/ngày, từ 6:00 đến 21:52, tất cả các ngày trong tuần.',
-    iconType: 'KENO',
-  },
-  {
-    id: '6',
-    title: 'Hướng dẫn tham gia MUA CHUNG',
-    subtitle: '',
-    iconType: 'MUACHUNG',
-  },
-  {
-    id: '7',
-    title: 'Hướng dẫn chơi Power 6/55',
-    subtitle: '',
-    iconType: 'POWER',
-  },
-  {
-    id: '8',
-    title: 'Hướng dẫn chơi Mega 6/45',
-    subtitle: '',
-    iconType: 'MEGA',
-  },
-  {
-    id: '9',
-    title: 'Hướng dẫn chơi BAO Xổ Số Điện Toán 6x36',
-    subtitle: 'Lịch quay: 18h15 thứ 4 và thứ 7 hàng tuần',
-    iconType: 'X',
-  },
-];
+interface GuideItem {
+  _id: string;
+  title: string;
+  subtitle?: string;
+  content: string;
+  iconType: string;
+}
 
 export default function GuideScreen() {
   const insets = useSafeAreaInsets();
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
+  const [guides, setGuides] = React.useState<GuideItem[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const fetchGuides = async (isRefresh = false) => {
+    try {
+      if (isRefresh) setRefreshing(true);
+      else setLoading(true);
+      const { data } = await api.get('/guides');
+      setGuides(data);
+    } catch (error) {
+      console.error('Error fetching guides:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchGuides();
+    }, [])
+  );
+
+  const onRefresh = React.useCallback(() => {
+    fetchGuides(true);
+  }, []);
 
   const renderHeader = () => (
     <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) }]}>
@@ -124,21 +105,37 @@ export default function GuideScreen() {
       <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
       {renderHeader()}
       
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {GUIDE_DATA.map((item) => (
-          <TouchableOpacity key={item.id} style={styles.itemCard}>
-            <View style={styles.itemIconWrapper}>
-              {renderIcon(item.iconType)}
-            </View>
-            <View style={styles.itemContent}>
-              <Text style={styles.itemTitle}>{item.title}</Text>
-              {item.subtitle ? (
-                <Text style={styles.itemSubtitle}>{item.subtitle}</Text>
-              ) : null}
-            </View>
-            <ChevronRight size={20} color={COLORS.gray400} />
-          </TouchableOpacity>
-        ))}
+      <ScrollView 
+        contentContainerStyle={styles.content} 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+        }
+      >
+        {loading && !refreshing ? (
+          <ActivityIndicator style={{ marginTop: 20 }} color={COLORS.primary} />
+        ) : guides.length === 0 ? (
+          <Text style={{ textAlign: 'center', marginTop: 20, color: COLORS.gray500 }}>Không có hướng dẫn nào</Text>
+        ) : (
+          guides.map((item) => (
+            <TouchableOpacity 
+              key={item._id} 
+              style={styles.itemCard}
+              onPress={() => navigation.navigate('GuideDetail', { title: item.title, content: item.content })}
+            >
+              <View style={styles.itemIconWrapper}>
+                {renderIcon(item.iconType)}
+              </View>
+              <View style={styles.itemContent}>
+                <Text style={styles.itemTitle}>{item.title}</Text>
+                {item.subtitle ? (
+                  <Text style={styles.itemSubtitle}>{item.subtitle}</Text>
+                ) : null}
+              </View>
+              <ChevronRight size={20} color={COLORS.gray400} />
+            </TouchableOpacity>
+          ))
+        )}
         <View style={{ height: 24 }} />
       </ScrollView>
     </View>

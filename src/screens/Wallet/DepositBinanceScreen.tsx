@@ -9,11 +9,13 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Alert
+  Alert,
+  Image
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChevronLeft, Info, Copy } from 'lucide-react-native';
+import { ChevronLeft, Info, Copy, QrCode } from 'lucide-react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
 import api from '../../services/api';
 
@@ -24,6 +26,9 @@ export default function DepositBinanceScreen() {
   const [txId, setTxId] = useState('');
   const [loading, setLoading] = useState(false);
   const [binanceConfig, setBinanceConfig] = useState<any>(null);
+  
+  const [selectedWalletIndex, setSelectedWalletIndex] = useState(0);
+  const [isWalletDropdownOpen, setIsWalletDropdownOpen] = useState(false);
 
   useEffect(() => {
     fetchBinanceConfig();
@@ -39,7 +44,13 @@ export default function DepositBinanceScreen() {
   };
 
   const handleAmountChange = (text: string) => {
-    const formatted = text.replace(/[^0-9]/g, '');
+    const numericValue = text.replace(/[^0-9]/g, '');
+    if (!numericValue) {
+      setAmountStr('');
+      return;
+    }
+    // Add comma thousand separators
+    const formatted = numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     setAmountStr(formatted);
   };
 
@@ -62,6 +73,17 @@ export default function DepositBinanceScreen() {
     }
   };
 
+  const handleInfoPress = () => {
+    Alert.alert(
+      'Hướng Dẫn Nạp Tiền USDT',
+      'Để nạp tiền, bạn vui lòng copy địa chỉ ví hoặc quét mã QR.\nLưu ý chọn đúng mạng TRC20 hoặc BEP20 để tránh mất tiền.\n\nXem chi tiết tại: https://vuaxoso.com/huong-dan-usdt'
+    );
+  };
+
+  const wallets = binanceConfig?.wallets || [];
+  const activeWallet = wallets[selectedWalletIndex] || (binanceConfig?.walletAddress ? { walletAddress: binanceConfig.walletAddress, network: 'USDT TRC20/BEP20' } : null);
+  const walletItems = wallets.map((w: any, index: number) => ({ label: w.network || `Ví ${index + 1}`, value: index }));
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -74,18 +96,59 @@ export default function DepositBinanceScreen() {
           <ChevronLeft size={24} color={COLORS.textDark} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Nạp Tiền qua Binance</Text>
-        <TouchableOpacity style={styles.headerBtn}>
+        <TouchableOpacity style={styles.headerBtn} onPress={handleInfoPress}>
           <Info size={24} color={COLORS.primary} />
         </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>1. Thông tin ví nhận (USDT TRC20/BEP20)</Text>
+        <View style={[styles.section, { zIndex: 10 }]}>
+          <Text style={styles.sectionTitle}>1. Thông tin ví nhận</Text>
+          
+          {wallets.length > 1 && (
+            <View style={{ marginBottom: SPACING.md, zIndex: 20 }}>
+              <DropDownPicker
+                open={isWalletDropdownOpen}
+                value={selectedWalletIndex}
+                items={walletItems}
+                setOpen={setIsWalletDropdownOpen}
+                setValue={setSelectedWalletIndex}
+                listMode="SCROLLVIEW"
+                style={{ borderColor: '#E2E8F0', borderWidth: 1 }}
+                dropDownContainerStyle={{ borderColor: '#E2E8F0', borderWidth: 1, zIndex: 1000 }}
+                textStyle={{ fontSize: 16, color: '#333' }}
+                placeholder="Chọn mạng (TRC20/BEP20)"
+                zIndex={2000}
+                zIndexInverse={1000}
+              />
+            </View>
+          )}
+
           <View style={styles.cardInfo}>
-            <Text style={styles.label}>Địa chỉ ví:</Text>
+            <View style={{ alignItems: 'center', marginBottom: SPACING.md }}>
+              {activeWallet?.qrImage ? (
+                <View style={{ padding: 12, backgroundColor: '#fff', borderRadius: 12, ...SHADOWS.light }}>
+                  <Image 
+                    source={{ uri: activeWallet.qrImage }} 
+                    style={{ width: 160, height: 160 }} 
+                  />
+                </View>
+              ) : activeWallet?.walletAddress ? (
+                <View style={{ padding: 12, backgroundColor: '#fff', borderRadius: 12, ...SHADOWS.light }}>
+                  <Image 
+                    source={{ uri: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${activeWallet.walletAddress}` }} 
+                    style={{ width: 160, height: 160 }} 
+                  />
+                </View>
+              ) : (
+                <View style={{ padding: 12, backgroundColor: '#f0f0f0', borderRadius: 12 }}>
+                  <QrCode size={160} color="#ccc" />
+                </View>
+              )}
+            </View>
+            <Text style={styles.label}>Địa chỉ ví ({activeWallet?.network || 'TRC20'}):</Text>
             <View style={styles.addressRow}>
-              <Text style={styles.addressText}>{binanceConfig?.walletAddress || 'Chưa cấu hình'}</Text>
+              <Text style={styles.addressText} numberOfLines={2}>{activeWallet?.walletAddress || 'Chưa cấu hình'}</Text>
               <TouchableOpacity style={styles.copyBtn}>
                 <Copy size={20} color={COLORS.primary} />
               </TouchableOpacity>
@@ -96,7 +159,7 @@ export default function DepositBinanceScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>2. Số tiền dự kiến nạp (Tùy chọn ghi nhớ)</Text>
+          <Text style={styles.sectionTitle}>2. Số USDT nạp</Text>
           <View style={styles.inputContainer}>
             <View style={styles.inputRow}>
               <TextInput

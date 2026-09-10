@@ -7,9 +7,10 @@ import {
   TouchableOpacity,
   StatusBar,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { ChevronLeft, ShoppingBag, Trophy, Wallet } from 'lucide-react-native';
 import { useAppStore } from '../../store/useAppStore';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
@@ -35,15 +36,24 @@ export default function NotificationsScreen() {
   const { clearNotifications } = useAppStore();
   const [notificationData, setNotificationData] = useState<NotificationSection[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    fetchNotifications();
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchNotifications();
+      clearNotifications();
+    }, [clearNotifications])
+  );
+
+  const onRefresh = React.useCallback(() => {
+    fetchNotifications(true);
     clearNotifications();
   }, [clearNotifications]);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = async (isRefresh = false) => {
     try {
-      setLoading(true);
+      if (isRefresh) setRefreshing(true);
+      else setLoading(true);
       const res = await api.get('/notifications/my-notifications');
       let notifications = res.data;
       
@@ -82,6 +92,7 @@ export default function NotificationsScreen() {
       console.error('Error fetching notifications:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -157,36 +168,32 @@ export default function NotificationsScreen() {
     <Text style={styles.sectionTitle}>{title}</Text>
   );
 
-  const renderEmpty = () => {
-    if (loading) {
-      return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 100 }}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-        </View>
-      );
-    }
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 100 }}>
-        <Text style={{ color: COLORS.gray500 }}>Không có thông báo nào</Text>
-      </View>
-    );
-  };
-
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
       {renderHeader()}
 
-      <SectionList
-        sections={notificationData}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        renderSectionHeader={renderSectionHeader}
-        contentContainerStyle={[styles.listContent, notificationData.length === 0 && { flex: 1 }]}
-        showsVerticalScrollIndicator={false}
-        stickySectionHeadersEnabled={false}
-        ListEmptyComponent={renderEmpty}
-      />
+      {loading && !refreshing ? (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color="#0A3B7C" />
+        </View>
+      ) : notificationData.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Bạn chưa có thông báo nào.</Text>
+        </View>
+      ) : (
+        <SectionList
+          sections={notificationData}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          renderSectionHeader={renderSectionHeader}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+          }
+        />
+      )}
     </View>
   );
 }
@@ -279,6 +286,22 @@ const styles = StyleSheet.create({
   },
   time: {
     fontSize: 11,
+    color: COLORS.gray500,
+  },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyText: {
+    fontSize: 14,
     color: COLORS.gray500,
   },
 });

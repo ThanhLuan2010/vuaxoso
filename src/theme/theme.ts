@@ -31,6 +31,7 @@ export const COLORS = {
   success: '#00E096',
   warning: '#FFC94D',
   danger: '#FF3D71',
+  error: '#FF3D71',
   info: '#0095FF',
   
   // Neutral colors

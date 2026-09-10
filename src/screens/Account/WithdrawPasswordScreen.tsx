@@ -40,11 +40,14 @@ export default function WithdrawPasswordScreen() {
 
     setIsSaving(true);
     try {
-      const res = await api.put('/users/profile', { withdrawPassword: password });
-      updateProfile(res.data);
-      Alert.alert('Thành công', isSettingNew ? 'Đã cài đặt mật khẩu rút tiền' : 'Đã thay đổi mật khẩu rút tiền', [
-        { text: 'OK', onPress: () => navigation.goBack() }
-      ]);
+      const res = await updateProfile({ withdrawPassword: password } as any);
+      if (res.success) {
+        Alert.alert('Thành công', isSettingNew ? 'Đã cài đặt mật khẩu rút tiền' : 'Đã thay đổi mật khẩu rút tiền', [
+          { text: 'OK', onPress: () => navigation.goBack() }
+        ]);
+      } else {
+        Alert.alert('Lỗi', res.message || 'Có lỗi xảy ra');
+      }
     } catch (err: any) {
       Alert.alert('Lỗi', err.response?.data?.message || 'Có lỗi xảy ra');
     } finally {
@@ -70,30 +73,32 @@ export default function WithdrawPasswordScreen() {
           <Text style={styles.descText}>
             {isSettingNew 
               ? 'Tạo mật khẩu rút tiền để bảo vệ tài sản của bạn. Mật khẩu này sẽ được yêu cầu mỗi khi bạn thực hiện lệnh rút.' 
-              : 'Thay đổi mật khẩu rút tiền của bạn.'}
+              : 'Bạn đã cài đặt mật khẩu rút tiền thành công. Vì lý do bảo mật, bạn không thể thay đổi mật khẩu rút tiền. Nếu bạn quên, vui lòng liên hệ CSKH.'}
           </Text>
         </View>
 
-        <View style={styles.form}>
-          <TextInput
-            style={styles.input}
-            placeholder="Mật khẩu rút tiền mới"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Xác nhận mật khẩu rút tiền mới"
-            secureTextEntry
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-          />
+        {isSettingNew && (
+          <View style={styles.form}>
+            <TextInput
+              style={styles.input}
+              placeholder="Mật khẩu rút tiền mới"
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Xác nhận mật khẩu rút tiền mới"
+              secureTextEntry
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+            />
 
-          <TouchableOpacity style={styles.saveBtn} onPress={handleSave} disabled={isSaving}>
-            {isSaving ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>Lưu Cài Đặt</Text>}
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity style={styles.saveBtn} onPress={handleSave} disabled={isSaving}>
+              {isSaving ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>Lưu Cài Đặt</Text>}
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </View>
   );

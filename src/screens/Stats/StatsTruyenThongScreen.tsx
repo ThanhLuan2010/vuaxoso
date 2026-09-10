@@ -8,8 +8,9 @@ import {
   StatusBar,
   Modal,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, ChevronDown, Calendar } from 'lucide-react-native';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
@@ -139,28 +140,42 @@ export default function StatsTruyenThongScreen() {
 
   const [statsData, setStatsData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  React.useEffect(() => {
-    const fetchStats = async () => {
-      setLoading(true);
-      try {
-        let limit = '10';
-        const match = selectedKy.match(/\d+/);
-        if (match) limit = match[0];
-        if (selectedKy.includes('Tất cả')) limit = 'all';
+  const fetchStats = async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true);
+    else setLoading(true);
+    try {
+      let limit = '10';
+      const match = selectedKy.match(/\d+/);
+      if (match) limit = match[0];
+      if (selectedKy.includes('Tất cả')) limit = 'all';
 
-        let code = mainTab === 'mienbac' ? 'MB' : mainTab === 'mientrung' ? 'MT' : 'MN';
-        // Mock using the region code as the API doesn't support province yet
-        const res = await api.get(`/draws/stats?type=kienthiet&code=${code}&limit=${limit}&prize=${selectedPrize}`);
-        setStatsData(res.data);
-      } catch (err) {
-        console.log('Error fetching stats for kienthiet', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStats();
+      let code = mainTab === 'mienbac' ? 'MB' : mainTab === 'mientrung' ? 'MT' : 'MN';
+      // Mock using the region code as the API doesn't support province yet
+      const res = await api.get(`/draws/stats?type=kienthiet&code=${code}&limit=${limit}&prize=${selectedPrize}`);
+      setStatsData(res.data);
+    } catch (err) {
+      console.log('Error fetching stats for kienthiet', err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchStats();
+    }, [mainTab, selectedKy, selectedPrize, currentProvince])
+  );
+
+  const onRefresh = React.useCallback(() => {
+    fetchStats(true);
   }, [mainTab, selectedKy, selectedPrize, currentProvince]);
+
+  const renderRefreshControl = () => (
+    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+  );
 
   return (
     <View style={styles.container}>
@@ -194,7 +209,7 @@ export default function StatsTruyenThongScreen() {
         ))}
       </View>
 
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }} refreshControl={renderRefreshControl()}>
 
         {/* Filters Row */}
         <View style={styles.filtersRow}>

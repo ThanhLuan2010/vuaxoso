@@ -7,8 +7,10 @@ import {
   ScrollView,
   StatusBar,
   Modal,
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, ChevronDown, Calendar } from 'lucide-react-native';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
@@ -59,9 +61,9 @@ function StatTable({
   );
 }
 
-function BoSoTab({ kenoData, selectedNumber, onSelect }: { kenoData: any; selectedNumber: string | null; onSelect: (n: string) => void }) {
+function BoSoTab({ kenoData, selectedNumber, onSelect, refreshControl }: { kenoData: any; selectedNumber: string | null; onSelect: (n: string) => void; refreshControl?: React.ReactElement }) {
   return (
-    <ScrollView style={{ flex: 1 }}>
+    <ScrollView style={{ flex: 1 }} refreshControl={refreshControl}>
       <View style={styles.twoColGrid}>
         <View style={styles.colHalf}>
           <Text style={styles.groupTitle}>Top số về nhiều:</Text>
@@ -107,9 +109,9 @@ function BoSoTab({ kenoData, selectedNumber, onSelect }: { kenoData: any; select
   );
 }
 
-function DauDuoiTab({ kenoData, selectedNumber, onSelect }: { kenoData: any; selectedNumber: string | null; onSelect: (n: string) => void }) {
+function DauDuoiTab({ kenoData, selectedNumber, onSelect, refreshControl }: { kenoData: any; selectedNumber: string | null; onSelect: (n: string) => void; refreshControl?: React.ReactElement }) {
   return (
-    <ScrollView style={{ flex: 1 }}>
+    <ScrollView style={{ flex: 1 }} refreshControl={refreshControl}>
       <View style={styles.twoColGrid}>
         <View style={styles.colHalf}>
           <Text style={styles.groupTitle}>Top 10 đầu số về nhiều:</Text>
@@ -135,7 +137,7 @@ function DauDuoiTab({ kenoData, selectedNumber, onSelect }: { kenoData: any; sel
   );
 }
 
-function ChanLeTab({ kenoData }: { kenoData: any }) {
+function ChanLeTab({ kenoData, selectedNumber, onSelect, refreshControl }: { kenoData: any; selectedNumber: string | null; onSelect: (n: string) => void; refreshControl?: React.ReactElement }) {
   const { columns, kyRa, buoc, chuaVe } = kenoData.chanLe;
   const rows = [
     { label: 'Kỳ ra', values: kyRa },
@@ -144,7 +146,7 @@ function ChanLeTab({ kenoData }: { kenoData: any }) {
   ];
 
   return (
-    <ScrollView style={{ flex: 1 }}>
+    <ScrollView style={{ flex: 1 }} refreshControl={refreshControl}>
       <View style={styles.chanLeWrapper}>
         <View style={styles.chanLeTable}>
           {/* Header row */}
@@ -180,7 +182,7 @@ function ChanLeTab({ kenoData }: { kenoData: any }) {
 }
 
 // Power 6/55 và Mega 6/45: hiển thị top balls + progress bar
-function VietlottStatTab({ data, color }: { data: any; color: string }) {
+function VietlottStatTab({ data, color, selectedNumber, onSelect, refreshControl }: { data: any; color: string; selectedNumber: string | null; onSelect: (n: string) => void; refreshControl?: React.ReactElement }) {
   // Using dummy date strings for UI consistency, real app would use a DatePicker
   const [sortOption, setSortOption] = useState('Xuất hiện giảm dần');
   const [showSortPicker, setShowSortPicker] = useState(false);
@@ -203,7 +205,7 @@ function VietlottStatTab({ data, color }: { data: any; color: string }) {
   }, [data.boSo, sortOption]);
 
   return (
-    <ScrollView style={{ flex: 1 }}>
+    <ScrollView style={{ flex: 1 }} refreshControl={refreshControl}>
       {/* Sort Dropdown */}
       <View style={styles.sortContainer}>
         <TouchableOpacity style={styles.sortButton} onPress={() => setShowSortPicker(true)}>
@@ -245,7 +247,7 @@ function VietlottStatTab({ data, color }: { data: any; color: string }) {
       </View>
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Thống kê theo bộ số</Text>
-        {data.boSo.map((item: StatItem, i: number) => (
+        {sortedBoSo.map((item: StatItem, i: number) => (
           <View key={i} style={styles.barRow}>
             <View style={[styles.ballSmall, { backgroundColor: color }]}>
               <Text style={styles.ballSmallText}>{item.number}</Text>
@@ -263,32 +265,6 @@ function VietlottStatTab({ data, color }: { data: any; color: string }) {
         ))}
       </View>
       <View style={{ height: 20 }} />
-
-      {/* Sort Picker Modal */}
-      <Modal visible={showSortPicker} transparent animationType="fade">
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          onPress={() => setShowSortPicker(false)}
-          activeOpacity={1}
-        >
-          <View style={styles.modalBox}>
-            {SORT_OPTIONS.map((opt) => (
-              <TouchableOpacity
-                key={opt}
-                style={styles.modalOption}
-                onPress={() => {
-                  setSortOption(opt);
-                  setShowSortPicker(false);
-                }}
-              >
-                <Text style={[styles.modalOptionText, opt === sortOption && styles.modalOptionActive]}>
-                  {opt}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </TouchableOpacity>
-      </Modal>
     </ScrollView>
   );
 }
@@ -328,9 +304,11 @@ export default function StatsKenoScreen() {
 
   const [statsData, setStatsData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const fetchStats = async () => {
-    setLoading(true);
+  const fetchStats = async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true);
+    else setLoading(true);
     try {
       let limit = '10';
       if (selectedKy.includes('20')) limit = '20';
@@ -348,12 +326,23 @@ export default function StatsKenoScreen() {
       console.log('Error fetching stats', err);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  React.useEffect(() => {
-    fetchStats();
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchStats();
+    }, [gameTab, selectedKy])
+  );
+
+  const onRefresh = React.useCallback(() => {
+    fetchStats(true);
   }, [gameTab, selectedKy]);
+
+  const renderRefreshControl = () => (
+    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+  );
 
   const gameTabs: { id: GameTab; label: string }[] = [
     { id: 'keno', label: 'Keno' },
@@ -395,58 +384,45 @@ export default function StatsKenoScreen() {
         ))}
       </View>
 
-      {/* Keno Sub-tabs & content */}
+      {/* Keno Sub-tabs */}
       {gameTab === 'keno' && (
-        <>
-          {/* Sub-tab bar */}
-          <View style={styles.subTabBar}>
-            {kenoSubTabs.map((tab) => (
-              <TouchableOpacity
-                key={tab.id}
-                style={[styles.subTab, kenoSubTab === tab.id && styles.subTabActive]}
-                onPress={() => setKenoSubTab(tab.id)}
-              >
-                <Text style={[styles.subTabText, kenoSubTab === tab.id && styles.subTabTextActive]}>
-                  {tab.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {/* Ky picker and content moved below */}
-        </>
+        <View style={styles.subTabBar}>
+          {kenoSubTabs.map((tab) => (
+            <TouchableOpacity
+              key={tab.id}
+              style={[styles.subTab, kenoSubTab === tab.id && styles.subTabActive]}
+              onPress={() => setKenoSubTab(tab.id)}
+            >
+              <Text style={[styles.subTabText, kenoSubTab === tab.id && styles.subTabTextActive]}>
+                {tab.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       )}
 
-      {/* Content based on selected game */}
+      {/* Content Area */}
       <KyPicker selected={selectedKy} onPress={() => setShowKyPicker(true)} />
-
-      {gameTab === 'keno' && statsData ? (
+      {loading && !refreshing ? (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
+      ) : statsData ? (
         <>
-          {kenoSubTab === 'boSo' && <BoSoTab kenoData={statsData} selectedNumber={selectedNumber} onSelect={setSelectedNumber} />}
-          {kenoSubTab === 'dauDuoi' && <DauDuoiTab kenoData={statsData} selectedNumber={selectedNumber} onSelect={setSelectedNumber} />}
-          {kenoSubTab === 'chanLe' && <ChanLeTab kenoData={statsData} />}
+          {gameTab === 'keno' && kenoSubTab === 'boSo' && <BoSoTab kenoData={statsData} selectedNumber={selectedNumber} onSelect={setSelectedNumber} refreshControl={renderRefreshControl()} />}
+          {gameTab === 'keno' && kenoSubTab === 'dauDuoi' && <DauDuoiTab kenoData={statsData} selectedNumber={selectedNumber} onSelect={setSelectedNumber} refreshControl={renderRefreshControl()} />}
+          {gameTab === 'keno' && kenoSubTab === 'chanLe' && <ChanLeTab kenoData={statsData} selectedNumber={selectedNumber} onSelect={setSelectedNumber} refreshControl={renderRefreshControl()} />}
+          
+          {gameTab === 'power' && <VietlottStatTab data={statsData} color="#E51F27" selectedNumber={selectedNumber} onSelect={setSelectedNumber} refreshControl={renderRefreshControl()} />}
+          {gameTab === 'mega' && <VietlottStatTab data={statsData} color="#1A4B7A" selectedNumber={selectedNumber} onSelect={setSelectedNumber} refreshControl={renderRefreshControl()} />}
         </>
-      ) : gameTab === 'keno' && !statsData ? (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ color: COLORS.gray500 }}>Đang tải dữ liệu...</Text>
-        </View>
-      ) : null}
-
-      {gameTab === 'power' && statsData ? (
-        <VietlottStatTab data={statsData} color="#E51F27" />
-      ) : gameTab === 'power' && !statsData ? (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ color: COLORS.gray500 }}>Đang tải dữ liệu...</Text>
-        </View>
-      ) : null}
-
-      {gameTab === 'mega' && statsData ? (
-        <VietlottStatTab data={statsData} color="#1A4B7A" />
-      ) : gameTab === 'mega' && !statsData ? (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ color: COLORS.gray500 }}>Đang tải dữ liệu...</Text>
-        </View>
-      ) : null}
+      ) : (
+        <ScrollView refreshControl={renderRefreshControl()}>
+          <View style={styles.center}>
+            <Text style={styles.emptyText}>Không có dữ liệu thống kê</Text>
+          </View>
+        </ScrollView>
+      )}
 
       {/* Ky picker modal */}
       <Modal visible={showKyPicker} transparent animationType="fade">

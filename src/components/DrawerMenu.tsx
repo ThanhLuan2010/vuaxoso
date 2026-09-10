@@ -22,7 +22,8 @@ import {
   FileText, 
   LogOut,
   CreditCard,
-  Lock 
+  Lock,
+  History
 } from 'lucide-react-native';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../theme/theme';
 import { useAppStore } from '../store/useAppStore';
@@ -41,7 +42,7 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
   const slideAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
   const [showModal, setShowModal] = React.useState(visible);
 
-  const { user } = useAppStore();
+  const { user, logout } = useAppStore();
 
   const formatVND = (num: number) => {
     return num.toLocaleString('vi-VN') + 'đ';
@@ -77,7 +78,12 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
   };
 
   return (
-    showModal ? (
+    <Modal
+      visible={showModal}
+      transparent
+      animationType="none"
+      onRequestClose={onClose}
+    >
       <View style={styles.modalOverlayWrapper}>
         <View style={styles.overlay}>
           <TouchableWithoutFeedback onPress={onClose}>
@@ -136,6 +142,13 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
               <Text style={styles.chevron}>›</Text>
             </TouchableOpacity>
 
+            <TouchableOpacity style={styles.menuItem} onPress={() => handleNavigate('TransactionHistory')}>
+              <History size={24} color="#FF9500" />
+              <Text style={styles.menuText}>Lịch sử giao dịch</Text>
+              <View style={styles.flex1} />
+              <Text style={styles.chevron}>›</Text>
+            </TouchableOpacity>
+
             <TouchableOpacity style={styles.menuItem} onPress={() => handleNavigate('PaymentMethods')}>
               <CreditCard size={24} color="#E51F27" />
               <Text style={styles.menuText}>Phương thức thanh toán</Text>
@@ -150,7 +163,7 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
               <Text style={styles.chevron}>›</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => handleNavigate('Terms')}>
               <FileText size={24} color="#0A3B7C" />
               <Text style={styles.menuText}>Điều khoản và chính sách</Text>
               <View style={styles.flex1} />
@@ -159,16 +172,22 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
           </View>
 
           <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-            <TouchableOpacity style={styles.logoutBtn}>
+            <TouchableOpacity 
+              style={styles.logoutBtn} 
+              onPress={() => {
+                logout();
+                onClose();
+              }}
+            >
               <LogOut size={24} color="#0A3B7C" />
               <Text style={styles.logoutText}>Đăng xuất</Text>
             </TouchableOpacity>
             <Text style={styles.versionText}>Build version SCR-1.1.28</Text>
           </View>
         </Animated.View>
+        </View>
       </View>
-    </View>
-    ) : null
+    </Modal>
   );
 }
 

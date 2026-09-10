@@ -1,7 +1,8 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { useAppStore } from '../store/useAppStore';
 import { COLORS, TYPOGRAPHY, SHADOWS } from '../theme/theme';
 
@@ -20,6 +21,7 @@ import DepositBinanceScreen from '../screens/Wallet/DepositBinanceScreen';
 import NotificationsScreen from '../screens/Notifications/NotificationsScreen';
 import CartScreen from '../screens/Cart/CartScreen';
 import GameLayoutAScreen from '../screens/Game/GameLayoutAScreen';
+import GameLayoutBingo18Screen from '../screens/Game/GameLayoutBingo18Screen';
 import GameLayoutLodeScreen from '../screens/Game/GameLayoutLodeScreen';
 import GameLayoutBScreen from '../screens/Game/GameLayoutBScreen';
 import GameLayoutCScreen from '../screens/Game/GameLayoutCScreen';
@@ -32,8 +34,11 @@ import GamePaymentScreen from '../screens/Game/GamePaymentScreen';
 import AccountInfoScreen from '../screens/Account/AccountInfoScreen';
 import PaymentMethodsScreen from '../screens/Account/PaymentMethodsScreen';
 import WithdrawPasswordScreen from '../screens/Account/WithdrawPasswordScreen';
+import ChangePasswordScreen from '../screens/Account/ChangePasswordScreen';
+import TermsScreen from '../screens/Account/TermsScreen';
 import TransactionHistoryScreen from '../screens/Wallet/TransactionHistoryScreen';
 import GuideScreen from '../screens/Guide/GuideScreen';
+import GuideDetailScreen from '../screens/Guide/GuideDetailScreen';
 import LoginScreen from '../screens/Auth/LoginScreen';
 
 import { RootStackParamList, TabParamList } from './types';
@@ -145,13 +150,21 @@ function TabNavigator() {
 }
 
 export default function AppNavigator() {
-  const { token, fetchProfile } = useAppStore();
+  const { token, fetchProfile, forcePasswordChange, setForcePasswordChange } = useAppStore();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   React.useEffect(() => {
     if (token) {
       fetchProfile();
     }
   }, [token]);
+
+  React.useEffect(() => {
+    if (forcePasswordChange && token) {
+      setForcePasswordChange(false);
+      navigation.navigate('ChangePassword');
+    }
+  }, [forcePasswordChange, token]);
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -166,6 +179,7 @@ export default function AppNavigator() {
           <Stack.Screen name="VietlottDetail" component={VietlottDetailScreen} options={{ presentation: 'card' }} />
           <Stack.Screen name="HistoryDetail" component={HistoryDetailScreen} options={{ presentation: 'card' }} />
           <Stack.Screen name="GameLayoutA" component={GameLayoutAScreen} options={{ presentation: 'card' }} />
+          <Stack.Screen name="GameLayoutBingo18" component={GameLayoutBingo18Screen} options={{ presentation: 'card' }} />
           <Stack.Screen name="GameLayoutLode" component={GameLayoutLodeScreen} options={{ presentation: 'card' }} />
           <Stack.Screen name="GameLayoutB" component={GameLayoutBScreen} options={{ presentation: 'card' }} />
           <Stack.Screen name="GameLayoutC" component={GameLayoutCScreen} options={{ presentation: 'card' }} />
@@ -194,7 +208,10 @@ export default function AppNavigator() {
           <Stack.Screen name="AccountInfo" component={AccountInfoScreen} options={{ presentation: 'card' }} />
           <Stack.Screen name="PaymentMethods" component={PaymentMethodsScreen} options={{ presentation: 'card' }} />
           <Stack.Screen name="WithdrawPassword" component={WithdrawPasswordScreen} options={{ presentation: 'card' }} />
+          <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ presentation: 'card' }} />
+          <Stack.Screen name="Terms" component={TermsScreen} options={{ presentation: 'card' }} />
           <Stack.Screen name="Guide" component={GuideScreen} options={{ presentation: 'card' }} />
+          <Stack.Screen name="GuideDetail" component={GuideDetailScreen} options={{ presentation: 'card' }} />
         </>
       ) : (
         <Stack.Screen name="Login" component={LoginScreen} />

@@ -73,6 +73,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   };
 
   // General Game configurations
+  const isLottoGame = gameId === 'lotto_535' || gameId === 'lotto_570';
   let gameName = '';
   let maxNumber = 45;
   let requiredSelectCount = 6;
@@ -97,6 +98,12 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
     requiredSelectCount = 5;
     initialJackpot = '2.500.000.000 đ';
     initialCountdown = 12500;
+  } else if (gameId === 'lotto_570') {
+    gameName = 'LOTTO 5/70';
+    maxNumber = 70;
+    requiredSelectCount = 5;
+    initialJackpot = '10.000.000.000 đ';
+    initialCountdown = 12500;
   } else if (gameId === 'keno' || gameId === 'bao_keno') {
     gameName = 'KENO';
     maxNumber = 80;
@@ -108,6 +115,12 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
     maxNumber = 9;
     requiredSelectCount = 3;
     initialJackpot = '1.000.000.000 đ';
+    initialCountdown = 8000;
+  } else if (gameId === 'max_4d') {
+    gameName = 'MAX4D';
+    maxNumber = 9;
+    requiredSelectCount = 4;
+    initialJackpot = '15.000.000 đ';
     initialCountdown = 8000;
   } else if (gameId === 'loto_235') {
     gameName = 'XỔ SỐ THỦ ĐÔ';
@@ -140,7 +153,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
   // Standard Matrix Game Redesign States
   const [standardPlayType, setStandardPlayType] = useState<string>(
-    gameId === 'max_3d' ? 'Max3D' : 'Cơ bản'
+    gameId === 'max_3d' ? 'Max3D' : gameId === 'max_4d' ? 'Max4D' : 'Cơ bản'
   );
   const [isBaoDropdownOpen, setIsBaoDropdownOpen] = useState(false);
   const [activeBoardIndex, setActiveBoardIndex] = useState<number | null>(null);
@@ -221,7 +234,9 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
     }
     if (type === 'Max3D') return 3;
     if (type === 'Max3D+' || type === 'Max3D Pro') return 6;
-    if (type === 'Cơ bản') return gameId === 'lotto_535' ? 5 : 6;
+    if (type === 'Max4D') return 4;
+    if (type === 'Cơ bản') return isLottoGame ? 5 : 6;
+    if (type === 'Bao 4') return 4;
     if (type === 'Bao 5') return 5;
     if (type === 'Bao 7') return 7;
     if (type === 'Bao 8') return 8;
@@ -253,13 +268,13 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
       handleLoto235AutoPickBoard(index);
       return;
     }
-    if (gameId === 'lotto_535') {
+    if (isLottoGame) {
       handleLottoAutoPickBoard(index);
       return;
     }
     const reqCount = getRequiredNumbersCount(standardPlayType);
     const chosen: string[] = [];
-    if (gameId === 'max_3d') {
+    if (gameId === 'max_3d' || gameId === 'max_4d') {
       for (let i = 0; i < reqCount; i++) {
         chosen.push(Math.floor(Math.random() * 10).toString());
       }
@@ -299,7 +314,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
       handleLoto235ClearBoard(index);
       return;
     }
-    if (gameId === 'lotto_535') {
+    if (isLottoGame) {
       handleLottoClearBoard(index);
       return;
     }
@@ -329,7 +344,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
       handleLoto235ChọnNhanh();
       return;
     }
-    if (gameId === 'lotto_535') {
+    if (isLottoGame) {
       handleLottoChọnNhanh();
       return;
     }
@@ -337,7 +352,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
     const updated = standardBoards.map((board) => {
       if (board.numbers.length === 0 && !board.isTC) {
         const chosen: string[] = [];
-        if (gameId === 'max_3d') {
+        if (gameId === 'max_3d' || gameId === 'max_4d') {
           for (let i = 0; i < reqCount; i++) {
             chosen.push(Math.floor(Math.random() * 10).toString());
           }
@@ -363,7 +378,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   };
 
   const handleTCAll = () => {
-    if (gameId === 'lotto_535') {
+    if (isLottoGame) {
       handleLottoTCAll();
       return;
     }
@@ -452,7 +467,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
       if (type === 'Bao 14') return 30030000;
       if (type === 'Bao 15') return 50050000;
       if (type === 'Bao 18') return 185640000;
-    } else if (gameId === 'lotto_535') {
+    } else if (isLottoGame) {
       if (type === 'Cơ bản' || type === 'Bao 5') return 10000;
       const req = getRequiredNumbersCount(type);
       const c = (n: number, k: number) => {
@@ -470,7 +485,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   };
 
   const getStandardTotalCost = () => {
-    if (gameId === 'max_3d') {
+    if (gameId === 'max_3d' || gameId === 'max_4d') {
       return standardBoards
         .filter((b) => b.numbers.length > 0 || b.isTC)
         .reduce((sum, b) => sum + (b.multiplier || 10000), 0);
@@ -480,20 +495,23 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
   const handleOpenStandardBoardModal = (index: number) => {
     setActiveBoardIndex(index);
-    const board = standardBoards[index];
+    const boardToEdit = standardBoards[index];
 
-    if (gameId === 'max_3d' || gameId === 'loto_235') {
-      const reqCount = gameId === 'loto_235' ? getLoto235RequiredCount(loto235PlayType) : getRequiredNumbersCount(standardPlayType);
+    if (gameId === 'max_3d' || gameId === 'max_4d' || gameId === 'than_tai_4' || gameId === 'loto_235') {
+      const reqCount = gameId === 'than_tai_4' ? (thanTaiPlayType === 'Thần tài 4' ? 4 : 6) : gameId === 'loto_235' ? getLoto235RequiredCount(loto235PlayType) : getRequiredNumbersCount(standardPlayType);
       const initialSlots = Array(reqCount).fill('');
-      if (board && board.numbers.length === reqCount) {
+      if (boardToEdit && boardToEdit.numbers.length === reqCount) {
         for (let i = 0; i < reqCount; i++) {
-          initialSlots[i] = board.numbers[i];
+          initialSlots[i] = boardToEdit.numbers[i];
         }
       }
       setTempMax3dSlots(initialSlots);
       setActiveSlotIndex(0);
     } else {
-      setTempStandardNumbers(board ? [...board.numbers] : []);
+      setTempStandardNumbers(boardToEdit ? [...boardToEdit.numbers] : []);
+      if (isLottoGame) {
+        setTempLottoSpecialNumbers(boardToEdit && boardToEdit.specialNumbers ? [...boardToEdit.specialNumbers] : []);
+      }
     }
     setIsStandardNumberModalVisible(true);
   };
@@ -553,7 +571,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   };
 
   const handleMax3dDigitPress = (digit: string) => {
-    const reqCount = gameId === 'loto_235' ? getLoto235RequiredCount(loto235PlayType) : getRequiredNumbersCount(standardPlayType);
+    const reqCount = gameId === 'than_tai_4' ? (thanTaiPlayType === 'Thần tài 4' ? 4 : 6) : gameId === 'loto_235' ? getLoto235RequiredCount(loto235PlayType) : getRequiredNumbersCount(standardPlayType);
     const updated = [...tempMax3dSlots];
     updated[activeSlotIndex] = digit;
     setTempMax3dSlots(updated);
@@ -565,13 +583,13 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   };
 
   const handleMax3dClear = () => {
-    const reqCount = gameId === 'loto_235' ? getLoto235RequiredCount(loto235PlayType) : getRequiredNumbersCount(standardPlayType);
+    const reqCount = gameId === 'than_tai_4' ? (thanTaiPlayType === 'Thần tài 4' ? 4 : 6) : gameId === 'loto_235' ? getLoto235RequiredCount(loto235PlayType) : getRequiredNumbersCount(standardPlayType);
     setTempMax3dSlots(Array(reqCount).fill(''));
     setActiveSlotIndex(0);
   };
 
   const handleMax3dRandom = () => {
-    const reqCount = gameId === 'loto_235' ? getLoto235RequiredCount(loto235PlayType) : getRequiredNumbersCount(standardPlayType);
+    const reqCount = gameId === 'than_tai_4' ? (thanTaiPlayType === 'Thần tài 4' ? 4 : 6) : gameId === 'loto_235' ? getLoto235RequiredCount(loto235PlayType) : getRequiredNumbersCount(standardPlayType);
     const randomSlots = Array.from({ length: reqCount }, () =>
       Math.floor(Math.random() * 10).toString()
     );
@@ -580,7 +598,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   };
 
   const handleMax3dConfirm = () => {
-    const reqCount = gameId === 'loto_235' ? getLoto235RequiredCount(loto235PlayType) : getRequiredNumbersCount(standardPlayType);
+    const reqCount = gameId === 'than_tai_4' ? (thanTaiPlayType === 'Thần tài 4' ? 4 : 6) : gameId === 'loto_235' ? getLoto235RequiredCount(loto235PlayType) : getRequiredNumbersCount(standardPlayType);
     if (tempMax3dSlots.some((s) => s === '')) {
       Alert.alert('Thông báo', 'Vui lòng điền đầy đủ các ô số.');
       return;
@@ -614,7 +632,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
       handleLoto235Checkout();
       return;
     }
-    if (gameId === 'lotto_535') {
+    if (isLottoGame) {
       handleLottoCheckout();
       return;
     }
@@ -684,7 +702,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
     const specialChosen: string[] = [];
     while (specialChosen.length < reqSpecial) {
-      const rand = Math.floor(Math.random() * 12) + 1;
+      const rand = Math.floor(Math.random() * (gameId === 'lotto_570' ? 24 : 12)) + 1;
       const randStr = String(rand).padStart(2, '0');
       if (!specialChosen.includes(randStr)) {
         specialChosen.push(randStr);
@@ -720,7 +738,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
       if (!hasContent && !board.isTC) {
         const mainChosen: string[] = [];
         while (mainChosen.length < reqMain) {
-          const rand = Math.floor(Math.random() * 35) + 1;
+          const rand = Math.floor(Math.random() * (gameId === 'lotto_570' ? 70 : 35)) + 1;
           const randStr = String(rand).padStart(2, '0');
           if (!mainChosen.includes(randStr)) {
             mainChosen.push(randStr);
@@ -730,7 +748,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
         const specialChosen: string[] = [];
         while (specialChosen.length < reqSpecial) {
-          const rand = Math.floor(Math.random() * 12) + 1;
+          const rand = Math.floor(Math.random() * (gameId === 'lotto_570' ? 24 : 12)) + 1;
           const randStr = String(rand).padStart(2, '0');
           if (!specialChosen.includes(randStr)) {
             specialChosen.push(randStr);
@@ -770,7 +788,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
     const { main: reqMain, special: reqSpecial } = getLottoRequiredCounts();
     const mainChosen: string[] = [];
     while (mainChosen.length < reqMain) {
-      const rand = Math.floor(Math.random() * 35) + 1;
+      const rand = Math.floor(Math.random() * (gameId === 'lotto_570' ? 70 : 35)) + 1;
       const randStr = String(rand).padStart(2, '0');
       if (!mainChosen.includes(randStr)) {
         mainChosen.push(randStr);
@@ -780,7 +798,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
     const specialChosen: string[] = [];
     while (specialChosen.length < reqSpecial) {
-      const rand = Math.floor(Math.random() * 12) + 1;
+      const rand = Math.floor(Math.random() * (gameId === 'lotto_570' ? 24 : 12)) + 1;
       const randStr = String(rand).padStart(2, '0');
       if (!specialChosen.includes(randStr)) {
         specialChosen.push(randStr);
@@ -820,7 +838,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
       const mainBaoCount = lottoMainBao;
       let costPerBao = 10000;
       if (mainBaoCount === 4) {
-        costPerBao = 310000;
+        costPerBao = gameId === 'lotto_570' ? 660000 : 310000;
       } else {
         const c = (n: number, k: number) => {
           let r = 1;
@@ -1210,16 +1228,21 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
   const applyLoto235Bao2Filter = (filter: string) => {
     const nums: string[] = [];
-    for (let i = 0; i < 10; i++) {
-      const numStr = String(i);
+    for (let i = 0; i < 100; i++) {
+      const numStr = String(i).padStart(2, '0');
+      const sum = parseInt(numStr[0]) + parseInt(numStr[1]);
       if (filter === 'CHẴN') {
         if (i % 2 === 0) nums.push(numStr);
       } else if (filter === 'LẺ') {
         if (i % 2 !== 0) nums.push(numStr);
       } else if (filter === 'LỚN') {
-        if (i >= 5) nums.push(numStr);
+        if (i >= 50) nums.push(numStr);
       } else if (filter === 'NHỎ') {
-        if (i < 5) nums.push(numStr);
+        if (i < 50) nums.push(numStr);
+      } else if (filter === 'TỔNG CHẴN') {
+        if (sum % 2 === 0) nums.push(numStr);
+      } else if (filter === 'TỔNG LẺ') {
+        if (sum % 2 !== 0) nums.push(numStr);
       }
     }
     setLoto235Bao2Numbers(filter === 'ĐẦU' || filter === 'ĐUÔI' ? [] : nums);
@@ -1287,24 +1310,79 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
       return count * (loto235Bao2Multiplier || 10000);
     }
     const activeBoards = standardBoards.slice(0, 5).filter((b) => b.numbers.length > 0);
-    return activeBoards.reduce((sum, b) => sum + (b.multiplier || 10000), 0);
+    let capNhan = 4;
+    if (loto235PlayType === 'Lô tô 5 số') capNhan = 27;
+    return activeBoards.reduce((sum, b) => sum + (b.multiplier || 10000) * capNhan, 0);
   };
 
   const getEstimatedWinInfo = () => {
     let multiplier = 0;
     if (isLoto235) {
-       if (loto235PlayType === 'Lô tô 2 số' || loto235PlayType === 'Bao 2 số') multiplier = 60;
-       else if (loto235PlayType === 'Lô tô 3 số') multiplier = 400;
-       else if (loto235PlayType === 'Lô tô 4 số') multiplier = 1500;
-       else if (loto235PlayType === 'Lô tô 5 số') multiplier = 20000;
+       if (loto235PlayType === 'Lô tô 2 số' || loto235PlayType === 'Bao 2 số') multiplier = 90;
+       else if (loto235PlayType === 'Lô tô 3 số') multiplier = 900;
+       else if (loto235PlayType === 'Lô tô 5 số') multiplier = 8000;
+    } else if (isLotoCap) {
+       if (lotoCapPlayType === 'Lô tô 2 cặp') multiplier = 15;
+       else if (lotoCapPlayType === 'Lô tô 3 cặp') multiplier = 65;
+       else if (lotoCapPlayType === 'Lô tô 4 cặp') multiplier = 170;
     }
     
+    if (isDientoan636) {
+      const activeBoards = standardBoards.slice(0, 5).filter((b) => b.numbers.length > 0);
+      let totalCost = getDientoan636TotalCost();
+      if (totalCost === 0) return null;
+      // Trúng 6 số (100,000 * multiplier)
+      let estimatedWin = 500000000;
+      if (dientoan636PlayType !== 'Cơ bản') {
+         // Tính the win potential for Bao based on hitting all 6 numbers.
+         // If a player hits 6 numbers with Bao, their prize is complex, but usually max is displayed.
+         // In standard ticket, base win is 500M. The UI image shows Max win for Bao is also 500,000,000.
+         estimatedWin = 500000000;
+      }
+      return { multiplier: 100000, totalCost, estimatedWin };
+    }
+    
+    if (isThanTai4) {
+      const activeBoards = standardBoards.slice(0, 5).filter((b) => b.numbers.length > 0);
+      let totalCost = activeBoards.reduce((sum, b) => sum + (b.multiplier || 10000), 0);
+      if (totalCost === 0) return null;
+      let estimatedWin = 0;
+      if (thanTaiPlayType === 'Thần tài 4') {
+         const baseCostSum = activeBoards.reduce((sum, b) => sum + (b.multiplier || 10000), 0);
+         // Max prize is x10,000 for winning exact 4 digits
+         estimatedWin = baseCostSum * 10000;
+      } else if (thanTaiPlayType === 'Điện toán 1-2-3') {
+         const baseCostSum = activeBoards.reduce((sum, b) => sum + (b.multiplier || 10000), 0);
+         // Max prize is x1000 + x75 + x5 = x1080 (if all 3 parts win max)
+         estimatedWin = baseCostSum * 1080;
+      }
+      return { multiplier: 1, totalCost, estimatedWin };
+    }
+
     if (!multiplier) return null;
     
-    const totalCost = isLoto235 ? getLoto235TotalCost() : getStandardTotalCost();
+    // For normal loto235, the estimated win is the base ticket price (e.g. 10000) * multiplier
+    // not the total cost (which includes capNhan). So we extract the base cost.
+    let estimatedWin = 0;
+    let totalCost = 0;
+    if (isLoto235) {
+      if (loto235PlayType === 'Bao 2 số') {
+        const count = loto235Bao2Numbers.length * (loto235Bao2Filter === 'ĐẦU' || loto235Bao2Filter === 'ĐUÔI' ? 10 : 1);
+        totalCost = count * (loto235Bao2Multiplier || 10000);
+        estimatedWin = (loto235Bao2Multiplier || 10000) * multiplier * count; // each hit wins multiplier * base
+      } else {
+        const activeBoards = standardBoards.slice(0, 5).filter((b) => b.numbers.length > 0);
+        totalCost = getLoto235TotalCost();
+        // Assume maximum potential win (hitting all positions is unlikely, but UI shows multiplier * base cost)
+        const baseCostSum = activeBoards.reduce((sum, b) => sum + (b.multiplier || 10000), 0);
+        estimatedWin = baseCostSum * multiplier;
+      }
+    } else {
+       totalCost = getStandardTotalCost();
+       estimatedWin = totalCost * multiplier;
+    }
     if (totalCost === 0) return null;
-    
-    return { multiplier, totalCost, estimatedWin: totalCost * multiplier };
+    return { multiplier, totalCost, estimatedWin };
   };
 
   const handleLoto235Checkout = () => {
@@ -1404,7 +1482,8 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
             const secs = String(closeTime.getSeconds()).padStart(2, '0');
             
             return {
-              id: d.drawCode,
+              id: d._id,
+              drawCode: d.drawCode,
               label: `${d.drawCode} - ${day}/${month}/${year} ${hrs}:${mins}:${secs}`,
               timeStr: `${hrs}:${mins}:${secs}`,
               dateStr: `${day}/${month}`
@@ -1756,6 +1835,18 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   const activeKenoBoardsCount = kenoBoards.filter((b) => b.numbers.length === kenoBac).length;
   const totalCost = activeKenoBoardsCount * 10000 * (selectedDraws.length || 1);
 
+  const handleAddKenoBoard = () => {
+    if (kenoBoards.length >= 10) {
+      Alert.alert('Thông báo', 'Tối đa 10 dãy số.');
+      return;
+    }
+    const nextId = String.fromCharCode(65 + kenoBoards.length);
+    setKenoBoards([
+      ...kenoBoards,
+      { id: nextId, numbers: [] }
+    ]);
+  };
+
   if (gameId === 'keno') {
     return (
       <View style={styles.container}>
@@ -1813,7 +1904,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
             <View style={styles.drawInfoBarContainer}>
               <TouchableOpacity style={styles.drawBox} onPress={handleOpenDrawPicker}>
                 <Text style={styles.drawLabel}>Kỳ quay:</Text>
-                <Text style={styles.drawCycleRed}>{(drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.id || 'Đang tải...'} - {(drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.timeStr || ''}</Text>
+                <Text style={styles.drawCycleRed}>{(drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.drawCode || 'Đang tải...'} - {(drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.timeStr || ''}</Text>
                 <Text style={styles.drawTime}>
                   {selectedDraws.length > 1 ? `+${selectedDraws.length - 1} kỳ` : `${formatTime(countdown)} ▼`}
                 </Text>
@@ -1897,7 +1988,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                   <Text style={styles.pillActionBtnText}>TC</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.pillActionBtn}>
+                <TouchableOpacity style={styles.pillActionBtn} onPress={handleAddKenoBoard}>
                   <Plus size={14} color="#FF6F00" />
                   <Text style={[styles.pillActionBtnText, { color: '#FF6F00' }]}>Thêm dãy số</Text>
                 </TouchableOpacity>
@@ -1940,7 +2031,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
             <View style={styles.drawInfoBarContainer}>
               <TouchableOpacity style={styles.drawBox} onPress={handleOpenDrawPicker}>
                 <Text style={styles.drawLabel}>Kỳ quay:</Text>
-                <Text style={styles.drawCycleRed}>{(drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.id || 'Đang tải...'} - {(drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.timeStr || ''}</Text>
+                <Text style={styles.drawCycleRed}>{(drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.drawCode || 'Đang tải...'} - {(drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.timeStr || ''}</Text>
                 <Text style={styles.drawTime}>
                   {selectedDraws.length > 1 ? `+${selectedDraws.length - 1} kỳ` : `${formatTime(countdown)} ▼`}
                 </Text>
@@ -2052,7 +2143,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
             <View style={styles.drawInfoBarContainer}>
               <TouchableOpacity style={styles.drawBox} onPress={handleOpenDrawPicker}>
                 <Text style={styles.drawLabel}>Kỳ quay:</Text>
-                <Text style={styles.drawCycleRed}>{(drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.id || 'Đang tải...'} - {(drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.timeStr || ''}</Text>
+                <Text style={styles.drawCycleRed}>{(drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.drawCode || 'Đang tải...'} - {(drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.timeStr || ''}</Text>
                 <Text style={styles.drawTime}>
                   {selectedDraws.length > 1 ? `+${selectedDraws.length - 1} kỳ` : `${formatTime(countdown)} ▼`}
                 </Text>
@@ -2571,20 +2662,21 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   const isPower = gameId === 'power_655';
   const isMega = gameId === 'mega_645';
   const isMax3d = gameId === 'max_3d';
-  const isLotto535 = gameId === 'lotto_535';
+  const isMax4d = gameId === 'max_4d';
+
   const isLoto235 = gameId === 'loto_235';
-  const isDigitPicker = isMax3d;
+  const isThanTai4 = gameId === 'than_tai_4';
+  const isDigitPicker = isMax3d || isMax4d || isThanTai4;
   const isLotoCap = gameId === 'loto_cap';
   const isTruotLoto = gameId === 'truot_loto';
   const isDientoan636 = gameId === 'dientoan_636';
-  const isThanTai4 = gameId === 'than_tai_4';
   const activeDraw = standardDrawCycles.length > 0 ? standardDrawCycles[selectedDrawIndex] : null;
 
   // Dynamic color branding
-  const activeColor = isMax3d ? '#E0115F' : isLotto535 ? '#E51F27' : '#C77A1E';
+  const activeColor = (isMax3d || isMax4d) ? '#E0115F' : isLottoGame ? '#E51F27' : '#C77A1E';
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top, height: 56 + insets.top }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
@@ -2766,7 +2858,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
               );
             })}
           </View>
-        ) : isLotto535 ? (
+        ) : isLottoGame ? (
           <View style={{ flexDirection: 'row', borderBottomWidth: 1.5, borderBottomColor: '#EBF0F3', width: '100%' }}>
             {['Cơ bản', 'Bao số chính', 'Bao số đặc biệt'].map((type) => {
               const isActive = lottoPlayType === type;
@@ -2822,7 +2914,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
               );
             })}
           </View>
-        ) : (
+        ) : !isMax4d ? (
           <ScrollView 
             horizontal 
             showsHorizontalScrollIndicator={false}
@@ -2858,10 +2950,10 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
               </Text>
             </TouchableOpacity>
           </ScrollView>
-        )}
+        ) : null}
 
         {/* Dropdown Menu for Bao 13, 14, 15, 18 */}
-        {!isMax3d && !isLotto535 && isBaoDropdownOpen && (
+        {!isMax3d && !isMax4d && !isLottoGame && isBaoDropdownOpen && (
           <View style={styles.dropdownMenu}>
             {['Bao 13', 'Bao 14', 'Bao 15', 'Bao 18'].map((type) => (
               <TouchableOpacity
@@ -2877,7 +2969,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
       </View>
 
       {/* Lotto 535 Sub Bao Tabs */}
-      {isLotto535 && lottoPlayType !== 'Cơ bản' && (
+      {isLottoGame && lottoPlayType !== 'Cơ bản' && (
         <View style={styles.lottoSubBaoWrapper}>
           {lottoPlayType === 'Bao số chính' ? (
             <View style={styles.lottoSubBaoContainer}>
@@ -3075,6 +3167,22 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                   onPress={() => setLoto235Bao2Filter('NHỎ')}
                 >
                   <Text style={[styles.bao2FilterBtnText, loto235Bao2Filter === 'NHỎ' && styles.bao2FilterBtnTextActive]}>NHỎ</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Row 3 */}
+              <View style={styles.bao2FilterRow}>
+                <TouchableOpacity
+                  style={[styles.bao2FilterBtn, loto235Bao2Filter === 'TỔNG CHẴN' && styles.bao2FilterBtnActive]}
+                  onPress={() => setLoto235Bao2Filter('TỔNG CHẴN')}
+                >
+                  <Text style={[styles.bao2FilterBtnText, loto235Bao2Filter === 'TỔNG CHẴN' && styles.bao2FilterBtnTextActive]}>T.CHẴN</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.bao2FilterBtn, loto235Bao2Filter === 'TỔNG LẺ' && styles.bao2FilterBtnActive]}
+                  onPress={() => setLoto235Bao2Filter('TỔNG LẺ')}
+                >
+                  <Text style={[styles.bao2FilterBtnText, loto235Bao2Filter === 'TỔNG LẺ' && styles.bao2FilterBtnTextActive]}>T.LẺ</Text>
                 </TouchableOpacity>
               </View>
 
@@ -3350,19 +3458,19 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
               }
             };
 
-            const isSplitLayout = isMax3d && (standardPlayType === 'Max3D+' || standardPlayType === 'Max3D Pro');
+            const isSplitLayout = (isMax3d || isMax4d) && (standardPlayType === 'Max3D+' || standardPlayType === 'Max3D Pro');
 
             return (
               <View key={board.id} style={styles.standardBoardRow}>
                 {/* Left Label (A, B, C...) */}
-                <Text style={[styles.standardBoardLetter, (isMax3d || isLotto535 || isLoto235 || isLotoCap || isDientoan636 || isThanTai4) && { color: '#0F2942' }]}>{board.id}</Text>
+                <Text style={[styles.standardBoardLetter, (isMax3d || isMax4d || isLottoGame || isLoto235 || isLotoCap || isDientoan636 || isThanTai4) && { color: '#0F2942' }]}>{board.id}</Text>
 
                 {/* Center Circles grid */}
                 <TouchableOpacity 
                   style={styles.standardCirclesGrid}
                   onPress={() => handleOpenStandardBoardModal(index)}
                 >
-                  {isLotto535 ? (
+                  {isLottoGame ? (
                     renderLottoCircles()
                   ) : isLoto235 ? (
                     renderLoto235Circles()
@@ -3398,7 +3506,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                 <View style={styles.standardRowControls}>
                   {hasContent ? (
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                      {(isMax3d || isLoto235 || isLotoCap) && (
+                      {(isMax3d || isMax4d || isLoto235 || isLotoCap) && (
                         <TouchableOpacity 
                           style={styles.max3dPill}
                           onPress={() => {
@@ -3424,7 +3532,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                     </View>
                   ) : (
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                      {(isMax3d || isLoto235 || isLotoCap) && (
+                      {(isMax3d || isMax4d || isLoto235 || isLotoCap) && (
                         <TouchableOpacity 
                           style={styles.max3dPill}
                           onPress={() => {
@@ -3478,7 +3586,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
             </TouchableOpacity>
 
             {/* Omit TC button for Max3D Pro and Lotto 535 */}
-            {!isLotto535 && standardPlayType !== 'Max3D Pro' && (
+            {!isLottoGame && standardPlayType !== 'Max3D Pro' && (
               <TouchableOpacity style={styles.standardPillBtn} onPress={handleTCAll}>
                 <RotateCw size={14} color="#0084FA" />
                 <Text style={styles.standardPillBtnText}>TC</Text>
@@ -3495,7 +3603,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
         <View style={styles.standardTotalRow}>
           <Text style={styles.standardTotalLabel}>Tạm tính:</Text>
           <Text style={styles.standardTotalVal}>
-            {(isDientoan636 ? getDientoan636TotalCost() : (isLotoCap || isTruotLoto) ? getLotoCapTotalCost() : isLoto235 ? getLoto235TotalCost() : isLotto535 ? getLottoTotalCost() : getStandardTotalCost()).toLocaleString('vi-VN')} VNĐ
+            {(isDientoan636 ? getDientoan636TotalCost() : (isLotoCap || isTruotLoto) ? getLotoCapTotalCost() : isLoto235 ? getLoto235TotalCost() : isLottoGame ? getLottoTotalCost() : getStandardTotalCost()).toLocaleString('vi-VN')} VNĐ
           </Text>
         </View>
 
@@ -3518,7 +3626,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
         <View style={[styles.modalOverlay, { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }]}>
           <View style={styles.modalContent}>
             {/* Modal Header */}
-            <View style={[styles.modalHeader, (isMax3d || isLotto535) && { backgroundColor: isLotto535 ? '#0056B3' : '#E0115F' }]}>
+            <View style={[styles.modalHeader, (isMax3d || isMax4d || isLottoGame) && { backgroundColor: isLottoGame ? '#0056B3' : '#E0115F' }]}>
               <Text style={styles.modalTitle}>
                 Dãy {activeBoardIndex !== null ? standardBoards[activeBoardIndex]?.id : ''}
               </Text>
@@ -3528,12 +3636,12 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
             </View>
 
             <View style={[styles.modalInnerBody, { paddingBottom: Math.max(16, insets.bottom + 16) }]}>
-              {isLotto535 ? (
+              {isLottoGame ? (
                 // Lotto 535 Grid Selector: Main (1-35) + Special (1-12)
                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
                   {/* Main Grid */}
                   <View style={styles.modalGrid}>
-                    {Array.from({ length: 35 }, (_, i) => i + 1).map((val) => {
+                    {Array.from({ length: maxNumber }, (_, i) => i + 1).map((val) => {
                       const numStr = String(val).padStart(2, '0');
                       const isSelected = tempStandardNumbers.includes(numStr);
                       return (
@@ -3576,7 +3684,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
                   {/* Special Grid */}
                   <View style={styles.modalGrid}>
-                    {Array.from({ length: 12 }, (_, i) => i + 1).map((val) => {
+                    {Array.from({ length: gameId === 'lotto_570' ? 24 : 12 }, (_, i) => i + 1).map((val) => {
                       const numStr = String(val).padStart(2, '0');
                       const isSelected = tempLottoSpecialNumbers.includes(numStr);
                       return (
@@ -3682,7 +3790,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                   <TouchableOpacity 
                     style={styles.modalActionBtnClear} 
                     onPress={
-                      isLotto535 
+                      isLottoGame 
                         ? () => { setTempStandardNumbers([]); setTempLottoSpecialNumbers([]); }
                         : isDigitPicker 
                           ? handleMax3dClear 
@@ -3695,7 +3803,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                   <TouchableOpacity 
                     style={styles.modalActionBtnRandom} 
                     onPress={
-                      isLotto535 
+                      isLottoGame 
                         ? handleLottoModalRandom 
                         : isDigitPicker 
                           ? handleMax3dRandom 
@@ -3709,14 +3817,14 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                 <TouchableOpacity 
                   style={[
                     styles.modalBtnContinue,
-                    isLotto535
+                    isLottoGame
                       ? ((tempStandardNumbers.length !== getLottoRequiredCounts().main || tempLottoSpecialNumbers.length !== getLottoRequiredCounts().special) && styles.modalBtnContinueDisabled)
                       : isDigitPicker 
                         ? (tempMax3dSlots.some((s) => s === '') && styles.modalBtnContinueDisabled)
                         : (tempStandardNumbers.length !== getRequiredNumbersCount(standardPlayType) && styles.modalBtnContinueDisabled)
                   ]} 
                   onPress={
-                    isLotto535 
+                    isLottoGame 
                       ? handleLottoModalConfirm 
                       : isDigitPicker 
                         ? handleMax3dConfirm 
@@ -3837,7 +3945,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
           </View>
         </View>
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 

@@ -10,8 +10,9 @@ import {
   TextInput,
   ActivityIndicator,
   TouchableWithoutFeedback,
+  RefreshControl,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, ChevronDown, Calendar, Search } from 'lucide-react-native';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
@@ -106,26 +107,40 @@ export default function StatsDienToanScreen() {
 
   const [statsData, setStatsData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      setLoading(true);
-      try {
-        let limit = '10';
-        const match = selectedKy.match(/\d+/);
-        if (match) limit = match[0];
-        if (selectedKy.includes('Tất cả')) limit = 'all';
+  const fetchStats = async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true);
+    else setLoading(true);
+    try {
+      let limit = '10';
+      const match = selectedKy.match(/\d+/);
+      if (match) limit = match[0];
+      if (selectedKy.includes('Tất cả')) limit = 'all';
 
-        const res = await api.get(`/draws/stats?type=dientoan&tab=${mainTab}&limit=${limit}`);
-        setStatsData(res.data);
-      } catch (err) {
-        console.log('Error fetching stats for dientoan', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStats();
+      const res = await api.get(`/draws/stats?type=dientoan&tab=${mainTab}&limit=${limit}`);
+      setStatsData(res.data);
+    } catch (err) {
+      console.log('Error fetching stats for dientoan', err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchStats();
+    }, [mainTab, selectedKy])
+  );
+
+  const onRefresh = React.useCallback(() => {
+    fetchStats(true);
   }, [mainTab, selectedKy]);
+
+  const renderRefreshControl = () => (
+    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+  );
 
   const mainTabs: { id: MainTab; label: string }[] = [
     { id: '235', label: '2,3,4,5 Số' },
@@ -184,7 +199,7 @@ export default function StatsDienToanScreen() {
 
       {/* Tab: 2, 3, 5 Số */}
       {mainTab === '235' && (
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }}>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }} refreshControl={renderRefreshControl()}>
           {/* Sub-tab segmented control */}
           <View style={styles.subTabBarSegmented}>
             {subTabs.map((tab) => (
@@ -228,7 +243,7 @@ export default function StatsDienToanScreen() {
 
       {/* Tab: Cặp số */}
       {mainTab === 'capSo' && (
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }}>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }} refreshControl={renderRefreshControl()}>
           <KyPicker selected={selectedKy} onPress={() => setShowKyPicker(true)} />
           
           {/* Search bar */}
@@ -277,7 +292,7 @@ export default function StatsDienToanScreen() {
 
       {/* Tab: DT 6x36 */}
       {mainTab === 'dt6x36' && (
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }}>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }} refreshControl={renderRefreshControl()}>
           <KyPicker selected={selectedKy} onPress={() => setShowKyPicker(true)} />
           
           {loading ? (

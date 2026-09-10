@@ -73,7 +73,9 @@ export default function GameCard({ item, activeDraw, onPress, isHorizontal = fal
   const isPower = item.code === 'power_655';
   const isMega = item.code === 'mega_645';
   const isMax3d = item.code === 'max_3d';
-  const isLotto = item.code === 'lotto_535';
+  const isMax4d = item.code === 'max_4d';
+  const isLotto = item.code === 'lotto_535' || item.code === 'lotto_570';
+  const isLotto570 = item.code === 'lotto_570';
 
   const isLoto235 = item.code === 'loto_235';
   const isLotoCap = item.code === 'loto_cap';
@@ -82,6 +84,7 @@ export default function GameCard({ item, activeDraw, onPress, isHorizontal = fal
   const isThanTai4 = item.code === 'than_tai_4';
   const isBao636 = item.code === 'bao_636';
   const isBaoLoto2 = item.code === 'bao_loto_2';
+  const isBingo18 = item.code === 'bingo18';
 
   const getPrize = () => {
     if (isPower || isMega) {
@@ -90,7 +93,7 @@ export default function GameCard({ item, activeDraw, onPress, isHorizontal = fal
     }
     if (isKeno) return '2.000.000.000đ';
     if (isMax3d) return '30.000.000.000đ';
-    if (isLotto) return '6.387.047.500đ';
+    if (isLotto) return isLotto570 ? '10.000.000.000đ' : '6.387.047.500đ';
     return '';
   };
 
@@ -104,8 +107,8 @@ export default function GameCard({ item, activeDraw, onPress, isHorizontal = fal
     return (
       <TouchableOpacity style={styles.horizontalCard} onPress={onPress}>
         <View style={styles.horizontalLeft}>
-          <Text style={[styles.lottoGreenSmall, { color: '#E51F27' }]}>XỔ SỐ</Text>
-          <Text style={[styles.lottoGreenBig, { color: '#1A4B7A' }]}>3 MIỀN</Text>
+          <Text style={[styles.lottoGreenSmall, { color: '#E51F27' }]}>LOTTO</Text>
+          <Text style={[styles.lottoGreenBig, { color: '#1A4B7A' }]}>{isLotto570 ? '5/70' : '5/35'}</Text>
         </View>
 
         <View style={styles.horizontalCenter}>
@@ -191,10 +194,16 @@ export default function GameCard({ item, activeDraw, onPress, isHorizontal = fal
             <Text style={styles.max3dLabelBig}>3D/3DPro</Text>
           </View>
         )}
+        {isMax4d && (
+          <View style={styles.powerMegaLabelContainer}>
+            <Text style={styles.max4dLabelSmall}>MAX</Text>
+            <Text style={styles.max4dLabelBig}>4D</Text>
+          </View>
+        )}
         {isLotto && (
           <View style={styles.powerMegaLabelContainer}>
             <Text style={styles.lottoGreenSmall}>LOTTO</Text>
-            <Text style={styles.lottoGreenBig}>5/35</Text>
+            <Text style={styles.lottoGreenBig}>{isLotto570 ? '5/70' : '5/35'}</Text>
           </View>
         )}
 
@@ -247,6 +256,12 @@ export default function GameCard({ item, activeDraw, onPress, isHorizontal = fal
             <Text style={styles.lotoRedBold}>LÔ TÔ 2</Text>
           </Text>
         )}
+        {isBingo18 && (
+          <View style={styles.thanTaiContainer}>
+            <Text style={[styles.dientoan636Big, { color: '#0055A5' }]}>BINGO18</Text>
+            <Text style={{ fontSize: 11, color: '#0055A5', marginTop: 2, fontWeight: '500' }}>111-666</Text>
+          </View>
+        )}
       </View>
 
       {/* Bottom section: Prizes, rates and subtitles */}
@@ -268,9 +283,10 @@ export default function GameCard({ item, activeDraw, onPress, isHorizontal = fal
             {isLotoCap && <Text style={styles.orangeRateText}>🏆 x110 lần</Text>}
             {isDienToan636 && <Text style={styles.goldRateText}>🏆 6 Tỷ Đồng</Text>}
             {isTruotLoto && <Text style={styles.orangeRateText}>🏆 x12 lần</Text>}
+            {isThanTai4 && <Text style={styles.orangeRateText}>🏆 x1220 lần</Text>}
+            {isBingo18 && <Text style={styles.orangeRateText}>10 phút - 1 kỳ</Text>}
             {isBao636 && <Text style={styles.orangeRateText}>Chọn nhanh - Trúng lớn</Text>}
             {isBaoLoto2 && <Text style={styles.orangeRateText}>Chọn nhanh - Trúng lớn</Text>}
-            {isThanTai4 && <Text style={styles.orangeRateText}>🏆 x1220 lần</Text>}
           </>
         )}
       </View>
@@ -401,6 +417,18 @@ const styles = StyleSheet.create({
     color: '#D11D5B',
     fontWeight: '900',
     lineHeight: 18,
+  },
+  max4dLabelSmall: {
+    fontSize: 9,
+    color: '#0055A5',
+    fontWeight: 'bold',
+    lineHeight: 10,
+  },
+  max4dLabelBig: {
+    fontSize: 20,
+    color: '#0055A5',
+    fontWeight: '900',
+    lineHeight: 22,
   },
   lotoBadgeContainer: {
     alignItems: 'center',

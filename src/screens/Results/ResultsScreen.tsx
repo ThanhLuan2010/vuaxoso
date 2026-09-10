@@ -7,8 +7,9 @@ import {
   StatusBar,
   Dimensions,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
 
@@ -32,68 +33,91 @@ function usePaginatedResults(type?: string, code?: string) {
   const [data, setData] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+
+  const fetchResults = async (currentPage: number, isRefresh = false) => {
+    if (isRefresh) setRefreshing(true);
+    else setLoading(true);
+
+    try {
+      const res = await api.get('/draws/results', {
+        params: { page: currentPage, limit: 10, type, code }
+      });
+      if (res.data.length < 10) setHasMore(false);
+      
+      if (currentPage === 1) {
+        setData(res.data);
+      } else {
+        setData(prev => [...prev, ...res.data]);
+      }
+    } catch (error) {
+      console.log('fetch error', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   React.useEffect(() => {
     setData([]);
     setPage(1);
     setHasMore(true);
+    fetchResults(1);
   }, [type, code]);
-
-  React.useEffect(() => {
-    if (!hasMore) return;
-    
-    let isMounted = true;
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const res = await api.get('/draws/results', {
-          params: { page, limit: 10, type, code }
-        });
-        if (isMounted) {
-          if (res.data.length < 10) {
-            setHasMore(false);
-          }
-          if (page === 1) {
-            setData(res.data);
-          } else {
-            setData(prev => [...prev, ...res.data]);
-          }
-        }
-      } catch (error) {
-        console.log('fetch error', error);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
-    fetchData();
-    return () => { isMounted = false; };
-  }, [page, type, code]);
 
   const loadMore = () => {
     if (!loading && hasMore) {
-      setPage(prev => prev + 1);
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchResults(nextPage);
     }
   };
 
-  return { data, loading, loadMore, hasMore };
+  const refresh = () => {
+    setPage(1);
+    setHasMore(true);
+    fetchResults(1, true);
+  };
+
+  return { data, loading, loadMore, hasMore, refresh, refreshing };
 }
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function VietlottTab() {
   const navigation = useNavigation<any>();
-  const { games, drawResults } = useAppStore();
+  const [refreshing, setRefreshing] = useState(false);
+  const { games, drawResults, fetchDrawResults } = useAppStore();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchDrawResults();
+    }, [])
+  );
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchDrawResults();
+    setRefreshing(false);
+  };
+
   const HARDCODED_VIETLOTT_GAMES = [
     { code: 'keno', name: 'Keno', color: KENO_ORANGE, navType: 'keno', isKeno: true },
     { code: 'lotto_535', name: 'Lotto\n5/35', color: LOTTO_GREEN, navType: 'lotto', isKeno: false },
+    { code: 'lotto_570', name: 'Lotto\n5/70', color: '#4B0082', navType: 'lotto', isKeno: false },
     { code: 'power_655', name: 'Power\n6/55', color: POWER_GOLD, navType: 'power', isKeno: false },
     { code: 'mega_645', name: 'Mega\n6/45', color: MEGA_RED, navType: 'mega', isKeno: false },
     { code: 'max_3d', name: 'Max\n3D', color: MAX3D_MAGENTA, navType: 'max3d', isKeno: false },
-    { code: 'max_3d_pro', name: 'Max\n3D Pro', color: MAX3D_MAGENTA, navType: 'max3dpro', isKeno: false }
+    { code: 'max_3d_pro', name: 'Max\n3D Pro', color: MAX3D_MAGENTA, navType: 'max3dpro', isKeno: false },
+    { code: 'max_4d', name: 'Max\n4D', color: MAX3D_MAGENTA, navType: 'max4d', isKeno: false }
   ];
 
   return (
-    <ScrollView contentContainerStyle={styles.vietlottContainer} showsVerticalScrollIndicator={false}>
+    <ScrollView 
+      contentContainerStyle={styles.vietlottContainer} 
+      showsVerticalScrollIndicator={false}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />}
+    >
       {HARDCODED_VIETLOTT_GAMES.map(game => {
         const { navType, color, isKeno, name } = game;
 
@@ -158,7 +182,13 @@ const DIENTOAN_COLORS = ['#00A3E0', '#FFCD00', '#E51F27', '#E51F27', '#00A3E0', 
 
 function DienToanTab() {
   const [subTab, setSubTab] = useState<'dientoan_636' | 'than_tai_4' | 'dientoan_123'>('dientoan_636');
-  const { data: results, loading, loadMore, hasMore } = usePaginatedResults('dientoan', subTab);
+  const { data: results, loading, loadMore, hasMore, refresh, refreshing } = usePaginatedResults('dientoan', subTab);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      refresh();
+    }, [])
+  );
 
   const renderFooter = () => {
     if (!loading) return <View style={{ height: 24 }} />;
@@ -241,6 +271,7 @@ function DienToanTab() {
         ListEmptyComponent={
           !loading ? <Text style={{ textAlign: 'center', color: COLORS.gray500, marginTop: 20 }}>Không có dữ liệu</Text> : null
         }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[COLORS.primary]} />}
       />
     </View>
   );
@@ -248,7 +279,13 @@ function DienToanTab() {
 
 function KienThietTab() {
   const [subTab, setSubTab] = useState<'mien_bac' | 'mien_trung' | 'mien_nam'>('mien_trung');
-  const { data: results, loading, loadMore, hasMore } = usePaginatedResults('kienthiet', subTab);
+  const { data: results, loading, loadMore, hasMore, refresh, refreshing } = usePaginatedResults('kienthiet', subTab);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      refresh();
+    }, [])
+  );
 
   const renderFooter = () => {
     if (!loading) return <View style={{ height: 24 }} />;
@@ -330,6 +367,7 @@ function KienThietTab() {
         ListEmptyComponent={
           !loading ? <Text style={{ textAlign: 'center', color: COLORS.gray500, marginTop: 20 }}>Không có dữ liệu</Text> : null
         }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[COLORS.primary]} />}
       />
     </View>
   );

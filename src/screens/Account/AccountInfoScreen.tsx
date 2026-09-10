@@ -11,11 +11,12 @@ import {
   ActivityIndicator,
   Alert,
   PermissionsAndroid,
-  Platform
+  Platform,
+  Modal
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { ChevronLeft, UserCircle2, Info, Camera } from 'lucide-react-native';
+import { ChevronLeft, UserCircle2, Info, Camera, CheckCircle2 } from 'lucide-react-native';
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import { COLORS, TYPOGRAPHY, SPACING, BORDER_RADIUS } from '../../theme/theme';
 import { useAppStore } from '../../store/useAppStore';
@@ -25,7 +26,7 @@ export default function AccountInfoScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
 
-  const { user, updateProfile } = useAppStore();
+  const { user, updateProfile, sendEmailOtp, verifyEmailOtp } = useAppStore();
 
   const [name, setName] = useState(user?.name || '');
   const [idCard, setIdCard] = useState(user?.cccdNumber || '');
@@ -34,6 +35,10 @@ export default function AccountInfoScreen() {
   const [cccdImage, setCccdImage] = useState(user?.cccdImage || '');
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
 
   const isInfoUpdated = !!user?.isInfoUpdated;
 
@@ -136,8 +141,8 @@ export default function AccountInfoScreen() {
   };
 
   const handleSave = async () => {
-    if (!name.trim() || !idCard.trim() || !address.trim()) {
-      Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ Họ và tên, CMND/CCCD và Địa chỉ');
+    if (!name.trim() || !idCard.trim() || !address.trim() || !email.trim() || !cccdImage) {
+      Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ Họ và tên, CMND/CCCD, Địa chỉ, Email và tải lên Ảnh mặt trước CCCD.');
       return;
     }
     
@@ -160,6 +165,43 @@ export default function AccountInfoScreen() {
     }
   };
 
+  const handleSendOtp = async () => {
+    if (!email.trim()) {
+      Alert.alert('Lỗi', 'Vui lòng nhập email trước khi xác thực');
+      return;
+    }
+    
+    setIsSendingOtp(true);
+    const res = await sendEmailOtp(email);
+    setIsSendingOtp(false);
+    
+    if (res.success) {
+      setShowOtpModal(true);
+      Alert.alert('Thành công', res.message || 'Đã gửi mã OTP đến email của bạn');
+    } else {
+      Alert.alert('Lỗi', res.message || 'Không thể gửi mã OTP');
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otp.trim()) {
+      Alert.alert('Lỗi', 'Vui lòng nhập mã OTP');
+      return;
+    }
+    
+    setIsVerifyingOtp(true);
+    const res = await verifyEmailOtp(otp);
+    setIsVerifyingOtp(false);
+    
+    if (res.success) {
+      setShowOtpModal(false);
+      setOtp('');
+      Alert.alert('Thành công', 'Xác thực email thành công');
+    } else {
+      Alert.alert('Lỗi', res.message || 'Mã OTP không hợp lệ');
+    }
+  };
+
   const renderHeader = () => (
     <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) }]}>
       <TouchableOpacity style={styles.headerBtn} onPress={() => navigation.goBack()}>
@@ -175,7 +217,7 @@ export default function AccountInfoScreen() {
       <StatusBar barStyle="dark-content" backgroundColor="#F5F5F5" />
       {renderHeader()}
       
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 80 }]} showsVerticalScrollIndicator={false}>
         <View style={styles.avatarWrapper}>
           <UserCircle2 size={80} color="#0A3B7C" strokeWidth={1} />
         </View>
@@ -219,15 +261,35 @@ export default function AccountInfoScreen() {
 
         <View style={styles.inputGroup}>
           <Text style={styles.inputLabel}>Email</Text>
-          <TextInput 
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            placeholder="Nhập email"
-            placeholderTextColor={COLORS.gray400}
-            editable={!isInfoUpdated}
-          />
+          <View style={styles.emailRow}>
+            <TextInput 
+              style={[styles.input, { flex: 1 }]}
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              placeholder="Nhập email"
+              placeholderTextColor={COLORS.gray400}
+              editable={!isInfoUpdated}
+            />
+            {user?.emailVerified ? (
+              <View style={styles.verifiedBadge}>
+                <CheckCircle2 size={14} color="#34C759" style={{ marginRight: 4 }} />
+                <Text style={styles.verifiedText}>Đã xác thực</Text>
+              </View>
+            ) : (
+              <TouchableOpacity 
+                style={styles.verifyBtn} 
+                onPress={handleSendOtp}
+                disabled={isSendingOtp || isInfoUpdated || !email.trim()}
+              >
+                {isSendingOtp ? (
+                  <ActivityIndicator size="small" color="#007AFF" />
+                ) : (
+                  <Text style={styles.verifyBtnText}>Xác thực</Text>
+                )}
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
 
         <View style={styles.inputGroup}>
@@ -274,6 +336,45 @@ export default function AccountInfoScreen() {
           </TouchableOpacity>
         </View>
       )}
+
+      {/* OTP Modal */}
+      <Modal visible={showOtpModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Xác thực Email</Text>
+            <Text style={styles.modalSubtitle}>Nhập mã OTP gồm 6 chữ số được gửi đến {email}</Text>
+            
+            <TextInput
+              style={styles.otpInput}
+              value={otp}
+              onChangeText={setOtp}
+              keyboardType="number-pad"
+              maxLength={6}
+              placeholder="Nhập mã OTP"
+            />
+            
+            <View style={styles.modalActions}>
+              <TouchableOpacity 
+                style={[styles.modalBtn, styles.modalBtnCancel]} 
+                onPress={() => setShowOtpModal(false)}
+              >
+                <Text style={styles.modalBtnCancelText}>Huỷ</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.modalBtn, styles.modalBtnSubmit]} 
+                onPress={handleVerifyOtp}
+                disabled={isVerifyingOtp || otp.length < 6}
+              >
+                {isVerifyingOtp ? (
+                  <ActivityIndicator color="#FFF" />
+                ) : (
+                  <Text style={styles.modalBtnSubmitText}>Xác nhận</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -325,11 +426,40 @@ const styles = StyleSheet.create({
   asterisk: {
     color: '#FF3B30',
   },
+  emailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   input: {
     fontSize: 16,
     color: COLORS.textDark,
     padding: 0,
     height: 24,
+  },
+  verifyBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#E5F1FF',
+    borderRadius: BORDER_RADIUS.sm,
+  },
+  verifyBtnText: {
+    color: '#007AFF',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  verifiedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F5E9',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: BORDER_RADIUS.sm,
+  },
+  verifiedText: {
+    color: '#34C759',
+    fontSize: 12,
+    fontWeight: '600',
   },
   toggleRow: {
     flexDirection: 'row',
@@ -410,5 +540,67 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.lg,
+  },
+  modalContent: {
+    backgroundColor: '#FFF',
+    width: '100%',
+    borderRadius: BORDER_RADIUS.lg,
+    padding: SPACING.lg,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.textDark,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: COLORS.gray600,
+    textAlign: 'center',
+    marginBottom: SPACING.lg,
+  },
+  otpInput: {
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: BORDER_RADIUS.md,
+    padding: SPACING.md,
+    fontSize: 18,
+    textAlign: 'center',
+    letterSpacing: 4,
+    marginBottom: SPACING.xl,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: SPACING.md,
+  },
+  modalBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: BORDER_RADIUS.md,
+    alignItems: 'center',
+  },
+  modalBtnCancel: {
+    backgroundColor: '#F5F5F5',
+  },
+  modalBtnSubmit: {
+    backgroundColor: '#007AFF',
+  },
+  modalBtnCancelText: {
+    color: COLORS.gray600,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  modalBtnSubmitText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

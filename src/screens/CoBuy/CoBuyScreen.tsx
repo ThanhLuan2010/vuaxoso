@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions, ActivityIndicator, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeft, HelpCircle } from 'lucide-react-native';
 import { COLORS, TYPOGRAPHY, SHADOWS } from '../../theme/theme';
 import api from '../../services/api';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback } from 'react';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -29,18 +28,25 @@ export default function CoBuyScreen({ navigation }: any) {
   const [activeTab, setActiveTab] = useState<'mega' | 'power'>('mega');
   const [allRooms, setAllRooms] = useState<CoBuyRoom[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const fetchRooms = async () => {
+  const fetchRooms = async (isRefresh = false) => {
     try {
-      setLoading(true);
+      if (isRefresh) setRefreshing(true);
+      else setLoading(true);
       const res = await api.get('/cobuy/rooms');
       setAllRooms(res.data);
     } catch (error) {
       console.error('Error fetching CoBuy rooms:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
+
+  const onRefresh = useCallback(() => {
+    fetchRooms(true);
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -83,7 +89,13 @@ export default function CoBuyScreen({ navigation }: any) {
       </View>
 
       {/* Rooms List */}
-      <ScrollView contentContainerStyle={styles.scrollList} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollList} 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+        }
+      >
         {rooms.map((room) => (
           <TouchableOpacity
             key={room._id}

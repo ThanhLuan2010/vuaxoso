@@ -14,7 +14,13 @@ export type RootStackParamList = {
   GameLayoutLode: { gameId: string };
   Wallet: undefined;
   DepositBinance: undefined;
+  AccountInfo: undefined;
+  PaymentMethods: undefined;
+  WithdrawPassword: undefined;
+  ChangePassword: undefined;
+  Terms: undefined;
   TransactionHistory: undefined;
+  GuideDetail: { title: string; content?: string };
   Notifications: undefined;
   Cart: undefined;
   CoBuy: undefined;
@@ -43,7 +49,6 @@ export type RootStackParamList = {
     boards: Array<{ id: string; numbers: string[]; isTC: boolean }>;
     totalCost: number;
   };
-  AccountInfo: undefined;
   Guide: undefined;
   Login: undefined;
 };

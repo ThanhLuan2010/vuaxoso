@@ -5,6 +5,7 @@ import { ArrowLeft, ChevronDown, ChevronUp, Info, Check } from 'lucide-react-nat
 import { COLORS, TYPOGRAPHY, SHADOWS } from '../../theme/theme';
 import { useAppStore } from '../../store/useAppStore';
 import api from '../../services/api';
+import { Platform } from 'react-native';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -77,7 +78,10 @@ export default function GamePaymentScreen({ route, navigation }: any) {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top, height: 56 + insets.top }]}>
+      <View style={[styles.header, { 
+        paddingTop: Platform.OS === 'android' ? insets.top : 0, 
+        height: 56 + (Platform.OS === 'android' ? insets.top : 0) 
+      }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
           <ArrowLeft size={24} color="#0F2942" />
         </TouchableOpacity>

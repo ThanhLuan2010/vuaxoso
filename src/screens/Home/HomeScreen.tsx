@@ -20,10 +20,9 @@ export default function HomeScreen({ navigation }: any) {
     fetchKienThietSchedule();
   }, []);
 
-  const vietlottGames = games.filter(g => g.type === 'vietlott' && g.code !== 'max_3d_pro' && g.code !== 'mua_chung' && g.code !== 'lotto_535');
+  const vietlottGames = games.filter(g => g.type === 'vietlott' && g.code !== 'max_3d_pro' && g.code !== 'mua_chung' && g.code !== 'lotto_535' && g.code !== 'lotto_570');
   const dientoanGames = games.filter(g => g.type === 'dientoan');
-  const lodeGames = games.filter(g => g.code === 'lotto_535');
-
+  const lodeGames = games.filter(g => g.code === 'lotto_535' || g.code === 'lotto_570');
   const getActiveDraw = (code: string) => {
     return activeDraws.find(d => d.game && d.game.code === code);
   };
@@ -40,22 +39,26 @@ export default function HomeScreen({ navigation }: any) {
       gameId === 'power_655' || 
       gameId === 'mega_645' || 
       gameId === 'max_3d' ||
+      gameId === 'max_4d' ||
       gameId === 'loto_235' ||
       gameId === 'loto_cap' ||
       gameId === 'dientoan_636' ||
       gameId === 'truot_loto' ||
       gameId === 'bao_636' ||
-      gameId === 'than_tai_4'
+      gameId === 'than_tai_4' ||
+      gameId === 'lotto_535' ||
+      gameId === 'lotto_570' ||
+      gameId === 'bingo18'
     ) {
       if (gameId === 'bao_keno') {
         navigation.navigate('GameLayoutA', { gameId: 'keno', initialTab: 'bao' });
       } else if (gameId === 'bao_636') {
         navigation.navigate('GameLayoutA', { gameId: 'dientoan_636', initialTab: 'Bao 6x36' });
+      } else if (gameId === 'bingo18') {
+        navigation.navigate('GameLayoutBingo18', { gameId });
       } else {
         navigation.navigate('GameLayoutA', { gameId });
       }
-    } else if (gameId === 'lotto_535') {
-      navigation.navigate('GameLayoutLode', { gameId });
     } else {
       navigation.navigate('GameLayoutB', { gameId });
     }

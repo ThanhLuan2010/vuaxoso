@@ -2,6 +2,12 @@ import { create } from 'zustand';
 import api from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+export interface Wallet {
+  network: 'BEP20' | 'TRC20';
+  address: string;
+  qrCode?: string;
+}
+
 export interface GameModel {
   _id: string;
   code: string;
@@ -35,6 +41,13 @@ export interface CartItem {
   playType?: string;
   provinceName?: string;
   drawDate?: string;
+  winAmount?: number;
+  region?: string;
+  provinceId?: string;
+  category?: string;
+  subCategory?: string;
+  multiplier?: number;
+  rate?: number;
 }
 
 export interface PurchaseRecord {
@@ -66,6 +79,7 @@ interface AppState {
   cart: CartItem[];
   purchaseHistory: PurchaseRecord[];
   unreadNotifications: number;
+  forcePasswordChange: boolean;
 
   games: GameModel[];
   activeDraws: DrawModel[];
@@ -78,6 +92,7 @@ interface AppState {
   fetchDrawResults: () => Promise<void>;
   fetchBanners: () => Promise<void>;
   fetchKienThietSchedule: () => Promise<void>;
+  setForcePasswordChange: (val: boolean) => void;
 
   // Auth
   login: (phone: string, password: string) => Promise<{success: boolean, message?: string}>;
@@ -86,9 +101,11 @@ interface AppState {
   fetchProfile: () => Promise<void>;
   updateProfile: (data: { name?: string; address?: string; email?: string; cccdNumber?: string; cccdImage?: string; banks?: any[]; wallets?: any[] }) => Promise<{success: boolean, message?: string}>;
   restoreSession: () => Promise<void>;
+  sendEmailOtp: (email: string) => Promise<{success: boolean, message?: string}>;
+  verifyEmailOtp: (otp: string) => Promise<{success: boolean, message?: string}>;
 
   // Wallet
-  requestDeposit: (amount: number) => Promise<{ success: boolean; message?: string }>;
+  requestDeposit: (amount: number, receiptImage?: string) => Promise<{ success: boolean; message?: string }>;
   requestWithdraw: (amount: number, withdrawPassword?: string, destinationInfo?: any) => Promise<{ success: boolean; message?: string }>;
 
   // Cart
@@ -113,6 +130,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   drawResults: [],
   banners: [],
   kienThietSchedule: [],
+
+  forcePasswordChange: false,
+  setForcePasswordChange: (val) => set({ forcePasswordChange: val }),
 
   fetchGames: async () => {
     try {
@@ -157,8 +177,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   login: async (phone, password) => {
     try {
       const { data } = await api.post('/auth/login', { phone, password });
-      await AsyncStorage.setItem('userToken', data.token);
-      set({ user: { name: data.name, balance: data.balance, phone: data.phone }, token: data.token });
+      api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+      set({ user: { name: data.name, balance: data.balance, phone: data.phone, emailVerified: data.emailVerified }, token: data.token });
       return { success: true };
     } catch (error: any) {
       return { success: false, message: error.response?.data?.message || 'Lỗi kết nối' };
@@ -168,8 +188,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   register: async (phone, name, password) => {
     try {
       const { data } = await api.post('/auth/register', { phone, name, password });
-      await AsyncStorage.setItem('userToken', data.token);
-      set({ user: { name: data.name, balance: data.balance, phone: data.phone }, token: data.token });
+      api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+      set({ user: { name: data.name, balance: data.balance, phone: data.phone, emailVerified: data.emailVerified }, token: data.token });
       return { success: true };
     } catch (error: any) {
       return { success: false, message: error.response?.data?.message || 'Lỗi kết nối' };
@@ -177,7 +197,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   logout: async () => {
-    await AsyncStorage.removeItem('userToken');
+    // Remove token from headers instead of AsyncStorage
+    delete api.defaults.headers.common['Authorization'];
     set({ user: null, token: null });
   },
 
@@ -190,6 +211,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         phone: data.phone,
         address: data.address,
         email: data.email,
+        emailVerified: data.emailVerified,
         cccdNumber: data.cccdNumber,
         cccdImage: data.cccdImage,
         isInfoUpdated: data.isInfoUpdated,
@@ -212,6 +234,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         phone: data.phone,
         address: data.address,
         email: data.email,
+        emailVerified: data.emailVerified,
         cccdNumber: data.cccdNumber,
         cccdImage: data.cccdImage,
         isInfoUpdated: data.isInfoUpdated,
@@ -226,23 +249,38 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   restoreSession: async () => {
+    // Session is no longer restored from AsyncStorage for security
+    set({ token: null, user: null });
+  },
+
+  requestDeposit: async (amount: number = 0, receiptImage?: string) => {
     try {
-      const token = await AsyncStorage.getItem('userToken');
-      if (token) {
-        set({ token });
-        await get().fetchProfile();
-      }
-    } catch (error) {
-      console.log('Failed to restore session', error);
+      const res = await api.post('/wallet/deposit', { amount, receiptImage });
+      return { success: true, message: 'Yêu cầu nạp tiền đã được gửi. Vui lòng chờ Admin xác nhận.' };
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || 'Có lỗi xảy ra' };
     }
   },
 
-  requestDeposit: async (amount: number = 0) => {
+  sendEmailOtp: async (email: string) => {
     try {
-      const res = await api.post('/wallet/deposit', { amount });
-      return { success: true, message: 'Yêu cầu nạp tiền đã được gửi. Vui lòng chờ Admin xác nhận.' };
+      const { data } = await api.post('/auth/send-email-otp', { email });
+      return { success: true, message: data.message };
     } catch (error: any) {
-      return { success: false, message: error.response?.data?.message || 'Lỗi khi nạp tiền' };
+      return { success: false, message: error.response?.data?.message || 'Có lỗi xảy ra' };
+    }
+  },
+
+  verifyEmailOtp: async (otp: string) => {
+    try {
+      const { data } = await api.post('/auth/verify-email-otp', { otp });
+      set({ user: { 
+        ...get().user, 
+        emailVerified: data.emailVerified,
+      } as any });
+      return { success: true, message: 'Xác thực email thành công' };
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || 'Có lỗi xảy ra' };
     }
   },
 
