@@ -16,6 +16,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, Info, Copy, QrCode, ImageIcon } from 'lucide-react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { SvgUri } from 'react-native-svg';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { useAppStore } from '../../store/useAppStore';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
@@ -217,10 +218,14 @@ export default function DepositBinanceScreen() {
             <View style={{ alignItems: 'center', marginBottom: SPACING.md }}>
               {activeWallet?.qrImage ? (
                 <View style={{ padding: 12, backgroundColor: '#fff', borderRadius: 12, ...SHADOWS.light }}>
-                  <Image
-                    source={{ uri: activeWallet.qrImage }}
-                    style={{ width: 160, height: 160 }}
-                  />
+                  {activeWallet.qrImage.toLowerCase().endsWith('.svg') ? (
+                    <SvgUri uri={activeWallet.qrImage} width="160" height="160" />
+                  ) : (
+                    <Image
+                      source={{ uri: activeWallet.qrImage }}
+                      style={{ width: 160, height: 160 }}
+                    />
+                  )}
                 </View>
               ) : activeWallet?.walletAddress ? (
                 <View style={{ padding: 12, backgroundColor: '#fff', borderRadius: 12, ...SHADOWS.light }}>

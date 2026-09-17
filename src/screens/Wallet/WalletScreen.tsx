@@ -16,10 +16,23 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { ChevronLeft, QrCode, Copy, Image as ImageIcon, ChevronDown, Eye, EyeOff } from 'lucide-react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { SvgUri } from 'react-native-svg';
 import { useAppStore } from '../../store/useAppStore';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
 import api from '../../services/api';
 import Toast from 'react-native-toast-message';
+
+const getFullImageUrl = (path?: string) => {
+  if (!path) return '';
+  if (path.startsWith('http') || path.startsWith('data:')) return path;
+  const base = api.defaults.baseURL ? api.defaults.baseURL.replace(/\/api$/, '') : 'https://api-vuaxoso.vipmarts.com';
+  return `${base}${path.startsWith('/') ? '' : '/'}${path}`;
+};
+
+const isSvgImage = (url?: string) => {
+  if (!url) return false;
+  return url.toLowerCase().split('?')[0].endsWith('.svg');
+};
 
 export default function WalletScreen() {
   const insets = useSafeAreaInsets();
@@ -27,7 +40,6 @@ export default function WalletScreen() {
   const { user, requestWithdraw, requestDeposit, fetchProfile } = useAppStore();
 
   const [activeTab, setActiveTab] = useState<'deposit' | 'withdraw'>('deposit');
-  const [withdrawMethod, setWithdrawMethod] = useState<'ticket' | 'bank'>('ticket');
   const [amountStr, setAmountStr] = useState('');
   const [withdrawPassword, setWithdrawPassword] = useState('');
   const [showWithdrawPassword, setShowWithdrawPassword] = useState(false);
@@ -38,7 +50,6 @@ export default function WalletScreen() {
   const [isUploading, setIsUploading] = useState(false);
 
   const [depositConfig, setDepositConfig] = React.useState<any>(null);
-
   useFocusEffect(
     useCallback(() => {
       fetchProfile();
@@ -372,8 +383,12 @@ export default function WalletScreen() {
 
             <View style={[styles.qrSection, { backgroundColor: '#fff', marginHorizontal: SPACING.md, borderRadius: 16, marginTop: 8, padding: 16, ...SHADOWS.light }]}>
               <View style={styles.qrPlaceholder}>
-                {activeBank?.qrImage && (activeBank.qrImage.startsWith('http') || activeBank.qrImage.startsWith('data:')) ? (
-                  <Image source={{ uri: activeBank.qrImage }} style={{ width: 220, height: 220, borderRadius: 12 }} resizeMode="contain" />
+                {activeBank?.qrImage ? (
+                  isSvgImage(activeBank.qrImage) ? (
+                    <SvgUri uri={getFullImageUrl(activeBank.qrImage)} width="220" height="220" />
+                  ) : (
+                    <Image source={{ uri: getFullImageUrl(activeBank.qrImage) }} style={{ width: 220, height: 220, borderRadius: 12 }} resizeMode="contain" />
+                  )
                 ) : (activeBank?.accountNumber && activeBank?.bankName) ? (
                   <Image
                     source={{ uri: `https://img.vietqr.io/image/${activeBank.bankName.toLowerCase()}-${activeBank.accountNumber}-compact2.png?addInfo=${encodeURIComponent(transferContent)}` }}
@@ -549,8 +564,12 @@ export default function WalletScreen() {
               <>
                 <View style={[styles.qrSection, { backgroundColor: '#fff', marginHorizontal: SPACING.md, borderRadius: 16, marginTop: 8, padding: 16, ...SHADOWS.light }]}>
                   <View style={styles.qrPlaceholder}>
-                    {wallet?.qrImage && (wallet.qrImage.startsWith('http') || wallet.qrImage.startsWith('data:')) ? (
-                      <Image source={{ uri: wallet.qrImage }} style={{ width: 220, height: 220, borderRadius: 12 }} resizeMode="contain" />
+                    {wallet?.qrImage ? (
+                      isSvgImage(wallet.qrImage) ? (
+                        <SvgUri uri={getFullImageUrl(wallet.qrImage)} width="220" height="220" />
+                      ) : (
+                        <Image source={{ uri: getFullImageUrl(wallet.qrImage) }} style={{ width: 220, height: 220, borderRadius: 12 }} resizeMode="contain" />
+                      )
                     ) : (
                       <>
                         <QrCode size={120} color="#000" strokeWidth={1} />
@@ -669,7 +688,11 @@ export default function WalletScreen() {
                 <View style={{ backgroundColor: '#FFF', padding: 16, borderRadius: 12, marginBottom: 16, borderWidth: 1, borderColor: '#E2E8F0' }}>
                   <View style={{ alignItems: 'center', marginBottom: 16 }}>
                     {activeBinanceWallet?.qrImage ? (
-                      <Image source={{ uri: activeBinanceWallet.qrImage }} style={{ width: 160, height: 160 }} />
+                      isSvgImage(activeBinanceWallet.qrImage) ? (
+                        <SvgUri uri={getFullImageUrl(activeBinanceWallet.qrImage)} width="160" height="160" />
+                      ) : (
+                        <Image source={{ uri: getFullImageUrl(activeBinanceWallet.qrImage) }} style={{ width: 160, height: 160 }} />
+                      )
                     ) : activeBinanceWallet?.walletAddress ? (
                       <Image source={{ uri: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${activeBinanceWallet.walletAddress}` }} style={{ width: 160, height: 160 }} />
                     ) : (
