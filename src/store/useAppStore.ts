@@ -68,6 +68,7 @@ interface AppState {
     phone: string;
     address?: string;
     email?: string;
+    emailVerified?: boolean;
     cccdNumber?: string;
     cccdImage?: string;
     isInfoUpdated?: boolean;
@@ -95,17 +96,17 @@ interface AppState {
   setForcePasswordChange: (val: boolean) => void;
 
   // Auth
-  login: (phone: string, password: string) => Promise<{success: boolean, message?: string}>;
-  register: (phone: string, name: string, password: string) => Promise<{success: boolean, message?: string}>;
+  login: (phone: string, password: string) => Promise<{ success: boolean, message?: string }>;
+  register: (phone: string, name: string, password: string) => Promise<{ success: boolean, message?: string }>;
   logout: () => void;
   fetchProfile: () => Promise<void>;
-  updateProfile: (data: { name?: string; address?: string; email?: string; cccdNumber?: string; cccdImage?: string; banks?: any[]; wallets?: any[] }) => Promise<{success: boolean, message?: string}>;
+  updateProfile: (data: { name?: string; address?: string; email?: string; cccdNumber?: string; cccdImage?: string; banks?: any[]; wallets?: any[] }) => Promise<{ success: boolean, message?: string }>;
   restoreSession: () => Promise<void>;
-  sendEmailOtp: (email: string) => Promise<{success: boolean, message?: string}>;
-  verifyEmailOtp: (otp: string) => Promise<{success: boolean, message?: string}>;
+  sendEmailOtp: (email: string) => Promise<{ success: boolean, message?: string }>;
+  verifyEmailOtp: (otp: string) => Promise<{ success: boolean, message?: string }>;
 
   // Wallet
-  requestDeposit: (amount: number, receiptImage?: string) => Promise<{ success: boolean; message?: string }>;
+  requestDeposit: (amount: number, receiptImage?: string, txId?: string, paymentMethod?: string, destinationInfo?: any) => Promise<{ success: boolean, message?: string }>;
   requestWithdraw: (amount: number, withdrawPassword?: string, destinationInfo?: any) => Promise<{ success: boolean; message?: string }>;
 
   // Cart
@@ -138,8 +139,8 @@ export const useAppStore = create<AppState>((set, get) => ({
     try {
       const { data } = await api.get('/games');
       set({ games: data });
-    } catch (e: any) { 
-      console.log('fetchGames error', e); 
+    } catch (e: any) {
+      console.log('fetchGames error', e);
       Alert.alert('Network Error', e.message + ' - Vui lòng kiểm tra lại IP hoặc mạng.');
     }
   },
@@ -205,20 +206,22 @@ export const useAppStore = create<AppState>((set, get) => ({
   fetchProfile: async () => {
     try {
       const { data } = await api.get('/auth/profile');
-      set({ user: { 
-        name: data.name, 
-        balance: data.balance, 
-        phone: data.phone,
-        address: data.address,
-        email: data.email,
-        emailVerified: data.emailVerified,
-        cccdNumber: data.cccdNumber,
-        cccdImage: data.cccdImage,
-        isInfoUpdated: data.isInfoUpdated,
-        hasWithdrawPassword: data.hasWithdrawPassword,
-        banks: data.banks,
-        wallets: data.wallets
-      } });
+      set({
+        user: {
+          name: data.name,
+          balance: data.balance,
+          phone: data.phone,
+          address: data.address,
+          email: data.email,
+          emailVerified: data.emailVerified,
+          cccdNumber: data.cccdNumber,
+          cccdImage: data.cccdImage,
+          isInfoUpdated: data.isInfoUpdated,
+          hasWithdrawPassword: data.hasWithdrawPassword,
+          banks: data.banks,
+          wallets: data.wallets
+        }
+      });
     } catch (error) {
       console.log('Failed to fetch profile', error);
       get().logout();
@@ -228,20 +231,22 @@ export const useAppStore = create<AppState>((set, get) => ({
   updateProfile: async (payload) => {
     try {
       const { data } = await api.put('/auth/profile', payload);
-      set({ user: { 
-        name: data.name, 
-        balance: data.balance, 
-        phone: data.phone,
-        address: data.address,
-        email: data.email,
-        emailVerified: data.emailVerified,
-        cccdNumber: data.cccdNumber,
-        cccdImage: data.cccdImage,
-        isInfoUpdated: data.isInfoUpdated,
-        hasWithdrawPassword: data.hasWithdrawPassword,
-        banks: data.banks,
-        wallets: data.wallets
-      } });
+      set({
+        user: {
+          name: data.name,
+          balance: data.balance,
+          phone: data.phone,
+          address: data.address,
+          email: data.email,
+          emailVerified: data.emailVerified,
+          cccdNumber: data.cccdNumber,
+          cccdImage: data.cccdImage,
+          isInfoUpdated: data.isInfoUpdated,
+          hasWithdrawPassword: data.hasWithdrawPassword,
+          banks: data.banks,
+          wallets: data.wallets
+        }
+      });
       return { success: true, message: 'Cập nhật thành công' };
     } catch (error: any) {
       return { success: false, message: error.response?.data?.message || 'Cập nhật thất bại' };
@@ -253,9 +258,9 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({ token: null, user: null });
   },
 
-  requestDeposit: async (amount: number = 0, receiptImage?: string) => {
+  requestDeposit: async (amount: number = 0, receiptImage?: string, txId?: string, paymentMethod?: string, destinationInfo?: any) => {
     try {
-      const res = await api.post('/wallet/deposit', { amount, receiptImage });
+      const res = await api.post('/wallet/deposit', { amount, receiptImage, txId, paymentMethod, destinationInfo });
       return { success: true, message: 'Yêu cầu nạp tiền đã được gửi. Vui lòng chờ Admin xác nhận.' };
     } catch (error: any) {
       return { success: false, message: error.response?.data?.message || 'Có lỗi xảy ra' };
@@ -274,10 +279,12 @@ export const useAppStore = create<AppState>((set, get) => ({
   verifyEmailOtp: async (otp: string) => {
     try {
       const { data } = await api.post('/auth/verify-email-otp', { otp });
-      set({ user: { 
-        ...get().user, 
-        emailVerified: data.emailVerified,
-      } as any });
+      set({
+        user: {
+          ...get().user,
+          emailVerified: data.emailVerified,
+        } as any
+      });
       return { success: true, message: 'Xác thực email thành công' };
     } catch (error: any) {
       return { success: false, message: error.response?.data?.message || 'Có lỗi xảy ra' };
@@ -320,8 +327,8 @@ export const useAppStore = create<AppState>((set, get) => ({
 
       // Gọi API mua vé
       await api.post('/orders', {
-        gameType: cart[0].gameId,
-        playType: cart[0].playType,
+        gameType: cart[0].gameId === 'xoso_3mien' ? cart[0].region?.toUpperCase() || 'MB' : cart[0].gameId,
+        playType: cart[0].playType || cart[0].subCategory || cart[0].category,
         drawId: 'DUMMY_DRAW_ID', // Thực tế sẽ lấy từ API /active
         items: itemsPayload
       });

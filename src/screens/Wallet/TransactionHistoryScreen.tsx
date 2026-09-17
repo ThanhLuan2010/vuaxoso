@@ -67,7 +67,7 @@ export default function TransactionHistoryScreen() {
   const filteredTransactions = transactions.filter(t => {
     if (activeTab === 'all') return true;
     return t.type === activeTab;
-  });
+  }).slice(0, 10);
 
   const renderItem = ({ item }: { item: any }) => {
     const isDeposit = item.type === 'deposit';

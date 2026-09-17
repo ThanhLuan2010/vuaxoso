@@ -57,7 +57,15 @@ export default function HistoryDetailScreen() {
   const dateObj = new Date(ticket?.createdAt || Date.now());
   const timeStr = `⏰${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}:${String(dateObj.getSeconds()).padStart(2, '0')} - ${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${dateObj.getFullYear()}`;
   const prizeAmount = ticket?.prizeAmount ? ticket.prizeAmount.toLocaleString('vi-VN') + 'đ' : '0 đ';
-  const imageUrl = ticket?.ticketImageUrl ? { uri: `https://api-vuaxoso.vipmarts.com${ticket.ticketImageUrl}` } : require('../../assets/images/mock_ticket.jpg');
+  const getImageUrl = (path: string) => {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    const baseURL = api.defaults.baseURL as string;
+    const host = baseURL.replace('/api', '');
+    return `${host}${path}`;
+  };
+
+  const imageUrl = ticket?.ticketImageUrl ? { uri: getImageUrl(ticket.ticketImageUrl) } : require('../../assets/images/mock_ticket.jpg');
 
   const renderHeader = () => (
     <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) }]}>

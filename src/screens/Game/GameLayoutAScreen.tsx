@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert, SafeAreaView, Modal, Dimensions } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Alert, Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
-import { useAppStore } from '../../store/useAppStore';
 import api from '../../services/api';
+import { useAppStore } from '../../store/useAppStore';
+import { BORDER_RADIUS, COLORS, SHADOWS, SPACING, TYPOGRAPHY } from '../../theme/theme';
 
-import { ArrowLeft, Clock, ShoppingCart, Info, RotateCw, BarChart2, Plus, RefreshCw, X, Check, Trash2 } from 'lucide-react-native';
+import { ArrowLeft, BarChart2, Check, Plus, RefreshCw, RotateCw, Trash2, X } from 'lucide-react-native';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -146,6 +146,12 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
     requiredSelectCount = 4;
     initialJackpot = '';
     initialCountdown = 9700;
+  } else if (gameId === 'truot_loto') {
+    gameName = 'TRƯỢT LÔ TÔ 4-8-10 CẶP';
+    maxNumber = 99;
+    requiredSelectCount = 4;
+    initialJackpot = '';
+    initialCountdown = 9000;
   }
 
   const [selectedNumbers, setSelectedNumbers] = useState<number[]>([]);
@@ -409,40 +415,40 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
   const handleSelectMultiplier = (index: number) => {
     Alert.alert('Chọn mệnh giá', 'Vui lòng chọn mức tiền cho dãy này:', [
-      { 
-        text: '10K', 
+      {
+        text: '10K',
         onPress: () => {
           const updated = [...standardBoards];
           updated[index].multiplier = 10000;
           setStandardBoards(updated);
         }
       },
-      { 
-        text: '20K', 
+      {
+        text: '20K',
         onPress: () => {
           const updated = [...standardBoards];
           updated[index].multiplier = 20000;
           setStandardBoards(updated);
         }
       },
-      { 
-        text: '30K', 
+      {
+        text: '30K',
         onPress: () => {
           const updated = [...standardBoards];
           updated[index].multiplier = 30000;
           setStandardBoards(updated);
         }
       },
-      { 
-        text: '50K', 
+      {
+        text: '50K',
         onPress: () => {
           const updated = [...standardBoards];
           updated[index].multiplier = 50000;
           setStandardBoards(updated);
         }
       },
-      { 
-        text: '100K', 
+      {
+        text: '100K',
         onPress: () => {
           const updated = [...standardBoards];
           updated[index].multiplier = 100000;
@@ -1318,15 +1324,15 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   const getEstimatedWinInfo = () => {
     let multiplier = 0;
     if (isLoto235) {
-       if (loto235PlayType === 'Lô tô 2 số' || loto235PlayType === 'Bao 2 số') multiplier = 90;
-       else if (loto235PlayType === 'Lô tô 3 số') multiplier = 900;
-       else if (loto235PlayType === 'Lô tô 5 số') multiplier = 8000;
+      if (loto235PlayType === 'Lô tô 2 số' || loto235PlayType === 'Bao 2 số') multiplier = 90;
+      else if (loto235PlayType === 'Lô tô 3 số') multiplier = 900;
+      else if (loto235PlayType === 'Lô tô 5 số') multiplier = 8000;
     } else if (isLotoCap) {
-       if (lotoCapPlayType === 'Lô tô 2 cặp') multiplier = 15;
-       else if (lotoCapPlayType === 'Lô tô 3 cặp') multiplier = 65;
-       else if (lotoCapPlayType === 'Lô tô 4 cặp') multiplier = 170;
+      if (lotoCapPlayType === 'Lô tô 2 cặp') multiplier = 15;
+      else if (lotoCapPlayType === 'Lô tô 3 cặp') multiplier = 65;
+      else if (lotoCapPlayType === 'Lô tô 4 cặp') multiplier = 170;
     }
-    
+
     if (isDientoan636) {
       const activeBoards = standardBoards.slice(0, 5).filter((b) => b.numbers.length > 0);
       let totalCost = getDientoan636TotalCost();
@@ -1334,33 +1340,33 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
       // Trúng 6 số (100,000 * multiplier)
       let estimatedWin = 500000000;
       if (dientoan636PlayType !== 'Cơ bản') {
-         // Tính the win potential for Bao based on hitting all 6 numbers.
-         // If a player hits 6 numbers with Bao, their prize is complex, but usually max is displayed.
-         // In standard ticket, base win is 500M. The UI image shows Max win for Bao is also 500,000,000.
-         estimatedWin = 500000000;
+        // Tính the win potential for Bao based on hitting all 6 numbers.
+        // If a player hits 6 numbers with Bao, their prize is complex, but usually max is displayed.
+        // In standard ticket, base win is 500M. The UI image shows Max win for Bao is also 500,000,000.
+        estimatedWin = 500000000;
       }
       return { multiplier: 100000, totalCost, estimatedWin };
     }
-    
+
     if (isThanTai4) {
       const activeBoards = standardBoards.slice(0, 5).filter((b) => b.numbers.length > 0);
       let totalCost = activeBoards.reduce((sum, b) => sum + (b.multiplier || 10000), 0);
       if (totalCost === 0) return null;
       let estimatedWin = 0;
       if (thanTaiPlayType === 'Thần tài 4') {
-         const baseCostSum = activeBoards.reduce((sum, b) => sum + (b.multiplier || 10000), 0);
-         // Max prize is x10,000 for winning exact 4 digits
-         estimatedWin = baseCostSum * 10000;
+        const baseCostSum = activeBoards.reduce((sum, b) => sum + (b.multiplier || 10000), 0);
+        // Max prize is x10,000 for winning exact 4 digits
+        estimatedWin = baseCostSum * 10000;
       } else if (thanTaiPlayType === 'Điện toán 1-2-3') {
-         const baseCostSum = activeBoards.reduce((sum, b) => sum + (b.multiplier || 10000), 0);
-         // Max prize is x1000 + x75 + x5 = x1080 (if all 3 parts win max)
-         estimatedWin = baseCostSum * 1080;
+        const baseCostSum = activeBoards.reduce((sum, b) => sum + (b.multiplier || 10000), 0);
+        // Max prize is x1000 + x75 + x5 = x1080 (if all 3 parts win max)
+        estimatedWin = baseCostSum * 1080;
       }
       return { multiplier: 1, totalCost, estimatedWin };
     }
 
     if (!multiplier) return null;
-    
+
     // For normal loto235, the estimated win is the base ticket price (e.g. 10000) * multiplier
     // not the total cost (which includes capNhan). So we extract the base cost.
     let estimatedWin = 0;
@@ -1378,8 +1384,8 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
         estimatedWin = baseCostSum * multiplier;
       }
     } else {
-       totalCost = getStandardTotalCost();
-       estimatedWin = totalCost * multiplier;
+      totalCost = getStandardTotalCost();
+      estimatedWin = totalCost * multiplier;
     }
     if (totalCost === 0) return null;
     return { multiplier, totalCost, estimatedWin };
@@ -1395,16 +1401,16 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
       if (loto235Bao2Filter === 'ĐẦU') {
         finalNumbers = [];
         loto235Bao2Numbers.forEach(d => {
-           for (let i = 0; i <= 9; i++) {
-             finalNumbers.push(`${d}${i}`);
-           }
+          for (let i = 0; i <= 9; i++) {
+            finalNumbers.push(`${d}${i}`);
+          }
         });
       } else if (loto235Bao2Filter === 'ĐUÔI') {
         finalNumbers = [];
         loto235Bao2Numbers.forEach(d => {
-           for (let i = 0; i <= 9; i++) {
-             finalNumbers.push(`${i}${d}`);
-           }
+          for (let i = 0; i <= 9; i++) {
+            finalNumbers.push(`${i}${d}`);
+          }
         });
       }
 
@@ -1467,10 +1473,10 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
         // Map UI gameId to backend game code
         let mappedGameCode = gameId;
         if (gameId === 'bao_keno' || gameId === 'clln_keno') mappedGameCode = 'keno';
-        
+
         // Find all active draws for this game
         const activeDrawsForGame = draws.filter((d: any) => d.game && d.game.code === mappedGameCode);
-        
+
         if (activeDrawsForGame.length > 0) {
           const formattedDraws = activeDrawsForGame.map((d: any) => {
             const closeTime = new Date(d.closeTime);
@@ -1480,7 +1486,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
             const hrs = String(closeTime.getHours()).padStart(2, '0');
             const mins = String(closeTime.getMinutes()).padStart(2, '0');
             const secs = String(closeTime.getSeconds()).padStart(2, '0');
-            
+
             return {
               id: d._id,
               drawCode: d.drawCode,
@@ -1489,9 +1495,9 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
               dateStr: `${day}/${month}`
             };
           });
-          
+
           setDrawCycles(formattedDraws);
-          
+
           // Select the first active draw by default
           if (formattedDraws.length > 0) {
             setSelectedDraws([formattedDraws[0].id]);
@@ -1525,7 +1531,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
     const hrs = Math.floor(secs / 3600);
     const mins = Math.floor((secs % 3600) / 60);
     const s = secs % 60;
-    
+
     if (hrs > 0) {
       return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
     }
@@ -1803,7 +1809,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
     }
 
     const formattedNumbers = selectedNumbers.map((n) => String(n).padStart(2, '0'));
-    
+
     navigation.navigate('GamePayment', {
       gameId,
       gameName,
@@ -1918,7 +1924,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
             <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.boardsContent}>
               {kenoBoards.map((board) => {
                 const hasNumbers = board.numbers.length === kenoBac;
-                
+
                 // Calculate dynamic sizing for circles based on Bậc selection
                 const isLargeBac = kenoBac > 5;
                 const ballSize = isLargeBac ? (kenoBac > 7 ? 26 : 30) : 36;
@@ -1931,15 +1937,15 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                     <Text style={styles.boardLetter}>{board.id}</Text>
 
                     {/* Empty or filled circles */}
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       style={[styles.circlesContainer, { gap: ballGap }]}
                       onPress={() => handleOpenBoardModal(board.id)}
                     >
                       {Array.from({ length: kenoBac }).map((_, idx) => {
                         const num = board.numbers[idx];
                         return (
-                          <View 
-                            key={idx} 
+                          <View
+                            key={idx}
                             style={[
                               styles.circleBall,
                               { width: ballSize, height: ballSize, borderRadius: ballSize / 2 },
@@ -1960,7 +1966,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
                     {/* Refresh Auto-select & Price */}
                     <View style={styles.boardControls}>
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         style={styles.refreshBtn}
                         onPress={() => autoSelectBoard(board.id, kenoBac)}
                       >
@@ -2009,7 +2015,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
             {/* Dropdowns selectors Row */}
             <View style={styles.dropdownsRow}>
               {/* Dropdown 1: Loại bao */}
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.dropdownBtn}
                 onPress={() => setIsBaoTypePickerVisible(true)}
               >
@@ -2018,7 +2024,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
               </TouchableOpacity>
 
               {/* Dropdown 2: Bậc chơi */}
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.dropdownBtn}
                 onPress={() => setIsBaoBacPickerVisible(true)}
               >
@@ -2044,13 +2050,13 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
             {/* Selection Section */}
             <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.boardsContent}>
               <Text style={styles.sectionHeading}>Chọn số:</Text>
-              
+
               <View style={styles.boardRow}>
                 {/* Board Letter */}
                 <Text style={styles.boardLetter}>A</Text>
 
                 {/* Empty or filled circles */}
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.circlesContainer, { gap: 8 }]}
                   onPress={handleOpenBaoModal}
                 >
@@ -2059,8 +2065,8 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                     const ballSize = 32;
                     const ballFontSize = 12;
                     return (
-                      <View 
-                        key={idx} 
+                      <View
+                        key={idx}
                         style={[
                           styles.circleBall,
                           { width: ballSize, height: ballSize, borderRadius: ballSize / 2 },
@@ -2081,7 +2087,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
                 {/* Trash & Price Controls */}
                 <View style={styles.boardControls}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.trashBtn}
                     onPress={() => setBaoNumbers([])}
                   >
@@ -2116,8 +2122,8 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
             {/* Bottom Actions for Bao */}
             <View style={[styles.footerContainer, { paddingBottom: 12 + insets.bottom }]}>
               <View style={styles.footerButtons}>
-                <TouchableOpacity 
-                  style={styles.singlePillActionBtn} 
+                <TouchableOpacity
+                  style={styles.singlePillActionBtn}
                   onPress={autoSelectBaoNumbers}
                 >
                   <RefreshCw size={14} color="#007AFF" />
@@ -2286,7 +2292,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
               {/* Prize Structure Card */}
               <View style={styles.prizeStructureContainer}>
                 <Text style={styles.prizeStructureTitle}>Cơ cấu giải thưởng</Text>
-                
+
                 {/* CHẴN */}
                 <View style={styles.prizeRow}>
                   <View style={styles.prizeLeftCol}>
@@ -2470,7 +2476,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
               <View style={[styles.modalInnerBody, { paddingBottom: Math.max(16, insets.bottom + 16) }]}>
                 {/* 80 grid numbers scroll (10 columns grid) */}
-                <ScrollView 
+                <ScrollView
                   showsVerticalScrollIndicator={false}
                   contentContainerStyle={styles.modalScrollGrid}
                 >
@@ -2502,26 +2508,26 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                 {/* Redesigned Bottom Actions Row */}
                 <View style={styles.newModalFooter}>
                   <View style={styles.modalActionButtonsRow}>
-                    <TouchableOpacity 
-                      style={styles.modalActionBtnClear} 
+                    <TouchableOpacity
+                      style={styles.modalActionBtnClear}
                       onPress={() => setTempSelectedNumbers([])}
                     >
                       <Text style={styles.modalActionBtnTextClear}>Xoá</Text>
                     </TouchableOpacity>
-                    
-                    <TouchableOpacity 
-                      style={styles.modalActionBtnRandom} 
+
+                    <TouchableOpacity
+                      style={styles.modalActionBtnRandom}
                       onPress={modalAutoSelect}
                     >
                       <Text style={styles.modalActionBtnTextRandom}>Ngẫu nhiên</Text>
                     </TouchableOpacity>
                   </View>
 
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={[
                       styles.modalBtnContinue,
                       tempSelectedNumbers.length !== (activeBoardId === 'BAO' ? baoType : kenoBac) && styles.modalBtnContinueDisabled
-                    ]} 
+                    ]}
                     onPress={confirmModalNumbers}
                   >
                     <Text style={styles.modalBtnContinueText}>Tiếp tục</Text>
@@ -2557,8 +2563,8 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                   </TouchableOpacity>
                 ))}
               </ScrollView>
-              <TouchableOpacity 
-                style={styles.pickerCloseBtn} 
+              <TouchableOpacity
+                style={styles.pickerCloseBtn}
                 onPress={() => setIsBaoTypePickerVisible(false)}
               >
                 <Text style={styles.pickerCloseBtnText}>Đóng</Text>
@@ -2589,8 +2595,8 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                   </TouchableOpacity>
                 ))}
               </ScrollView>
-              <TouchableOpacity 
-                style={styles.pickerCloseBtn} 
+              <TouchableOpacity
+                style={styles.pickerCloseBtn}
                 onPress={() => setIsBaoBacPickerVisible(false)}
               >
                 <Text style={styles.pickerCloseBtnText}>Đóng</Text>
@@ -2915,8 +2921,8 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
             })}
           </View>
         ) : !isMax4d ? (
-          <ScrollView 
-            horizontal 
+          <ScrollView
+            horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.playTabsScroll}
           >
@@ -2937,7 +2943,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
             <TouchableOpacity
               style={[
-                styles.playTabBtn, 
+                styles.playTabBtn,
                 ['Bao 13', 'Bao 14', 'Bao 15', 'Bao 18'].includes(standardPlayType) && styles.playTabBtnActive
               ]}
               onPress={() => setIsBaoDropdownOpen(!isBaoDropdownOpen)}
@@ -3017,8 +3023,8 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
       {/* Period/Draw Selection Row */}
       <View style={styles.periodRowContainer}>
-        <TouchableOpacity 
-          style={styles.periodBox} 
+        <TouchableOpacity
+          style={styles.periodBox}
           onPress={() => {
             setTempSelectedDrawIndex(selectedDrawIndex);
             setIsStandardDrawPickerVisible(true);
@@ -3026,7 +3032,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
         >
           <Text style={styles.periodLabel}>Kỳ quay:</Text>
           <Text style={styles.periodValueRed}>
-            {activeDraw?.id || 'Đang tải...'} - {activeDraw?.dateStr || ''}
+            {activeDraw?.drawCode || 'Đang tải...'} - {activeDraw?.dateStr || ''}
           </Text>
           <Text style={styles.periodTime}>
             {formatTime(countdown)} ▼
@@ -3205,7 +3211,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
             </View>
 
             {/* Right side multiplier pill (tall button) */}
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.bao2MultiplierBox}
               onPress={() => {
                 setActiveMultiplierBoardIndex(null);
@@ -3263,7 +3269,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                   </View>
                 );
               }
-              
+
               if (num !== undefined && num !== '') {
                 return (
                   <View key={idx} style={[styles.filledCircle, { backgroundColor: activeColor }]}>
@@ -3279,7 +3285,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
             const renderLottoCircles = () => {
               const { main: reqMain, special: reqSpecial } = getLottoRequiredCounts();
-              
+
               const renderLottoBall = (num: string | undefined, isSpecial: boolean, idx: number) => {
                 const color = isSpecial ? '#FF8A00' : '#0F8A5F';
                 if (board.isTC) {
@@ -3305,7 +3311,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                   {/* Main numbers */}
                   <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
-                    {Array.from({ length: reqMain }).map((_, idx) => 
+                    {Array.from({ length: reqMain }).map((_, idx) =>
                       renderLottoBall(board.numbers[idx], false, idx)
                     )}
                   </View>
@@ -3315,7 +3321,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
                   {/* Special numbers */}
                   <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
-                    {Array.from({ length: reqSpecial }).map((_, idx) => 
+                    {Array.from({ length: reqSpecial }).map((_, idx) =>
                       renderLottoBall(board.specialNumbers ? board.specialNumbers[idx] : undefined, true, idx)
                     )}
                   </View>
@@ -3466,7 +3472,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                 <Text style={[styles.standardBoardLetter, (isMax3d || isMax4d || isLottoGame || isLoto235 || isLotoCap || isDientoan636 || isThanTai4) && { color: '#0F2942' }]}>{board.id}</Text>
 
                 {/* Center Circles grid */}
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.standardCirclesGrid}
                   onPress={() => handleOpenStandardBoardModal(index)}
                 >
@@ -3486,10 +3492,10 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                       <View style={{ flexDirection: 'row', gap: 6 }}>
                         {Array.from({ length: 3 }).map((_, idx) => renderSingleCircle(idx))}
                       </View>
-                      
+
                       {/* Divider */}
                       <View style={{ width: 1.5, height: 20, backgroundColor: '#D0D5DD', marginHorizontal: 4 }} />
-                      
+
                       {/* Last 3 circles */}
                       <View style={{ flexDirection: 'row', gap: 6 }}>
                         {Array.from({ length: 3 }).map((_, idx) => renderSingleCircle(idx + 3))}
@@ -3507,7 +3513,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                   {hasContent ? (
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                       {(isMax3d || isMax4d || isLoto235 || isLotoCap) && (
-                        <TouchableOpacity 
+                        <TouchableOpacity
                           style={styles.max3dPill}
                           onPress={() => {
                             if (isLoto235 || isLotoCap) {
@@ -3523,7 +3529,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                           </Text>
                         </TouchableOpacity>
                       )}
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         style={styles.rowDeleteBtn}
                         onPress={() => handleClearBoard(index)}
                       >
@@ -3533,7 +3539,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                   ) : (
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                       {(isMax3d || isMax4d || isLoto235 || isLotoCap) && (
-                        <TouchableOpacity 
+                        <TouchableOpacity
                           style={styles.max3dPill}
                           onPress={() => {
                             if (isLoto235 || isLotoCap) {
@@ -3549,7 +3555,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                           </Text>
                         </TouchableOpacity>
                       )}
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         style={styles.rowRefreshBtn}
                         onPress={() => handleAutoPickBoard(index)}
                       >
@@ -3569,8 +3575,8 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
         {isLoto235 || isLotoCap || isDientoan636 || isThanTai4 ? (
           (isLoto235 ? loto235PlayType !== 'Bao 2 số' : isDientoan636 ? dientoan636PlayType !== 'Bao 6x36' : true) && (
             <View style={{ alignItems: 'center', width: '100%', marginBottom: 12 }}>
-              <TouchableOpacity 
-                style={[styles.standardPillBtn, { width: '90%', justifyContent: 'center', borderWidth: 1, borderColor: '#D0D5DD', paddingVertical: 10, borderRadius: 24 }]} 
+              <TouchableOpacity
+                style={[styles.standardPillBtn, { width: '90%', justifyContent: 'center', borderWidth: 1, borderColor: '#D0D5DD', paddingVertical: 10, borderRadius: 24 }]}
                 onPress={handleChọnNhanh}
               >
                 <RotateCw size={14} color="#0084FA" />
@@ -3714,7 +3720,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                     {tempMax3dSlots.map((val, idx) => {
                       const reqCount = tempMax3dSlots.length;
                       const isActive = idx === activeSlotIndex;
-                      
+
                       return (
                         <React.Fragment key={idx}>
                           {idx === 3 && reqCount === 6 && (
@@ -3740,7 +3746,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                       );
                     })}
                   </View>
-                  
+
                   {/* Keyboard Grid */}
                   <View style={styles.max3dKeyboardGrid}>
                     {['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
@@ -3787,26 +3793,26 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
               {/* Modal Footer */}
               <View style={styles.newModalFooter}>
                 <View style={styles.modalActionButtonsRow}>
-                  <TouchableOpacity 
-                    style={styles.modalActionBtnClear} 
+                  <TouchableOpacity
+                    style={styles.modalActionBtnClear}
                     onPress={
-                      isLottoGame 
+                      isLottoGame
                         ? () => { setTempStandardNumbers([]); setTempLottoSpecialNumbers([]); }
-                        : isDigitPicker 
-                          ? handleMax3dClear 
+                        : isDigitPicker
+                          ? handleMax3dClear
                           : () => setTempStandardNumbers([])
                     }
                   >
                     <Text style={styles.modalActionBtnTextClear}>Xoá</Text>
                   </TouchableOpacity>
-                  
-                  <TouchableOpacity 
-                    style={styles.modalActionBtnRandom} 
+
+                  <TouchableOpacity
+                    style={styles.modalActionBtnRandom}
                     onPress={
-                      isLottoGame 
-                        ? handleLottoModalRandom 
-                        : isDigitPicker 
-                          ? handleMax3dRandom 
+                      isLottoGame
+                        ? handleLottoModalRandom
+                        : isDigitPicker
+                          ? handleMax3dRandom
                           : standardModalAutoSelect
                     }
                   >
@@ -3814,20 +3820,20 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                   </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[
                     styles.modalBtnContinue,
                     isLottoGame
                       ? ((tempStandardNumbers.length !== getLottoRequiredCounts().main || tempLottoSpecialNumbers.length !== getLottoRequiredCounts().special) && styles.modalBtnContinueDisabled)
-                      : isDigitPicker 
+                      : isDigitPicker
                         ? (tempMax3dSlots.some((s) => s === '') && styles.modalBtnContinueDisabled)
                         : (tempStandardNumbers.length !== getRequiredNumbersCount(standardPlayType) && styles.modalBtnContinueDisabled)
-                  ]} 
+                  ]}
                   onPress={
-                    isLottoGame 
-                      ? handleLottoModalConfirm 
-                      : isDigitPicker 
-                        ? handleMax3dConfirm 
+                    isLottoGame
+                      ? handleLottoModalConfirm
+                      : isDigitPicker
+                        ? handleMax3dConfirm
                         : confirmStandardModalNumbers
                   }
                 >
@@ -4262,7 +4268,7 @@ const styles = StyleSheet.create({
   boardsContent: {
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.sm,
-    paddingBottom: 160,
+    paddingBottom: 220,
   },
   boardRow: {
     flexDirection: 'row',

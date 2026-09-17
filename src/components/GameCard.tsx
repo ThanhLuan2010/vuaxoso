@@ -76,6 +76,7 @@ export default function GameCard({ item, activeDraw, onPress, isHorizontal = fal
   const isMax4d = item.code === 'max_4d';
   const isLotto = item.code === 'lotto_535' || item.code === 'lotto_570';
   const isLotto570 = item.code === 'lotto_570';
+  const isXoSo3Mien = item.code === 'xoso_3mien';
 
   const isLoto235 = item.code === 'loto_235';
   const isLotoCap = item.code === 'loto_cap';
@@ -102,6 +103,26 @@ export default function GameCard({ item, activeDraw, onPress, isHorizontal = fal
     if (isMuaChung) return 'Góp NHỎ trúng TO!';
     return '';
   };
+
+  if (isHorizontal && isXoSo3Mien) {
+    return (
+      <TouchableOpacity style={styles.horizontalCard} onPress={onPress}>
+        <View style={styles.horizontalLeft}>
+          <Text style={[styles.lottoGreenSmall, { color: '#E51F27' }]}>XỔ SỐ</Text>
+          <Text style={[styles.lottoGreenBig, { color: '#1A4B7A', fontSize: 20 }]}>3 MIỀN</Text>
+        </View>
+
+        <View style={styles.horizontalCenter}>
+          <Text style={styles.horizontalTitleLabel}>ĐÁNH LÔ ĐỀ</Text>
+          <Text style={[styles.horizontalPrize, { color: '#D0021B', fontSize: 13, marginTop: 4 }]}>Bao Lô, Đánh Đề, Xiên</Text>
+        </View>
+
+        <View style={styles.horizontalRight}>
+          <RedPouchIcon />
+        </View>
+      </TouchableOpacity>
+    );
+  }
 
   if (isHorizontal && isLotto) {
     return (

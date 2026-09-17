@@ -36,7 +36,33 @@ const VIETNAM_BANKS = [
   { label: 'HDBank', value: 'HDBank' },
   { label: 'SHB', value: 'SHB' },
   { label: 'SeABank', value: 'SeABank' },
-  { label: 'LienVietPostBank', value: 'LienVietPostBank' }
+  { label: 'LienVietPostBank', value: 'LienVietPostBank' },
+  { label: 'Nam A Bank', value: 'Nam A Bank' },
+  { label: 'OCB', value: 'OCB' },
+  { label: 'MSB', value: 'MSB' },
+  { label: 'Bac A Bank', value: 'Bac A Bank' },
+  { label: 'ABBank', value: 'ABBank' },
+  { label: 'VietBank', value: 'VietBank' },
+  { label: 'Kienlongbank', value: 'Kienlongbank' },
+  { label: 'PGBank', value: 'PGBank' },
+  { label: 'Saigonbank', value: 'Saigonbank' },
+  { label: 'BaoViet Bank', value: 'BaoViet Bank' },
+  { label: 'Viet Capital Bank', value: 'Viet Capital Bank' },
+  { label: 'Eximbank', value: 'Eximbank' },
+  { label: 'NCB', value: 'NCB' },
+  { label: 'SCB', value: 'SCB' },
+  { label: 'DongA Bank', value: 'DongA Bank' },
+  { label: 'OceanBank', value: 'OceanBank' },
+  { label: 'GPBank', value: 'GPBank' },
+  { label: 'CB', value: 'CB' },
+  { label: 'VietA Bank', value: 'VietA Bank' },
+  { label: 'Public Bank', value: 'Public Bank' },
+  { label: 'Shinhan Bank', value: 'Shinhan Bank' },
+  { label: 'Woori Bank', value: 'Woori Bank' },
+  { label: 'Standard Chartered', value: 'Standard Chartered' },
+  { label: 'CIMB', value: 'CIMB' },
+  { label: 'UOB', value: 'UOB' },
+  { label: 'Hong Leong Bank', value: 'Hong Leong Bank' }
 ];
 
 export default function PaymentMethodsScreen() {
@@ -197,7 +223,7 @@ export default function PaymentMethodsScreen() {
                 <Text style={styles.cardDesc}>{bank.accountName}</Text>
               </View>
               {bank.qrCode && (
-                <Image source={{ uri: bank.qrCode }} style={{ width: 40, height: 40, borderRadius: 4 }} />
+                <Image source={{ uri: bank.qrCode.startsWith('/') ? `${api.defaults.baseURL?.replace('/api', '')}${bank.qrCode}` : bank.qrCode }} style={{ width: 40, height: 40, borderRadius: 4 }} />
               )}
             </View>
           ))}
@@ -279,7 +305,7 @@ export default function PaymentMethodsScreen() {
                 <Text style={styles.cardDesc}>{wallet.address}</Text>
               </View>
               {wallet.qrCode && (
-                <Image source={{ uri: wallet.qrCode }} style={{ width: 40, height: 40, borderRadius: 4 }} />
+                <Image source={{ uri: wallet.qrCode.startsWith('/') ? `${api.defaults.baseURL?.replace('/api', '')}${wallet.qrCode}` : wallet.qrCode }} style={{ width: 40, height: 40, borderRadius: 4 }} />
               )}
             </View>
           ))}

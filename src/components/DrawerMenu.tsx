@@ -42,7 +42,7 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
   const slideAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
   const [showModal, setShowModal] = React.useState(visible);
 
-  const { user, logout } = useAppStore();
+  const { user, logout, fetchProfile } = useAppStore();
 
   const formatVND = (num: number) => {
     return num.toLocaleString('vi-VN') + 'đ';
@@ -50,6 +50,7 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
 
   useEffect(() => {
     if (visible) {
+      fetchProfile();
       setShowModal(true);
       // Wait for modal to mount before animating
       setTimeout(() => {

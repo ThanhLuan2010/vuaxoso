@@ -154,6 +154,7 @@ export default function HistoryScreen() {
                   case 'lotto_570': ticketTypeStr = 'LOTTO 5/70'; break;
                   case 'loto_235': ticketTypeStr = 'LÔ TÔ 235'; break;
                   case 'loto_cap': ticketTypeStr = 'LÔ TÔ CẶP'; break;
+                  case 'xoso_3mien': ticketTypeStr = 'LÔ ĐỀ 3 MIỀN'; break;
                   case 'than_tai_4': ticketTypeStr = 'THẦN TÀI 4'; break;
                   case 'dientoan_636': ticketTypeStr = 'ĐIỆN TOÁN 636'; break;
                   default: ticketTypeStr = ticket.gameType.replace(/_/g, ' ').toUpperCase(); break;

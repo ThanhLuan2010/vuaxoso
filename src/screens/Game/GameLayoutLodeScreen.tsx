@@ -1,14 +1,24 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { ChevronLeft, Info } from 'lucide-react-native';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Alert, StatusBar, Modal, KeyboardAvoidingView, Platform
+  Alert,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChevronLeft, Info, HelpCircle } from 'lucide-react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
-import { useAppStore } from '../../store/useAppStore';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import api from '../../services/api';
+import { useAppStore } from '../../store/useAppStore';
+import { BORDER_RADIUS, COLORS, SHADOWS, SPACING, TYPOGRAPHY } from '../../theme/theme';
 
 type Region = 'mn' | 'mt' | 'mb';
 type MainCategory = 'Bao Lô' | 'Đề' | 'Xiên' | '3 Càng' | '4 Càng' | 'Lô Trượt';
@@ -56,12 +66,12 @@ const BET_DATA: Record<'mn_mt' | 'mb', Record<MainCategory, BetOption[]>> = {
       { name: '3 Càng giải 1', multiplier: 1, rate: 980 },
       { name: '3 Càng đầu giải 1', multiplier: 1, rate: 980 },
       { name: '3 Càng đầu đuôi', multiplier: 2, rate: 980 },
-      { name: 'Xiên 3 ĐB', multiplier: 1, rate: 158 },
+      { name: 'Xiên 3 càng ĐB', multiplier: 1, rate: 158 },
     ],
     '4 Càng': [
       { name: '4 Càng ĐB', multiplier: 1, rate: 9000 },
       { name: '4 Càng giải 1', multiplier: 1, rate: 9000 },
-      { name: 'Xiên 4 ĐB', multiplier: 1, rate: 388 },
+      { name: 'Xiên 4 càng ĐB', multiplier: 1, rate: 388 },
     ],
     'Lô Trượt': [
       { name: 'Lô Trượt Xiên 4', multiplier: 1, rate: 1.8 },
@@ -104,12 +114,12 @@ const BET_DATA: Record<'mn_mt' | 'mb', Record<MainCategory, BetOption[]>> = {
       { name: '3 Càng giải 6', multiplier: 3, rate: 980 },
       { name: '3 Càng giải 1', multiplier: 1, rate: 980 },
       { name: '3 Càng đầu đuôi', multiplier: 4, rate: 980 },
-      { name: 'Xiên 3 ĐB', multiplier: 1, rate: 158 },
+      { name: 'Xiên 3 càng ĐB', multiplier: 1, rate: 158 },
     ],
     '4 Càng': [
       { name: '4 Càng ĐB', multiplier: 1, rate: 9000 },
       { name: '4 Càng giải 1', multiplier: 1, rate: 9000 },
-      { name: 'Xiên 4 ĐB', multiplier: 1, rate: 388 },
+      { name: 'Xiên 4 càng ĐB', multiplier: 1, rate: 388 },
     ],
     'Lô Trượt': [
       { name: 'Lô Trượt Xiên 4', multiplier: 1, rate: 2.3 },
@@ -124,7 +134,7 @@ const MAIN_CATEGORIES: MainCategory[] = ['Bao Lô', 'Đề', 'Xiên', '3 Càng',
 
 const getExpectedLength = (name: string) => {
   const n = name.toLowerCase();
-  if (n === 'đề đầu' || n === 'đề đuôi' || n === 'xiên đb' || n === 'xiên giải 1' || n === 'xiên 3 đb' || n === 'xiên 4 đb') return 1;
+  if (n === 'đề đầu' || n === 'đề đuôi' || n === 'xiên đb' || n === 'xiên giải 1' || n === 'xiên 3 càng đb' || n === 'xiên 4 càng đb') return 1;
   if (n.includes('3 số') || n.includes('3 càng')) return 3;
   if (n.includes('4 số') || n.includes('4 càng')) return 4;
   return 2;
@@ -138,7 +148,7 @@ const isXienCombo = (name: string) => {
 const parseNumbers = (input: string, selectedSub: BetOption) => {
   if (!input.trim()) return { numbers: [], error: null };
   const expectedLength = getExpectedLength(selectedSub.name);
-  
+
   if (isXienCombo(selectedSub.name)) {
     if (input.includes('  ')) {
       return { numbers: [], error: 'Sai cú pháp: Khoảng cách không được vượt quá 1 lần trắng' };
@@ -150,12 +160,12 @@ const parseNumbers = (input: string, selectedSub: BetOption) => {
     if (selectedSub.name.includes('6')) k = 6;
     if (selectedSub.name.includes('8')) k = 8;
     if (selectedSub.name.includes('10')) k = 10;
-    
+
     const valid: string[] = [];
     const seenTickets = new Set<string>();
     for (const p of parts) {
       if (!p.includes('&')) {
-        return { numbers: [], error: `Cú pháp sai: Vé xiên phải ghép bằng dấu "&" (VD: 00&01)` };
+        return { numbers: [], error: `Cú pháp sai: Vé xiên phải ghép bằng dấu "&"` };
       }
       const nums = p.split('&');
       if (nums.length !== k) {
@@ -170,7 +180,7 @@ const parseNumbers = (input: string, selectedSub: BetOption) => {
           return { numbers: [], error: `Các cặp số xiên phải gồm 2 chữ số. Sai ở: ${n}` };
         }
       }
-      
+
       // Sort the numbers to normalize the ticket (01&02 is the same as 02&01)
       const sortedTicket = [...nums].sort().join('&');
       if (!seenTickets.has(sortedTicket)) {
@@ -187,21 +197,26 @@ const parseNumbers = (input: string, selectedSub: BetOption) => {
   }
   const rawParts = input.split(/[,\s;]+/).filter(Boolean);
   const unique = new Set<string>();
-  
+
   for (const part of rawParts) {
     if (!/^\d+$/.test(part)) return { numbers: [], error: `Có ký tự không hợp lệ: ${part}` };
     if (part.length !== expectedLength) return { numbers: [], error: `Yêu cầu đúng ${expectedLength} ký tự số. Đã nhập: ${part}` };
     unique.add(part);
   }
-  
+
   return { numbers: Array.from(unique), error: null };
 };
 
 const getXienPlaceholder = (name: string) => {
   const n = name.toLowerCase();
-  if (n.includes('3')) return "Nhập số... (VD: 68&78&88, 78&88&90)";
-  if (n.includes('4')) return "Nhập số... (VD: 68&78&88&98, 78&88&90&09)";
-  return "Nhập số... (VD: 68&78, 78&88)";
+  if (n.includes('trượt xiên 4')) return "Nhập số... (VD: 00&01&02&03)";
+  if (n.includes('trượt xiên 6')) return "Nhập số... (VD: 00&01&02&03&04&05)";
+  if (n.includes('trượt xiên 8')) return "Nhập số... (VD: 00&01&02&03&04&05&06&07)";
+  if (n.includes('trượt xiên 10')) return "Nhập số... (VD: 00&01&02&03&04&05&06&07&08&09)";
+
+  if (n.includes('3')) return "Nhập số... (VD: 68&78&88)";
+  if (n.includes('4')) return "Nhập số... (VD: 68&78&88&98)";
+  return "Nhập số... (VD: 68&78)";
 };
 
 const NumberPicker = ({ expectedLength, onNumbersGenerated, subName }: { expectedLength: number, onNumbersGenerated: (nums: string) => void, subName: string }) => {
@@ -238,7 +253,7 @@ const NumberPicker = ({ expectedLength, onNumbersGenerated, subName }: { expecte
 
   const renderRow = (label: string, type: 'thousands' | 'hundreds' | 'tens' | 'units', selectedArr: number[]) => {
     const isSingleDigitMode = expectedLength === 1;
-    const hideLabel = isSingleDigitMode && (subName.toLowerCase() === 'xiên đb' || subName.toLowerCase() === 'xiên giải 1' || subName.toLowerCase() === 'xiên 3 đb' || subName.toLowerCase() === 'xiên 4 đb');
+    const hideLabel = isSingleDigitMode && (subName.toLowerCase() === 'xiên đb' || subName.toLowerCase() === 'xiên giải 1' || subName.toLowerCase() === 'xiên 3 càng đb' || subName.toLowerCase() === 'xiên 4 càng đb');
     return (
       <View style={styles.pickerRow}>
         {!hideLabel && <Text style={styles.pickerRowLabel}>{label}</Text>}
@@ -271,7 +286,7 @@ const NumberPicker = ({ expectedLength, onNumbersGenerated, subName }: { expecte
 export default function GameLayoutLodeScreen({ route, navigation }: any) {
   const insets = useSafeAreaInsets();
   const { addToCart } = useAppStore();
-  const gameId = route.params?.gameId || 'lotto_535';
+  const gameId = route.params?.gameId || 'xoso_3mien';
 
   const [region, setRegion] = useState<Region>('mn');
   const [selectedCategory, setSelectedCategory] = useState<MainCategory>('Bao Lô');
@@ -282,7 +297,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
 
   const [provinceOpen, setProvinceOpen] = useState(false);
   const [provinceValue, setProvinceValue] = useState<string | null>(null);
-  const [provinceItems, setProvinceItems] = useState<{label: string, value: string}[]>([]);
+  const [provinceItems, setProvinceItems] = useState<{ label: string, value: string }[]>([]);
   const [allProvinces, setAllProvinces] = useState<any[]>([]);
 
   useEffect(() => {
@@ -298,7 +313,15 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
   }, []);
 
   useEffect(() => {
-    const filtered = allProvinces.filter(p => p.region.toLowerCase() === region);
+    const today = new Date().getDay();
+    const filtered = allProvinces.filter(p => {
+      if (p.region.toLowerCase() !== region) return false;
+      if (p.drawDays && Array.isArray(p.drawDays)) {
+        return p.drawDays.includes(today);
+      }
+      return true;
+    });
+
     const items = filtered.map(p => ({ label: p.name, value: p.provinceId }));
     setProvinceItems(items);
     if (items.length > 0 && !items.find(i => i.value === provinceValue)) {
@@ -334,7 +357,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
   const calculateWinAmount = () => {
     if (currentParsed.error || currentParsed.numbers.length === 0 || !inputNumbers.trim()) return 0;
     const amountNum = parseInt(baseAmount) || 0;
-    return amountNum * selectedSub.rate;
+    return currentParsed.numbers.length * amountNum * selectedSub.rate;
   };
 
   const handleAddToCart = () => {
@@ -366,10 +389,10 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
     navigation.goBack();
   };
   // Các loại cược này BẮT BUỘC dùng NumberPicker (Không cho nhập tay)
-  const isManualDisabled = ['đề đầu', 'đề đuôi'].includes(selectedSub.name.toLowerCase());
+  const isManualDisabled = ['đề đầu', 'đề đuôi', 'xiên đb', 'xiên giải 1', 'xiên 3 càng đb', 'xiên 4 càng đb'].includes(selectedSub.name.toLowerCase());
 
   // Các loại cược này BẮT BUỘC nhập tay (Không hiển thị NumberPicker)
-  const isNumberPickerHidden = isXienCombo(selectedSub.name) || selectedSub.name.toLowerCase().includes('xiên đb') || selectedSub.name.toLowerCase().includes('xiên giải 1');
+  const isNumberPickerHidden = isXienCombo(selectedSub.name);
 
   return (
     <View style={styles.container}>
@@ -465,13 +488,15 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
           <View style={styles.descriptionBlock}>
             <View style={styles.descriptionRow}>
               <Info size={16} color={COLORS.textLight} style={{ marginRight: SPACING.xs }} />
-              <Text style={styles.descriptionText}>{selectedSub.description || `Đánh ${selectedSub.name}. Có trong KQXS thì thắng.`}</Text>
+              <Text style={styles.descriptionText}>
+                {selectedSub.description || (selectedSub.name.toLowerCase().includes('trượt') ? `Đánh ${selectedSub.name}. Không có trong KQXS thì thắng.` : `Đánh ${selectedSub.name}. Có trong KQXS thì thắng.`)}
+              </Text>
             </View>
-            <View style={styles.descriptionRow}>
+            <View style={[styles.descriptionRow, { marginLeft: 20 }]}>
               <Text style={styles.descriptionLabel}>Cấp nhân (Tiền xác):</Text>
               <Text style={styles.descriptionValue}>x{selectedSub.multiplier}</Text>
             </View>
-            <View style={styles.descriptionRow}>
+            <View style={[styles.descriptionRow, { marginLeft: 20 }]}>
               <Text style={styles.descriptionLabel}>Tỉ lệ thắng:</Text>
               <Text style={[styles.descriptionValue, { color: COLORS.error }]}>1 ăn {selectedSub.rate}</Text>
             </View>
@@ -490,14 +515,14 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
           <Text style={styles.inputHint}>
             {isXienCombo(selectedSub.name)
               ? 'Ngăn cách các cặp số bằng dấu: , hoặc ; hoặc khoảng cách'
-              : 'Ngăn cách bằng dấu phẩy, chấm phẩy hoặc khoảng trắng (vd: 68 86, 99)'}
+              : 'Ngăn cách bằng dấu phẩy, chấm phẩy hoặc khoảng trắng'}
           </Text>
 
           <TextInput
             style={[styles.textInput, isManualDisabled && { backgroundColor: COLORS.gray200 }]}
             value={inputNumbers}
             onChangeText={setInputNumbers}
-            placeholder={isManualDisabled ? "Không nhập tay được. Vui lòng bấm chọn số bất kỳ." : isXienCombo(selectedSub.name) ? getXienPlaceholder(selectedSub.name) : "Nhập số... (VD: 68,78)"}
+            placeholder={isManualDisabled ? "Không nhập tay được. Vui lòng bấm chọn số bất kỳ." : isXienCombo(selectedSub.name) ? getXienPlaceholder(selectedSub.name) : "Nhập số... (VD: 688,788)"}
             placeholderTextColor={COLORS.textMuted}
             keyboardType="numbers-and-punctuation"
             multiline
@@ -509,7 +534,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
             style={[styles.textInput, { minHeight: 48 }]}
             value={baseAmount ? Number(baseAmount.replace(/[^0-9]/g, '')).toLocaleString('vi-VN') : ''}
             onChangeText={(text) => setBaseAmount(text.replace(/[^0-9]/g, ''))}
-            placeholder="Nhập số tiền... (VD: 1000)"
+            placeholder="Nhập số tiền..."
             placeholderTextColor={COLORS.textMuted}
             keyboardType="numeric"
           />
@@ -534,7 +559,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
               ) : null}
             </View>
           )}
-          
+
           <View style={styles.footerRow}>
             <View>
               <Text style={styles.footerLabel}>Tổng thanh toán</Text>

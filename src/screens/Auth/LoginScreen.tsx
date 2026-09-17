@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Linking } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import Toast from 'react-native-toast-message';
 import { useAppStore } from '../../store/useAppStore';
 import { COLORS, TYPOGRAPHY, SPACING, BORDER_RADIUS } from '../../theme/theme';
+import { Headset } from 'lucide-react-native';
 
 export default function LoginScreen() {
   const [isRegister, setIsRegister] = useState(false);
@@ -118,10 +119,29 @@ export default function LoginScreen() {
         {loading ? <ActivityIndicator color="#FFF" /> : <Text style={styles.btnText}>{isRegister ? 'Đăng ký' : 'Đăng nhập'}</Text>}
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.toggleBtn} onPress={toggleMode}>
-        <Text style={styles.toggleText}>
-          {isRegister ? 'Đã có tài khoản? Đăng nhập ngay' : 'Chưa có tài khoản? Đăng ký ngay'}
-        </Text>
+      {isRegister ? (
+        <TouchableOpacity style={styles.toggleBtn} onPress={toggleMode}>
+          <Text style={styles.toggleText}>Đã có tài khoản? Đăng nhập ngay</Text>
+        </TouchableOpacity>
+      ) : (
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: SPACING.md }}>
+          <TouchableOpacity onPress={() => Toast.show({ type: 'info', text1: 'Thông báo', text2: 'Vui lòng liên hệ CSKH để cấp lại mật khẩu' })}>
+            <Text style={{ color: '#0A3B7C', fontSize: 14, fontWeight: '500' }}>Quên mật khẩu?</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={toggleMode}>
+            <Text style={{ color: '#E51F27', fontSize: 14, fontWeight: '500' }}>Đăng ký mới</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      <TouchableOpacity 
+        style={styles.cskhBtn} 
+        onPress={() => Linking.openURL('https://t.me/mobileappp')}
+      >
+        <Text style={styles.cskhText}>CSKH</Text>
+        <View style={styles.cskhIconWrapper}>
+          <Headset size={20} color="#FFF" />
+        </View>
       </TouchableOpacity>
     </View>
   );
@@ -181,4 +201,25 @@ const styles = StyleSheet.create({
     color: '#0066FF',
     fontSize: 14,
   },
+  cskhBtn: {
+    position: 'absolute',
+    bottom: 40,
+    right: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  cskhText: {
+    color: '#0084FF',
+    fontWeight: 'bold',
+    marginRight: 8,
+    fontSize: 16,
+  },
+  cskhIconWrapper: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#0084FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  }
 });

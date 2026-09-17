@@ -14,21 +14,37 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChevronLeft, Info, Copy, QrCode } from 'lucide-react-native';
+import { ChevronLeft, Info, Copy, QrCode, ImageIcon } from 'lucide-react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { useAppStore } from '../../store/useAppStore';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
 import api from '../../services/api';
 
 export default function DepositBinanceScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
+  const { user, requestDeposit } = useAppStore();
+  const [activeMode, setActiveMode] = useState<'auto' | 'manual'>('auto');
+  const [receiptImageUri, setReceiptImageUri] = useState('');
   const [amountStr, setAmountStr] = useState('');
   const [txId, setTxId] = useState('');
   const [loading, setLoading] = useState(false);
   const [binanceConfig, setBinanceConfig] = useState<any>(null);
-  
+
   const [selectedWalletIndex, setSelectedWalletIndex] = useState(0);
   const [isWalletDropdownOpen, setIsWalletDropdownOpen] = useState(false);
+
+  const txTimeSuffix = React.useMemo(() => {
+    const d = new Date();
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    const hh = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    const ss = String(d.getSeconds()).padStart(2, '0');
+    return `${dd}${mm}${yyyy}${hh}${min}${ss}`;
+  }, []);
 
   useEffect(() => {
     fetchBinanceConfig();
@@ -54,22 +70,80 @@ export default function DepositBinanceScreen() {
     setAmountStr(formatted);
   };
 
+  const handlePickReceipt = async () => {
+    const result = await launchImageLibrary({
+      mediaType: 'photo',
+      quality: 0.8,
+    });
+    if (result.didCancel || !result.assets?.[0]) return;
+    setReceiptImageUri(result.assets[0].uri || '');
+  };
+
   const handleDeposit = async () => {
-    if (!txId) {
-      Alert.alert('Lỗi', 'Vui lòng nhập Mã giao dịch (TxID)');
-      return;
-    }
-    
-    setLoading(true);
-    try {
-      await api.post('/wallet/deposit/binance', { txId });
-      Alert.alert('Thành công', 'Nạp tiền tự động qua Binance thành công!', [
-        { text: 'OK', onPress: () => navigation.goBack() }
-      ]);
-    } catch (error: any) {
-      Alert.alert('Lỗi', error.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại');
-    } finally {
-      setLoading(false);
+    if (activeMode === 'auto') {
+      if (!txId) {
+        Alert.alert('Lỗi', 'Vui lòng nhập Mã giao dịch (TxID)');
+        return;
+      }
+
+      setLoading(true);
+      try {
+        await api.post('/wallet/deposit/binance', { txId });
+        Alert.alert('Thành công', 'Nạp tiền tự động qua Binance thành công!', [
+          { text: 'OK', onPress: () => navigation.goBack() }
+        ]);
+      } catch (error: any) {
+        Alert.alert('Lỗi', error.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại');
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      const amtUsdt = parseFloat(amountStr.replace(/,/g, ''));
+      if (isNaN(amtUsdt) || amtUsdt <= 0) {
+        Alert.alert('Lỗi', 'Vui lòng nhập số tiền USDT nạp hợp lệ.');
+        return;
+      }
+      if (!receiptImageUri) {
+        Alert.alert('Lỗi', 'Vui lòng chọn ảnh biên lai.');
+        return;
+      }
+      setLoading(true);
+      try {
+        const formData = new FormData();
+        const ext = receiptImageUri.split('.').pop() || 'jpg';
+        formData.append('image', {
+          uri: Platform.OS === 'ios' ? receiptImageUri.replace('file://', '') : receiptImageUri,
+          type: `image/${ext === 'png' ? 'png' : 'jpeg'}`,
+          name: `receipt.${ext}`,
+        } as any);
+
+        const res = await api.post('/upload?folder=ImageDEP', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        const uploadedImageUrl = res.data.url;
+
+        const rate = binanceConfig?.exchangeRate || 25000;
+        const vndAmount = amtUsdt * rate;
+
+        const prefix = 'VXS';
+        const identifierValue = user ? (user as any).phone || '' : '';
+        const transferContent = `${prefix} ${identifierValue} ${txTimeSuffix}`.trim();
+        const destinationInfo = { network: activeWallet?.network, walletAddress: activeWallet?.walletAddress };
+
+        const { success, message } = await requestDeposit(vndAmount, uploadedImageUrl, transferContent, 'binance', destinationInfo);
+
+        if (success) {
+          Alert.alert('Thành công', 'Gửi yêu cầu nạp thủ công thành công!', [
+            { text: 'OK', onPress: () => navigation.goBack() }
+          ]);
+        } else {
+          Alert.alert('Thất bại', message || 'Có lỗi xảy ra.');
+        }
+      } catch (err: any) {
+        Alert.alert('Lỗi', err.response?.data?.message || 'Có lỗi khi tải lên biên lai');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -90,7 +164,7 @@ export default function DepositBinanceScreen() {
       style={styles.container}
     >
       <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
-      
+
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) }]}>
         <TouchableOpacity style={styles.headerBtn} onPress={() => navigation.goBack()}>
           <ChevronLeft size={24} color={COLORS.textDark} />
@@ -102,9 +176,24 @@ export default function DepositBinanceScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <View style={styles.tabContainer}>
+          <TouchableOpacity
+            style={[styles.tabItem, activeMode === 'auto' && styles.tabItemActive]}
+            onPress={() => setActiveMode('auto')}
+          >
+            <Text style={[styles.tabText, activeMode === 'auto' && styles.tabTextActive]}>Tự động</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tabItem, activeMode === 'manual' && styles.tabItemActive]}
+            onPress={() => setActiveMode('manual')}
+          >
+            <Text style={[styles.tabText, activeMode === 'manual' && styles.tabTextActive]}>Thủ công</Text>
+          </TouchableOpacity>
+        </View>
+
         <View style={[styles.section, { zIndex: 10 }]}>
           <Text style={styles.sectionTitle}>1. Thông tin ví nhận</Text>
-          
+
           {wallets.length > 1 && (
             <View style={{ marginBottom: SPACING.md, zIndex: 20 }}>
               <DropDownPicker
@@ -128,16 +217,16 @@ export default function DepositBinanceScreen() {
             <View style={{ alignItems: 'center', marginBottom: SPACING.md }}>
               {activeWallet?.qrImage ? (
                 <View style={{ padding: 12, backgroundColor: '#fff', borderRadius: 12, ...SHADOWS.light }}>
-                  <Image 
-                    source={{ uri: activeWallet.qrImage }} 
-                    style={{ width: 160, height: 160 }} 
+                  <Image
+                    source={{ uri: activeWallet.qrImage }}
+                    style={{ width: 160, height: 160 }}
                   />
                 </View>
               ) : activeWallet?.walletAddress ? (
                 <View style={{ padding: 12, backgroundColor: '#fff', borderRadius: 12, ...SHADOWS.light }}>
-                  <Image 
-                    source={{ uri: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${activeWallet.walletAddress}` }} 
-                    style={{ width: 160, height: 160 }} 
+                  <Image
+                    source={{ uri: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${activeWallet.walletAddress}` }}
+                    style={{ width: 160, height: 160 }}
                   />
                 </View>
               ) : (
@@ -175,25 +264,41 @@ export default function DepositBinanceScreen() {
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>3. Nhập Mã Giao Dịch (TxID)</Text>
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.txIdInput}
-              value={txId}
-              onChangeText={setTxId}
-              placeholder="VD: 5543bd12..."
-              placeholderTextColor={COLORS.gray400}
-            />
+        {activeMode === 'auto' ? (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>3. Nhập Mã Giao Dịch (TxID)</Text>
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.txIdInput}
+                value={txId}
+                onChangeText={setTxId}
+                placeholder="VD: 5543bd12..."
+                placeholderTextColor={COLORS.gray400}
+              />
+            </View>
+            <Text style={styles.noteText}>Sau khi chuyển khoản thành công trên app Binance (hoặc ví khác), copy mã TxID điền vào đây để hệ thống tự động duyệt.</Text>
           </View>
-          <Text style={styles.noteText}>Sau khi chuyển khoản thành công trên app Binance (hoặc ví khác), copy mã TxID điền vào đây để hệ thống tự động duyệt.</Text>
-        </View>
+        ) : (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>3. Ảnh biên lai</Text>
+            <TouchableOpacity style={styles.imagePickerBtn} onPress={handlePickReceipt}>
+              {receiptImageUri ? (
+                <Image source={{ uri: receiptImageUri }} style={styles.receiptImage} resizeMode="contain" />
+              ) : (
+                <View style={styles.imagePickerPlaceholder}>
+                  <ImageIcon size={32} color={COLORS.gray400} />
+                  <Text style={styles.imagePickerText}>Nhấn để tải lên ảnh chụp màn hình chuyển khoản thành công</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
 
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-        <TouchableOpacity 
-          style={[styles.submitBtn, loading && styles.submitBtnDisabled]} 
+        <TouchableOpacity
+          style={[styles.submitBtn, loading && styles.submitBtnDisabled]}
           onPress={handleDeposit}
           disabled={loading}
         >
@@ -229,6 +334,30 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: SPACING.lg,
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#FFF',
+    padding: 4,
+    borderRadius: BORDER_RADIUS.lg,
+    marginBottom: SPACING.lg,
+    ...SHADOWS.small,
+  },
+  tabItem: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderRadius: BORDER_RADIUS.md,
+  },
+  tabItemActive: {
+    backgroundColor: COLORS.primary,
+  },
+  tabText: {
+    ...TYPOGRAPHY.subtitle2,
+    color: COLORS.textLight,
+  },
+  tabTextActive: {
+    color: '#FFF',
   },
   section: {
     marginBottom: SPACING.xl,
@@ -317,5 +446,31 @@ const styles = StyleSheet.create({
   submitBtnText: {
     ...TYPOGRAPHY.h4,
     color: '#FFF',
+  },
+  imagePickerBtn: {
+    width: '100%',
+    height: 200,
+    backgroundColor: '#FFF',
+    borderRadius: BORDER_RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.gray200,
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  imagePickerPlaceholder: {
+    alignItems: 'center',
+    padding: SPACING.lg,
+  },
+  imagePickerText: {
+    ...TYPOGRAPHY.body2,
+    color: COLORS.gray500,
+    textAlign: 'center',
+    marginTop: SPACING.sm,
+  },
+  receiptImage: {
+    width: '100%',
+    height: '100%',
   },
 });

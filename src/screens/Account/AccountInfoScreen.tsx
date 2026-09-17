@@ -212,6 +212,14 @@ export default function AccountInfoScreen() {
     </View>
   );
 
+  const getImageUrl = (path: string) => {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    const baseURL = api.defaults.baseURL as string;
+    const host = baseURL.replace('/api', '');
+    return `${host}${path}`;
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#F5F5F5" />
@@ -280,7 +288,7 @@ export default function AccountInfoScreen() {
               <TouchableOpacity 
                 style={styles.verifyBtn} 
                 onPress={handleSendOtp}
-                disabled={isSendingOtp || isInfoUpdated || !email.trim()}
+                disabled={isSendingOtp || !email.trim()}
               >
                 {isSendingOtp ? (
                   <ActivityIndicator size="small" color="#007AFF" />
@@ -302,7 +310,7 @@ export default function AccountInfoScreen() {
             {isUploading ? (
               <ActivityIndicator color="#007AFF" />
             ) : cccdImage ? (
-              <Image source={{ uri: `https://api-vuaxoso.vipmarts.com${cccdImage}` }} style={styles.uploadedImage} />
+              <Image source={{ uri: getImageUrl(cccdImage) }} style={styles.uploadedImage} />
             ) : (
               <View style={styles.uploadPlaceholder}>
                 <Camera size={24} color={COLORS.gray500} />

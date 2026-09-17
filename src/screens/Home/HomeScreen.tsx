@@ -20,9 +20,17 @@ export default function HomeScreen({ navigation }: any) {
     fetchKienThietSchedule();
   }, []);
 
-  const vietlottGames = games.filter(g => g.type === 'vietlott' && g.code !== 'max_3d_pro' && g.code !== 'mua_chung' && g.code !== 'lotto_535' && g.code !== 'lotto_570');
-  const dientoanGames = games.filter(g => g.type === 'dientoan');
-  const lodeGames = games.filter(g => g.code === 'lotto_535' || g.code === 'lotto_570');
+  const vietlottGames = games.filter(g => (g.type === 'vietlott' || g.code === 'bingo18') && g.code !== 'max_3d_pro' && g.code !== 'mua_chung');
+  const dientoanGames = games.filter(g => g.type === 'dientoan' && g.code !== 'bingo18');
+  const lodeItem = {
+    _id: 'xoso_3mien',
+    code: 'xoso_3mien',
+    name: 'XỔ SỐ 3 MIỀN',
+    type: 'lode',
+    brandColor: '#E51F27',
+    bgColor: '#FCE8EA',
+    badge: 'Đủ 3 Miền'
+  };
   const getActiveDraw = (code: string) => {
     return activeDraws.find(d => d.game && d.game.code === code);
   };
@@ -59,6 +67,8 @@ export default function HomeScreen({ navigation }: any) {
       } else {
         navigation.navigate('GameLayoutA', { gameId });
       }
+    } else if (gameId === 'xoso_3mien') {
+      navigation.navigate('GameLayoutLode', { gameId });
     } else {
       navigation.navigate('GameLayoutB', { gameId });
     }
@@ -116,29 +126,26 @@ export default function HomeScreen({ navigation }: any) {
           </View>
         </View>
 
-        {/* SECTION 2.5: XỔ SỐ 3 MIỀN (LÔ ĐỀ) */}
+        {/* SECTION 2.5: XỔ SỐ 3 MIỀN */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>XỔ SỐ 3 MIỀN</Text>
           </View>
           <View style={styles.grid}>
-            {lodeGames.map((item) => (
-              <View key={item._id} style={{ width: '100%', padding: 4 }}>
-                <GameCard 
-                  item={item} 
-                  activeDraw={getActiveDraw(item.code)}
-                  onPress={() => handleGamePress(item.code)} 
-                  isHorizontal={true}
-                />
-              </View>
-            ))}
+            <View style={{ width: '100%', padding: 4 }}>
+              <GameCard 
+                item={lodeItem} 
+                onPress={() => handleGamePress(lodeItem.code)} 
+                isHorizontal={true}
+              />
+            </View>
           </View>
         </View>
 
         {/* SECTION 3: KIẾN THIẾT */}
         <View style={[styles.section, { marginBottom: SPACING.xxl }]}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>KIẾN THIẾT</Text>
+            <Text style={styles.sectionTitle}>XỔ SỐ 3 MIỀN (KIẾN THIẾT)</Text>
           </View>
 
           <KienThietMatrix />

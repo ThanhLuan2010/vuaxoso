@@ -59,7 +59,7 @@ function HomeStackNavigator() {
 
 function TabNavigator() {
   const insets = useSafeAreaInsets();
-  
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -105,45 +105,45 @@ function TabNavigator() {
         },
       })}
     >
-      <Tab.Screen 
-        name="HomeStack" 
-        component={HomeStackNavigator} 
-        options={{ 
+      <Tab.Screen
+        name="HomeStack"
+        component={HomeStackNavigator}
+        options={{
           tabBarLabel: 'Trang chủ',
           headerShown: false
-        }} 
+        }}
       />
-      <Tab.Screen 
-        name="Stats" 
-        component={StatsMenuScreen} 
-        options={{ 
+      <Tab.Screen
+        name="Stats"
+        component={StatsMenuScreen}
+        options={{
           tabBarLabel: 'Thống kê',
           headerShown: false,
-        }} 
+        }}
       />
-      <Tab.Screen 
-        name="Live" 
-        component={LiveScreen} 
-        options={{ 
+      <Tab.Screen
+        name="Live"
+        component={LiveScreen}
+        options={{
           tabBarLabel: 'Trực tiếp',
           headerShown: false,
-        }} 
+        }}
       />
-      <Tab.Screen 
-        name="Results" 
-        component={ResultsScreen} 
-        options={{ 
+      <Tab.Screen
+        name="Results"
+        component={ResultsScreen}
+        options={{
           tabBarLabel: 'Kết quả',
           headerShown: false
-        }} 
+        }}
       />
-      <Tab.Screen 
-        name="History" 
-        component={HistoryScreen} 
-        options={{ 
+      <Tab.Screen
+        name="History"
+        component={HistoryScreen}
+        options={{
           tabBarLabel: 'Lịch sử',
           headerShown: false,
-        }} 
+        }}
       />
     </Tab.Navigator>
   );
@@ -171,7 +171,7 @@ export default function AppNavigator() {
       {token ? (
         <>
           <Stack.Screen name="MainTabs" component={TabNavigator} />
-          
+
           <Stack.Screen name="StatsMenu" component={StatsMenuScreen} options={{ presentation: 'card' }} />
           <Stack.Screen name="StatsKeno" component={StatsKenoScreen} options={{ presentation: 'card' }} />
           <Stack.Screen name="StatsDienToan" component={StatsDienToanScreen} options={{ presentation: 'card' }} />
@@ -183,21 +183,15 @@ export default function AppNavigator() {
           <Stack.Screen name="GameLayoutLode" component={GameLayoutLodeScreen} options={{ presentation: 'card' }} />
           <Stack.Screen name="GameLayoutB" component={GameLayoutBScreen} options={{ presentation: 'card' }} />
           <Stack.Screen name="GameLayoutC" component={GameLayoutCScreen} options={{ presentation: 'card' }} />
-          
+
           <Stack.Screen name="Wallet" component={WalletScreen} options={{ headerShown: false }} />
           <Stack.Screen name="DepositBinance" component={DepositBinanceScreen} options={{ headerShown: false }} />
           <Stack.Screen name="TransactionHistory" component={TransactionHistoryScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ headerShown: false }} />
-          <Stack.Screen 
-            name="Cart" 
-            component={CartScreen} 
-            options={{ 
-              headerShown: true, 
-              headerTitle: 'Giỏ hàng',
-              headerStyle: { backgroundColor: COLORS.cardBackground },
-              headerTintColor: COLORS.textDark
-            }}
-          />
+          <Stack.Screen
+            name="Cart"
+            component={CartScreen}
+            options={{ headerShown: false }} />
 
           <Stack.Screen name="CoBuy" component={CoBuyScreen} options={{ presentation: 'card' }} />
           <Stack.Screen name="CoBuyCompleted" component={CoBuyCompletedScreen} options={{ presentation: 'card' }} />

@@ -412,7 +412,7 @@ export default function StatsKenoScreen() {
           {gameTab === 'keno' && kenoSubTab === 'boSo' && <BoSoTab kenoData={statsData} selectedNumber={selectedNumber} onSelect={setSelectedNumber} refreshControl={renderRefreshControl()} />}
           {gameTab === 'keno' && kenoSubTab === 'dauDuoi' && <DauDuoiTab kenoData={statsData} selectedNumber={selectedNumber} onSelect={setSelectedNumber} refreshControl={renderRefreshControl()} />}
           {gameTab === 'keno' && kenoSubTab === 'chanLe' && <ChanLeTab kenoData={statsData} selectedNumber={selectedNumber} onSelect={setSelectedNumber} refreshControl={renderRefreshControl()} />}
-          
+
           {gameTab === 'power' && <VietlottStatTab data={statsData} color="#E51F27" selectedNumber={selectedNumber} onSelect={setSelectedNumber} refreshControl={renderRefreshControl()} />}
           {gameTab === 'mega' && <VietlottStatTab data={statsData} color="#1A4B7A" selectedNumber={selectedNumber} onSelect={setSelectedNumber} refreshControl={renderRefreshControl()} />}
         </>

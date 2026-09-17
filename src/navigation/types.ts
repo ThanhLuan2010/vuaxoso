@@ -9,6 +9,7 @@ export type RootStackParamList = {
   VietlottDetail: { type: string };
   HistoryDetail: { orderId: string };
   GameLayoutA: { gameId: string; initialTab?: string };
+  GameLayoutBingo18: { gameId: string; initialTab?: string };
   GameLayoutB: { gameId: string };
   GameLayoutC: { provinceId: string; provinceName: string; drawDate: string };
   GameLayoutLode: { gameId: string };

@@ -1,12 +1,15 @@
-import React from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert, StatusBar, ActivityIndicator } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useAppStore, CartItem } from '../../store/useAppStore';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
-import { ShoppingCart, Trash2, ArrowRight } from 'lucide-react-native';
+import { ShoppingCart, Trash2, ArrowRight, ChevronLeft } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function CartScreen({ navigation }: any) {
   const { cart, user, removeFromCart, checkout } = useAppStore();
-
+  const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
+  const insets = useSafeAreaInsets();
   const formatVND = (num: number) => {
     return num.toLocaleString('vi-VN') + ' đ';
   };
@@ -14,13 +17,16 @@ export default function CartScreen({ navigation }: any) {
   const totalCost = cart.reduce((acc, item) => acc + (item.cost * item.quantity), 0);
 
   const handleCheckout = async () => {
+    if (isCheckoutLoading) return;
+    setIsCheckoutLoading(true);
     const res = await checkout();
+    setIsCheckoutLoading(false);
+    
     if (res.success) {
-      Alert.alert('Thành công', res.message, [
-        { text: 'OK', onPress: () => navigation.navigate('History') }
-      ]);
+      Toast.show({ type: 'success', text1: 'Thành công', text2: res.message });
+      navigation.navigate('MainTabs');
     } else {
-      Alert.alert('Thất bại', res.message);
+      Toast.show({ type: 'error', text1: 'Thất bại', text2: res.message });
     }
   };
 
@@ -57,49 +63,70 @@ export default function CartScreen({ navigation }: any) {
     </View>
   );
 
-  if (cart.length === 0) {
-    return (
-      <View style={styles.emptyContainer}>
-        <ShoppingCart size={64} color={COLORS.gray400} />
-        <Text style={styles.emptyTitle}>Giỏ hàng đang trống</Text>
-        <Text style={styles.emptySubtitle}>
-          Vui lòng chọn số tại trang chủ và thêm vé vào giỏ hàng.
-        </Text>
-        <TouchableOpacity 
-          style={styles.playBtn}
-          onPress={() => navigation.navigate('HomeStack')}
-        >
-          <Text style={styles.playBtnText}>Chọn Số Ngay</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
-      <FlatList
-        data={cart}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.listContent}
-      />
+      <StatusBar barStyle="dark-content" backgroundColor={COLORS.cardBackground} />
 
-      <View style={styles.checkoutFooter}>
-        <View style={styles.balanceInfo}>
-          <Text style={styles.balanceLabel}>Số dư của bạn:</Text>
-          <Text style={styles.balanceValue}>{formatVND(user?.balance || 0)}</Text>
-        </View>
-
-        <View style={styles.totalRow}>
-          <Text style={styles.totalLabel}>Tổng thanh toán:</Text>
-          <Text style={styles.totalValue}>{formatVND(totalCost)}</Text>
-        </View>
-
-        <TouchableOpacity style={styles.checkoutBtn} onPress={handleCheckout}>
-          <Text style={styles.checkoutBtnText}>Thanh Toán Ngay</Text>
-          <ArrowRight size={20} color={COLORS.textLight} />
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 12 : 16 }]}>
+        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+          <ChevronLeft size={24} color={COLORS.textDark} />
         </TouchableOpacity>
+        <Text style={styles.headerTitle}>GIỎ VÉ</Text>
+        <View style={{ width: 32 }} />
       </View>
+
+      {cart.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <ShoppingCart size={64} color={COLORS.gray400} />
+          <Text style={styles.emptyTitle}>Giỏ hàng đang trống</Text>
+          <Text style={styles.emptySubtitle}>
+            Vui lòng chọn số tại trang chủ và thêm vé vào giỏ hàng.
+          </Text>
+          <TouchableOpacity
+            style={styles.playBtn}
+            onPress={() => navigation.navigate('MainTabs')}
+          >
+            <Text style={styles.playBtnText}>Chọn Số Ngay</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <>
+          <FlatList
+            data={cart}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            contentContainerStyle={styles.listContent}
+          />
+
+          <View style={[styles.checkoutFooter, { paddingBottom: Math.max(insets.bottom, SPACING.lg) }]}>
+            <View style={styles.balanceInfo}>
+              <Text style={styles.balanceLabel}>Số dư của bạn:</Text>
+              <Text style={styles.balanceValue}>{formatVND(user?.balance || 0)}</Text>
+            </View>
+
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>Tổng thanh toán:</Text>
+              <Text style={styles.totalValue}>{formatVND(totalCost)}</Text>
+            </View>
+
+            <TouchableOpacity 
+              style={[styles.checkoutBtn, isCheckoutLoading && { opacity: 0.7 }]} 
+              onPress={handleCheckout}
+              disabled={isCheckoutLoading}
+            >
+              {isCheckoutLoading ? (
+                <ActivityIndicator color={COLORS.textLight} />
+              ) : (
+                <>
+                  <Text style={styles.checkoutBtnText}>Thanh Toán Ngay</Text>
+                  <ArrowRight size={20} color={COLORS.textLight} />
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
     </View>
   );
 }
@@ -265,5 +292,23 @@ const styles = StyleSheet.create({
     color: COLORS.textLight,
     fontWeight: TYPOGRAPHY.fontWeight.bold,
     fontSize: TYPOGRAPHY.fontSize.lg,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: COLORS.cardBackground,
+    paddingHorizontal: SPACING.md,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+    ...SHADOWS.light,
+  },
+  backBtn: { padding: 4 },
+  headerTitle: {
+    fontSize: TYPOGRAPHY.fontSize.lg,
+    fontWeight: TYPOGRAPHY.fontWeight.bold,
+    color: COLORS.textDark,
+    letterSpacing: 0.5,
   },
 });
