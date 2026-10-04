@@ -44,6 +44,7 @@ export default function WalletScreen() {
   const [withdrawPassword, setWithdrawPassword] = useState('');
   const [showWithdrawPassword, setShowWithdrawPassword] = useState(false);
   const [selectedDestination, setSelectedDestination] = useState<any>(null);
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
 
   const [depositAmountStr, setDepositAmountStr] = useState('');
   const [receiptImageUri, setReceiptImageUri] = useState('');
@@ -116,13 +117,19 @@ export default function WalletScreen() {
   };
 
   const handleAmountChange = (text: string) => {
-    const numericValue = text.replace(/\D/g, '');
-    if (!numericValue) {
-      setAmountStr('');
-      return;
+    const isCrypto = !!selectedDestination?.network;
+    if (isCrypto) {
+      const numericValue = text.replace(/[^0-9.]/g, '');
+      setAmountStr(numericValue);
+    } else {
+      const numericValue = text.replace(/\D/g, '');
+      if (!numericValue) {
+        setAmountStr('');
+        return;
+      }
+      const formatted = numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      setAmountStr(formatted);
     }
-    const formatted = numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    setAmountStr(formatted);
   };
 
   const handleDepositAmountChange = (text: string) => {
@@ -136,7 +143,19 @@ export default function WalletScreen() {
   };
 
   const handleWithdraw = async () => {
-    const amt = parseInt(amountStr.replace(/\D/g, ''), 10);
+    if (isWithdrawing) return;
+    const isCrypto = !!selectedDestination?.network;
+    const rate = binanceConfig?.exchangeRate || 25000;
+    
+    let amt = 0;
+    let usdtAmount = 0;
+    if (isCrypto) {
+      usdtAmount = parseFloat(amountStr);
+      amt = usdtAmount * rate;
+    } else {
+      amt = parseInt(amountStr.replace(/\D/g, ''), 10);
+    }
+
     if (isNaN(amt) || amt <= 0) {
       Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Vui lòng nhập số tiền hợp lệ.' });
       return;
@@ -153,15 +172,26 @@ export default function WalletScreen() {
       Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Vui lòng nhập mật khẩu rút tiền.' });
       return;
     }
-    const { success, message } = await requestWithdraw(amt, withdrawPassword, selectedDestination);
-    if (success) {
-      Toast.show({ type: 'success', text1: 'Thành công', text2: message || `Đã gửi yêu cầu rút ${formatVND(amt)}.` });
-      setAmountStr('');
-      setWithdrawPassword('');
-      setSelectedDestination(null);
-      (navigation as any).navigate('MainTabs');
-    } else {
-      Toast.show({ type: 'error', text1: 'Thất bại', text2: message || 'Có lỗi xảy ra.' });
+    
+    const destInfo = { ...selectedDestination };
+    if (isCrypto) {
+      destInfo.amountUsdt = usdtAmount;
+    }
+    
+    setIsWithdrawing(true);
+    try {
+      const { success, message } = await requestWithdraw(amt, withdrawPassword, destInfo);
+      if (success) {
+        Toast.show({ type: 'success', text1: 'Thành công', text2: message || `Đã gửi yêu cầu rút ${formatVND(amt)}.` });
+        setAmountStr('');
+        setWithdrawPassword('');
+        setSelectedDestination(null);
+        (navigation as any).navigate('MainTabs');
+      } else {
+        Toast.show({ type: 'error', text1: 'Thất bại', text2: message || 'Có lỗi xảy ra.' });
+      }
+    } finally {
+      setIsWithdrawing(false);
     }
   };
 
@@ -172,25 +202,6 @@ export default function WalletScreen() {
   };
 
   const handleDepositSubmit = async () => {
-    if (selectedGateway === 'binance' && binanceMode === 'auto') {
-      if (!binanceTxId) {
-        Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Vui lòng nhập Mã giao dịch (TxID).' });
-        return;
-      }
-      setIsUploading(true);
-      try {
-        await api.post('/wallet/deposit/binance', { txId: binanceTxId });
-        Toast.show({ type: 'success', text1: 'Thành công', text2: 'Nạp tiền tự động qua Binance thành công!' });
-        setBinanceTxId('');
-        (navigation as any).navigate('MainTabs');
-      } catch (error: any) {
-        Toast.show({ type: 'error', text1: 'Lỗi', text2: error.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại.' });
-      } finally {
-        setIsUploading(false);
-      }
-      return;
-    }
-
     let amt = 0;
     if (selectedGateway === 'binance') {
       const amtUsdt = parseFloat(binanceAmountStr.replace(/,/g, ''));
@@ -651,21 +662,6 @@ export default function WalletScreen() {
 
             return (
               <View style={{ paddingHorizontal: SPACING.md, marginTop: 16 }}>
-                <View style={{ flexDirection: 'row', backgroundColor: '#FFF', padding: 4, borderRadius: 12, marginBottom: 16, borderWidth: 1, borderColor: '#E2E8F0' }}>
-                  <TouchableOpacity
-                    style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 8 }, binanceMode === 'auto' && { backgroundColor: COLORS.primary }]}
-                    onPress={() => setBinanceMode('auto')}
-                  >
-                    <Text style={[{ fontSize: 14, fontWeight: 'bold', color: '#666' }, binanceMode === 'auto' && { color: '#FFF' }]}>Tự động</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[{ flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 8 }, binanceMode === 'manual' && { backgroundColor: COLORS.primary }]}
-                    onPress={() => setBinanceMode('manual')}
-                  >
-                    <Text style={[{ fontSize: 14, fontWeight: 'bold', color: '#666' }, binanceMode === 'manual' && { color: '#FFF' }]}>Thủ công</Text>
-                  </TouchableOpacity>
-                </View>
-
                 {binanceWallets.length > 1 && (
                   <View style={{ marginBottom: 16, zIndex: 3000 }}>
                     <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#333', marginBottom: 8 }}>Chọn mạng (TRC20/BEP20)</Text>
@@ -712,22 +708,6 @@ export default function WalletScreen() {
                   <Text style={{ fontSize: 13, color: COLORS.error, marginTop: 4 }}>Tỷ giá hiện tại: 1 USDT = {binanceConfig?.exchangeRate?.toLocaleString('vi-VN') || '25,000'} VNĐ</Text>
                 </View>
 
-                {binanceMode === 'auto' ? (
-                  <View style={{ marginBottom: 16 }}>
-                    <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#333', marginBottom: 8 }}>Mã Giao Dịch (TxID)</Text>
-                    <View style={[{ borderColor: '#E2E8F0', backgroundColor: '#FFF', borderWidth: 1, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12 }]}>
-                      <TextInput
-                        style={{ fontSize: 16, color: COLORS.textDark }}
-                        value={binanceTxId}
-                        onChangeText={setBinanceTxId}
-                        placeholder="VD: 5543bd12..."
-                        placeholderTextColor={COLORS.gray400}
-                      />
-                    </View>
-                    <Text style={{ fontSize: 13, color: COLORS.textLight, marginTop: 8 }}>Sau khi chuyển khoản thành công, copy mã TxID điền vào đây để hệ thống duyệt tự động.</Text>
-                  </View>
-                ) : (
-                  <>
                     <View style={{ marginBottom: 16 }}>
                       <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#333', marginBottom: 8 }}>Số USDT nạp</Text>
                       <View style={[{ flexDirection: 'row', alignItems: 'center', borderColor: '#E2E8F0', backgroundColor: '#FFF', borderWidth: 1, borderRadius: 12, paddingHorizontal: 16 }]}>
@@ -766,8 +746,6 @@ export default function WalletScreen() {
                         )}
                       </TouchableOpacity>
                     </View>
-                  </>
-                )}
               </View>
             );
           })()
@@ -800,6 +778,16 @@ export default function WalletScreen() {
     const banks = user?.banks || [];
     const wallets = user?.wallets || [];
     const hasMethods = banks.length > 0 || wallets.length > 0;
+    const isSelected = (method: any) => {
+      if (!selectedDestination) return false;
+      if (method.accountNumber && selectedDestination.accountNumber) {
+        return method.accountNumber === selectedDestination.accountNumber;
+      }
+      if (method.address && selectedDestination.address) {
+        return method.address === selectedDestination.address;
+      }
+      return false;
+    };
 
     return (
       <ScrollView contentContainerStyle={[styles.withdrawContent, { paddingBottom: Math.max(insets.bottom, 24) }]}>
@@ -825,12 +813,12 @@ export default function WalletScreen() {
                   key={`b-${i}`}
                   style={[
                     styles.methodCard,
-                    selectedDestination === b && styles.methodCardActive
+                    isSelected(b) && styles.methodCardActive
                   ]}
                   onPress={() => setSelectedDestination(b)}
                 >
-                  <Text style={[styles.methodCardTitle, selectedDestination === b && styles.methodCardTextActive]}>{b.bankName}</Text>
-                  <Text style={[styles.methodCardDesc, selectedDestination === b && styles.methodCardTextActive]}>{b.accountNumber}</Text>
+                  <Text style={[styles.methodCardTitle, isSelected(b) && styles.methodCardTextActive]}>{b.bankName}</Text>
+                  <Text style={[styles.methodCardDesc, isSelected(b) && styles.methodCardTextActive]}>{b.accountNumber}</Text>
                 </TouchableOpacity>
               ))}
               {wallets.map((w: any, i: number) => (
@@ -838,12 +826,12 @@ export default function WalletScreen() {
                   key={`w-${i}`}
                   style={[
                     styles.methodCard,
-                    selectedDestination === w && styles.methodCardActive
+                    isSelected(w) && styles.methodCardActive
                   ]}
                   onPress={() => setSelectedDestination(w)}
                 >
-                  <Text style={[styles.methodCardTitle, selectedDestination === w && styles.methodCardTextActive]}>Ví {w.network}</Text>
-                  <Text style={[styles.methodCardDesc, selectedDestination === w && styles.methodCardTextActive]}>
+                  <Text style={[styles.methodCardTitle, isSelected(w) && styles.methodCardTextActive]}>Ví {w.network}</Text>
+                  <Text style={[styles.methodCardDesc, isSelected(w) && styles.methodCardTextActive]}>
                     {w.address.substring(0, 10)}...
                   </Text>
                 </TouchableOpacity>
@@ -888,6 +876,22 @@ export default function WalletScreen() {
           </View>
         </View>
 
+        <View style={{ marginTop: 24, padding: 16, backgroundColor: '#f9f9f9', borderRadius: 12, borderWidth: 1, borderColor: '#eee' }}>
+          <Text style={{ fontWeight: 'bold', color: '#333', marginBottom: 8 }}>Quy định rút tiền:</Text>
+          <Text style={{ fontSize: 13, color: '#666', marginBottom: 4 }}>• Số lần rút: Tối đa 5 lần/ngày</Text>
+          {selectedDestination?.network ? (
+            <>
+              <Text style={{ fontSize: 13, color: '#666', marginBottom: 4 }}>• Tối thiểu: 10 USDT/lần</Text>
+              <Text style={{ fontSize: 13, color: '#666', marginBottom: 4 }}>• Tối đa: 8000 USDT/lần</Text>
+            </>
+          ) : (
+            <>
+              <Text style={{ fontSize: 13, color: '#666', marginBottom: 4 }}>• Tối thiểu: 200,000 VNĐ/lần</Text>
+              <Text style={{ fontSize: 13, color: '#666' }}>• Tối đa: 200,000,000 VNĐ/lần</Text>
+            </>
+          )}
+        </View>
+
         <View style={[styles.withdrawFooter, { marginTop: 40 }]}>
           <TouchableOpacity
             style={styles.historyLinkBtn}
@@ -895,8 +899,12 @@ export default function WalletScreen() {
           >
             <Text style={styles.historyLinkText}>Lịch sử rút tiền</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.submitBtn} onPress={handleWithdraw}>
-            <Text style={styles.submitBtnText}>Rút tiền</Text>
+          <TouchableOpacity 
+            style={[styles.submitBtn, isWithdrawing && { opacity: 0.7 }]} 
+            onPress={handleWithdraw}
+            disabled={isWithdrawing}
+          >
+            <Text style={styles.submitBtnText}>{isWithdrawing ? 'Đang xử lý...' : 'Rút tiền'}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

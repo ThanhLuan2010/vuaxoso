@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import api from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -48,6 +49,8 @@ export interface CartItem {
   subCategory?: string;
   multiplier?: number;
   rate?: number;
+  baseCost?: number;
+  boards?: any[];
 }
 
 export interface PurchaseRecord {
@@ -96,7 +99,7 @@ interface AppState {
   setForcePasswordChange: (val: boolean) => void;
 
   // Auth
-  login: (phone: string, password: string) => Promise<{ success: boolean, message?: string }>;
+  login: (phone: string, password: string) => Promise<{ success: boolean, message?: string, code?: string }>;
   register: (phone: string, name: string, password: string) => Promise<{ success: boolean, message?: string }>;
   logout: () => void;
   fetchProfile: () => Promise<void>;
@@ -120,249 +123,287 @@ interface AppState {
 
 import { Alert } from 'react-native';
 
-export const useAppStore = create<AppState>((set, get) => ({
-  user: null,
-  token: null,
-  cart: [],
-  purchaseHistory: [],
-  unreadNotifications: 0,
-  games: [],
-  activeDraws: [],
-  drawResults: [],
-  banners: [],
-  kienThietSchedule: [],
+export const useAppStore = create<AppState>()(
+  persist(
+    (set, get) => ({
+      user: null,
+      token: null,
+      cart: [],
+      purchaseHistory: [],
+      unreadNotifications: 0,
+      games: [],
+      activeDraws: [],
+      drawResults: [],
+      banners: [],
+      kienThietSchedule: [],
 
-  forcePasswordChange: false,
-  setForcePasswordChange: (val) => set({ forcePasswordChange: val }),
+      forcePasswordChange: false,
+      setForcePasswordChange: (val) => set({ forcePasswordChange: val }),
 
-  fetchGames: async () => {
-    try {
-      const { data } = await api.get('/games');
-      set({ games: data });
-    } catch (e: any) {
-      console.log('fetchGames error', e);
-      Alert.alert('Network Error', e.message + ' - Vui lòng kiểm tra lại IP hoặc mạng.');
-    }
-  },
-
-  fetchBanners: async () => {
-    try {
-      const { data } = await api.get('/banners/active');
-      set({ banners: data });
-    } catch (e: any) {
-      console.log('fetchBanners error', e);
-    }
-  },
-
-  fetchActiveDraws: async () => {
-    try {
-      const { data } = await api.get('/draws/active');
-      set({ activeDraws: data });
-    } catch (e) { console.log('fetchActiveDraws error', e); }
-  },
-
-  fetchDrawResults: async () => {
-    try {
-      const { data } = await api.get('/draws/results');
-      set({ drawResults: data });
-    } catch (e) { console.log('fetchDrawResults error', e); }
-  },
-
-  fetchKienThietSchedule: async () => {
-    try {
-      const { data } = await api.get('/draws/kienthiet-schedule');
-      set({ kienThietSchedule: data });
-    } catch (e) { console.log('fetchKienThietSchedule error', e); }
-  },
-
-  login: async (phone, password) => {
-    try {
-      const { data } = await api.post('/auth/login', { phone, password });
-      api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-      set({ user: { name: data.name, balance: data.balance, phone: data.phone, emailVerified: data.emailVerified }, token: data.token });
-      return { success: true };
-    } catch (error: any) {
-      return { success: false, message: error.response?.data?.message || 'Lỗi kết nối' };
-    }
-  },
-
-  register: async (phone, name, password) => {
-    try {
-      const { data } = await api.post('/auth/register', { phone, name, password });
-      api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-      set({ user: { name: data.name, balance: data.balance, phone: data.phone, emailVerified: data.emailVerified }, token: data.token });
-      return { success: true };
-    } catch (error: any) {
-      return { success: false, message: error.response?.data?.message || 'Lỗi kết nối' };
-    }
-  },
-
-  logout: async () => {
-    // Remove token from headers instead of AsyncStorage
-    delete api.defaults.headers.common['Authorization'];
-    set({ user: null, token: null });
-  },
-
-  fetchProfile: async () => {
-    try {
-      const { data } = await api.get('/auth/profile');
-      set({
-        user: {
-          name: data.name,
-          balance: data.balance,
-          phone: data.phone,
-          address: data.address,
-          email: data.email,
-          emailVerified: data.emailVerified,
-          cccdNumber: data.cccdNumber,
-          cccdImage: data.cccdImage,
-          isInfoUpdated: data.isInfoUpdated,
-          hasWithdrawPassword: data.hasWithdrawPassword,
-          banks: data.banks,
-          wallets: data.wallets
+      fetchGames: async () => {
+        try {
+          const { data } = await api.get('/games');
+          set({ games: data });
+        } catch (e: any) {
+          console.log('fetchGames error', e);
+          Alert.alert('Network Error', e.message + ' - Vui lòng kiểm tra lại IP hoặc mạng.');
         }
-      });
-    } catch (error) {
-      console.log('Failed to fetch profile', error);
-      get().logout();
-    }
-  },
+      },
 
-  updateProfile: async (payload) => {
-    try {
-      const { data } = await api.put('/auth/profile', payload);
-      set({
-        user: {
-          name: data.name,
-          balance: data.balance,
-          phone: data.phone,
-          address: data.address,
-          email: data.email,
-          emailVerified: data.emailVerified,
-          cccdNumber: data.cccdNumber,
-          cccdImage: data.cccdImage,
-          isInfoUpdated: data.isInfoUpdated,
-          hasWithdrawPassword: data.hasWithdrawPassword,
-          banks: data.banks,
-          wallets: data.wallets
+      fetchBanners: async () => {
+        try {
+          const { data } = await api.get('/banners/active');
+          set({ banners: data });
+        } catch (e: any) {
+          console.log('fetchBanners error', e);
         }
-      });
-      return { success: true, message: 'Cập nhật thành công' };
-    } catch (error: any) {
-      return { success: false, message: error.response?.data?.message || 'Cập nhật thất bại' };
+      },
+
+      fetchActiveDraws: async () => {
+        try {
+          const { data } = await api.get('/draws/active');
+          set({ activeDraws: data });
+        } catch (e) { console.log('fetchActiveDraws error', e); }
+      },
+
+      fetchDrawResults: async () => {
+        try {
+          const { data } = await api.get('/draws/results');
+          set({ drawResults: data });
+        } catch (e) { console.log('fetchDrawResults error', e); }
+      },
+
+      fetchKienThietSchedule: async () => {
+        try {
+          const { data } = await api.get('/draws/kienthiet-schedule');
+          set({ kienThietSchedule: data });
+        } catch (e) { console.log('fetchKienThietSchedule error', e); }
+      },
+
+      login: async (phone, password) => {
+        try {
+          const { data } = await api.post('/auth/login', { phone, password });
+          api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+          set({ user: { name: data.name, balance: data.balance, phone: data.phone, emailVerified: data.emailVerified }, token: data.token });
+          return { success: true };
+        } catch (error: any) {
+          return { 
+            success: false, 
+            message: error.response?.data?.message || 'Lỗi kết nối',
+            code: error.response?.data?.code
+          };
+        }
+      },
+
+      register: async (phone, name, password) => {
+        try {
+          const { data } = await api.post('/auth/register', { phone, name, password });
+          api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+          set({ user: { name: data.name, balance: data.balance, phone: data.phone, emailVerified: data.emailVerified }, token: data.token });
+          return { success: true };
+        } catch (error: any) {
+          return { success: false, message: error.response?.data?.message || 'Lỗi kết nối' };
+        }
+      },
+
+      logout: async () => {
+        // Remove token from headers instead of AsyncStorage
+        delete api.defaults.headers.common['Authorization'];
+        set({ user: null, token: null });
+      },
+
+      fetchProfile: async () => {
+        try {
+          const { data } = await api.get('/auth/profile');
+          set({
+            user: {
+              name: data.name,
+              balance: data.balance,
+              phone: data.phone,
+              address: data.address,
+              email: data.email,
+              emailVerified: data.emailVerified,
+              cccdNumber: data.cccdNumber,
+              cccdImage: data.cccdImage,
+              isInfoUpdated: data.isInfoUpdated,
+              hasWithdrawPassword: data.hasWithdrawPassword,
+              banks: data.banks,
+              wallets: data.wallets
+            }
+          });
+        } catch (error) {
+          console.log('Failed to fetch profile', error);
+          get().logout();
+        }
+      },
+
+      updateProfile: async (payload) => {
+        try {
+          const { data } = await api.put('/auth/profile', payload);
+          set({
+            user: {
+              name: data.name,
+              balance: data.balance,
+              phone: data.phone,
+              address: data.address,
+              email: data.email,
+              emailVerified: data.emailVerified,
+              cccdNumber: data.cccdNumber,
+              cccdImage: data.cccdImage,
+              isInfoUpdated: data.isInfoUpdated,
+              hasWithdrawPassword: data.hasWithdrawPassword,
+              banks: data.banks,
+              wallets: data.wallets
+            }
+          });
+          return { success: true, message: 'Cập nhật thành công' };
+        } catch (error: any) {
+          return { success: false, message: error.response?.data?.message || 'Cập nhật thất bại' };
+        }
+      },
+
+      restoreSession: async () => {
+        // Session is no longer restored from AsyncStorage for security
+        set({ token: null, user: null });
+      },
+
+      requestDeposit: async (amount: number = 0, receiptImage?: string, txId?: string, paymentMethod?: string, destinationInfo?: any) => {
+        try {
+          const res = await api.post('/wallet/deposit', { amount, receiptImage, txId, paymentMethod, destinationInfo });
+          return { success: true, message: 'Yêu cầu nạp tiền đã được gửi. Vui lòng chờ Admin xác nhận.' };
+        } catch (error: any) {
+          return { success: false, message: error.response?.data?.message || 'Có lỗi xảy ra' };
+        }
+      },
+
+      sendEmailOtp: async (email: string) => {
+        try {
+          const { data } = await api.post('/auth/send-email-otp', { email });
+          return { success: true, message: data.message };
+        } catch (error: any) {
+          return { success: false, message: error.response?.data?.message || 'Có lỗi xảy ra' };
+        }
+      },
+
+      verifyEmailOtp: async (otp: string) => {
+        try {
+          const { data } = await api.post('/auth/verify-email-otp', { otp });
+          set({
+            user: {
+              ...get().user,
+              emailVerified: data.emailVerified,
+            } as any
+          });
+          return { success: true, message: 'Xác thực email thành công' };
+        } catch (error: any) {
+          return { success: false, message: error.response?.data?.message || 'Có lỗi xảy ra' };
+        }
+      },
+
+      requestWithdraw: async (amount: number, withdrawPassword?: string, destinationInfo?: any) => {
+        try {
+          await api.post('/wallet/withdraw', { amount, withdrawPassword, destinationInfo });
+          await get().fetchProfile(); // Cập nhật lại số dư
+          return { success: true, message: 'Yêu cầu rút tiền thành công, đang chờ duyệt.' };
+        } catch (error: any) {
+          return { success: false, message: error.response?.data?.message || 'Lỗi kết nối' };
+        }
+      },
+
+      addToCart: (newItem) => set((state) => {
+        const id = Math.random().toString(36).substring(2, 9);
+        return { cart: [...state.cart, { ...newItem, id }] };
+      }),
+
+      removeFromCart: (itemId) => set((state) => ({
+        cart: state.cart.filter(item => item.id !== itemId)
+      })),
+
+      clearCart: () => set({ cart: [] }),
+
+      checkout: async () => {
+        const { cart, user } = get();
+        const totalCost = cart.reduce((acc, item) => acc + (item.cost * item.quantity), 0);
+
+        if (totalCost === 0) return { success: false, message: 'Giỏ hàng trống!' };
+        if (!user || user.balance < totalCost) return { success: false, message: 'Số dư không đủ! Vui lòng nạp thêm tiền.' };
+
+        try {
+          const itemsPayload: any[] = [];
+          cart.forEach(item => {
+            if (item.boards && item.boards.length > 0) {
+              item.boards.forEach((b: any) => {
+                itemsPayload.push({
+                  playType: item.playType || item.subCategory || item.category,
+                  numbers: b.numbers,
+                  specialNumbers: b.specialNumbers,
+                  cost: b.cost * item.quantity,
+                  baseCost: b.cost,
+                });
+              });
+            } else {
+              itemsPayload.push({
+                playType: item.playType || item.subCategory || item.category,
+                numbers: item.numbers,
+                cost: item.cost * item.quantity,
+                baseCost: item.baseCost || item.cost,
+              });
+            }
+          });
+
+          // Gọi API mua vé
+          await api.post('/orders', {
+            gameType: cart[0].gameId === 'xoso_3mien' ? cart[0].region?.toUpperCase() || 'MB' : cart[0].gameId,
+            playType: cart[0].playType || cart[0].subCategory || cart[0].category,
+            drawId: 'DUMMY_DRAW_ID', // Thực tế sẽ lấy từ API /active
+            items: itemsPayload
+          });
+
+          // Cập nhật lại số dư và làm trống giỏ hàng
+          await get().fetchProfile();
+
+          set((state) => ({
+            cart: []
+          }));
+
+          return { success: true, message: 'Thanh toán thành công! Vé của bạn đã được ghi nhận.' };
+        } catch (error: any) {
+          console.log('Checkout API Error:', error, error.response?.data);
+          const errMsg = error.response?.data?.message || error.message || 'Lỗi thanh toán.';
+          return { success: false, message: errMsg };
+        }
+      },
+
+      clearNotifications: () => set({ unreadNotifications: 0 }),
+
+      addPurchaseHistory: (newItems) => set((state) => {
+        const now = new Date();
+        const dateStr = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')} ${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
+        const formattedRecords: PurchaseRecord[] = newItems.map((item, idx) => ({
+          id: `order_${now.getTime()}_${idx}`,
+          gameName: item.gameName,
+          numbers: item.numbers,
+          cost: item.cost,
+          quantity: item.quantity,
+          date: dateStr,
+          status: 'success',
+          provinceName: item.provinceName
+        }));
+        return {
+          purchaseHistory: [...formattedRecords, ...state.purchaseHistory]
+        };
+      }),
+    }),
+    {
+      name: 'app-storage', // name of the item in the storage (must be unique)
+      storage: createJSONStorage(() => AsyncStorage), // (optional) by default, 'localStorage' is used
+      partialize: (state) => ({
+        cart: state.cart,
+        user: state.user,
+        token: state.token,
+        purchaseHistory: state.purchaseHistory,
+        forcePasswordChange: state.forcePasswordChange
+      }), // Only persist these fields
     }
-  },
-
-  restoreSession: async () => {
-    // Session is no longer restored from AsyncStorage for security
-    set({ token: null, user: null });
-  },
-
-  requestDeposit: async (amount: number = 0, receiptImage?: string, txId?: string, paymentMethod?: string, destinationInfo?: any) => {
-    try {
-      const res = await api.post('/wallet/deposit', { amount, receiptImage, txId, paymentMethod, destinationInfo });
-      return { success: true, message: 'Yêu cầu nạp tiền đã được gửi. Vui lòng chờ Admin xác nhận.' };
-    } catch (error: any) {
-      return { success: false, message: error.response?.data?.message || 'Có lỗi xảy ra' };
-    }
-  },
-
-  sendEmailOtp: async (email: string) => {
-    try {
-      const { data } = await api.post('/auth/send-email-otp', { email });
-      return { success: true, message: data.message };
-    } catch (error: any) {
-      return { success: false, message: error.response?.data?.message || 'Có lỗi xảy ra' };
-    }
-  },
-
-  verifyEmailOtp: async (otp: string) => {
-    try {
-      const { data } = await api.post('/auth/verify-email-otp', { otp });
-      set({
-        user: {
-          ...get().user,
-          emailVerified: data.emailVerified,
-        } as any
-      });
-      return { success: true, message: 'Xác thực email thành công' };
-    } catch (error: any) {
-      return { success: false, message: error.response?.data?.message || 'Có lỗi xảy ra' };
-    }
-  },
-
-  requestWithdraw: async (amount: number, withdrawPassword?: string, destinationInfo?: any) => {
-    try {
-      await api.post('/wallet/withdraw', { amount, withdrawPassword, destinationInfo });
-      await get().fetchProfile(); // Cập nhật lại số dư
-      return { success: true, message: 'Yêu cầu rút tiền thành công, đang chờ duyệt.' };
-    } catch (error: any) {
-      return { success: false, message: error.response?.data?.message || 'Lỗi kết nối' };
-    }
-  },
-
-  addToCart: (newItem) => set((state) => {
-    const id = Math.random().toString(36).substring(2, 9);
-    return { cart: [...state.cart, { ...newItem, id }] };
-  }),
-
-  removeFromCart: (itemId) => set((state) => ({
-    cart: state.cart.filter(item => item.id !== itemId)
-  })),
-
-  clearCart: () => set({ cart: [] }),
-
-  checkout: async () => {
-    const { cart, user } = get();
-    const totalCost = cart.reduce((acc, item) => acc + (item.cost * item.quantity), 0);
-
-    if (totalCost === 0) return { success: false, message: 'Giỏ hàng trống!' };
-    if (!user || user.balance < totalCost) return { success: false, message: 'Số dư không đủ! Vui lòng nạp thêm tiền.' };
-
-    try {
-      const itemsPayload = cart.map(item => ({
-        numbers: item.numbers,
-        cost: item.cost * item.quantity,
-      }));
-
-      // Gọi API mua vé
-      await api.post('/orders', {
-        gameType: cart[0].gameId === 'xoso_3mien' ? cart[0].region?.toUpperCase() || 'MB' : cart[0].gameId,
-        playType: cart[0].playType || cart[0].subCategory || cart[0].category,
-        drawId: 'DUMMY_DRAW_ID', // Thực tế sẽ lấy từ API /active
-        items: itemsPayload
-      });
-
-      // Cập nhật lại số dư và làm trống giỏ hàng
-      await get().fetchProfile();
-
-      set((state) => ({
-        cart: []
-      }));
-
-      return { success: true, message: 'Thanh toán thành công! Vé của bạn đã được ghi nhận.' };
-    } catch (error: any) {
-      return { success: false, message: error.response?.data?.message || 'Lỗi thanh toán.' };
-    }
-  },
-
-  clearNotifications: () => set({ unreadNotifications: 0 }),
-
-  addPurchaseHistory: (newItems) => set((state) => {
-    const now = new Date();
-    const dateStr = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')} ${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
-    const formattedRecords: PurchaseRecord[] = newItems.map((item, idx) => ({
-      id: `order_${now.getTime()}_${idx}`,
-      gameName: item.gameName,
-      numbers: item.numbers,
-      cost: item.cost,
-      quantity: item.quantity,
-      date: dateStr,
-      status: 'success',
-      provinceName: item.provinceName
-    }));
-    return {
-      purchaseHistory: [...formattedRecords, ...state.purchaseHistory]
-    };
-  }),
-}));
+  )
+);

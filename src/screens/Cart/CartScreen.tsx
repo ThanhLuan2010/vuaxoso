@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert, StatusBar, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert, StatusBar, ActivityIndicator, Modal } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useAppStore, CartItem } from '../../store/useAppStore';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
-import { ShoppingCart, Trash2, ArrowRight, ChevronLeft } from 'lucide-react-native';
+import { ShoppingCart, Trash2, ArrowRight, ChevronLeft, X } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function CartScreen({ navigation }: any) {
@@ -16,12 +16,16 @@ export default function CartScreen({ navigation }: any) {
 
   const totalCost = cart.reduce((acc, item) => acc + (item.cost * item.quantity), 0);
 
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedNumbers, setSelectedNumbers] = useState<string[]>([]);
+
   const handleCheckout = async () => {
     if (isCheckoutLoading) return;
     setIsCheckoutLoading(true);
     const res = await checkout();
     setIsCheckoutLoading(false);
-    
+
     if (res.success) {
       Toast.show({ type: 'success', text1: 'Thành công', text2: res.message });
       navigation.navigate('MainTabs');
@@ -45,11 +49,22 @@ export default function CartScreen({ navigation }: any) {
       </View>
 
       <View style={styles.numbersContainer}>
-        {item.numbers.map((num, index) => (
+        {item.numbers.slice(0, 10).map((num, index) => (
           <View key={index} style={styles.numberBall}>
             <Text style={styles.numberBallText}>{num}</Text>
           </View>
         ))}
+        {item.numbers.length > 10 && (
+          <TouchableOpacity
+            style={[styles.numberBall, { backgroundColor: '#E8F3FF', borderColor: '#0084FA' }]}
+            onPress={() => {
+              setSelectedNumbers(item.numbers);
+              setModalVisible(true);
+            }}
+          >
+            <Text style={[styles.numberBallText, { color: '#0084FA' }]}>+{item.numbers.length - 10}</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.cardFooter}>
@@ -110,8 +125,8 @@ export default function CartScreen({ navigation }: any) {
               <Text style={styles.totalValue}>{formatVND(totalCost)}</Text>
             </View>
 
-            <TouchableOpacity 
-              style={[styles.checkoutBtn, isCheckoutLoading && { opacity: 0.7 }]} 
+            <TouchableOpacity
+              style={[styles.checkoutBtn, isCheckoutLoading && { opacity: 0.7 }]}
               onPress={handleCheckout}
               disabled={isCheckoutLoading}
             >
@@ -127,7 +142,35 @@ export default function CartScreen({ navigation }: any) {
           </View>
         </>
       )}
+
+      {/* Numbers Modal */}
+      <Modal visible={modalVisible} transparent animationType="slide">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+          <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 16, borderTopRightRadius: 16, height: '80%', padding: 16 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#0F2942' }}>Tất cả {selectedNumbers.length} bộ số</Text>
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <X size={24} color="#0F2942" />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={selectedNumbers}
+              keyExtractor={(_, index) => index.toString()}
+              renderItem={({ item, index }) => (
+                <View style={{ paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F0F0F0', flexDirection: 'row', alignItems: 'center' }}>
+                  <Text style={{ width: 40, color: '#7F8E9C', fontWeight: 'bold' }}>#{index + 1}</Text>
+                  <Text style={{ fontSize: 16, color: '#0F2942', fontWeight: '500' }}>{item}</Text>
+                </View>
+              )}
+              initialNumToRender={20}
+              maxToRenderPerBatch={50}
+              windowSize={5}
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
+
   );
 }
 

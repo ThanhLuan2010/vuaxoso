@@ -1,3 +1,4 @@
+import Toast from 'react-native-toast-message';
 import { ChevronLeft, Info } from 'lucide-react-native';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
@@ -294,6 +295,9 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
   const [inputNumbers, setInputNumbers] = useState('');
   const [baseAmount, setBaseAmount] = useState('1000');
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+  const [isBuyNow, setIsBuyNow] = useState(false);
+  const [showAllNumbers, setShowAllNumbers] = useState(false);
+  const [isInputExpanded, setIsInputExpanded] = useState(false);
 
   const [provinceOpen, setProvinceOpen] = useState(false);
   const [provinceValue, setProvinceValue] = useState<string | null>(null);
@@ -362,10 +366,10 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
 
   const handleAddToCart = () => {
     if (currentParsed.error) {
-      return Alert.alert('Lỗi cú pháp', currentParsed.error);
+      return Toast.show({ type: 'error', text1: 'Lỗi cú pháp', text2: currentParsed.error });
     }
     if (currentParsed.numbers.length === 0) {
-      return Alert.alert('Lỗi', 'Vui lòng nhập số muốn cược');
+      return Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Vui lòng nhập số muốn cược' });
     }
     setConfirmModalVisible(true);
   };
@@ -376,6 +380,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
       gameName: `XỔ SỐ 3 MIỀN - ${region.toUpperCase()}`,
       numbers: currentParsed.numbers,
       cost: calculateTotal(),
+      baseCost: parseInt(baseAmount) || 0,
       winAmount: calculateWinAmount(),
       region,
       provinceId: provinceValue ?? undefined,
@@ -386,7 +391,11 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
       quantity: 1,
     });
     setConfirmModalVisible(false);
-    navigation.goBack();
+    if (isBuyNow) {
+      navigation.navigate('Cart');
+    } else {
+      Toast.show({ type: 'success', text1: 'Thành công', text2: 'Đã thêm vào giỏ hàng' });
+    }
   };
   // Các loại cược này BẮT BUỘC dùng NumberPicker (Không cho nhập tay)
   const isManualDisabled = ['đề đầu', 'đề đuôi', 'xiên đb', 'xiên giải 1', 'xiên 3 càng đb', 'xiên 4 càng đb'].includes(selectedSub.name.toLowerCase());
@@ -507,7 +516,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
           {!isNumberPickerHidden && (
             <NumberPicker
               expectedLength={getExpectedLength(selectedSub.name)}
-              onNumbersGenerated={(nums) => setInputNumbers(nums)}
+              onNumbersGenerated={(nums) => { setInputNumbers(nums); setIsInputExpanded(false); }}
               subName={selectedSub.name}
             />
           )}
@@ -518,16 +527,40 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
               : 'Ngăn cách bằng dấu phẩy, chấm phẩy hoặc khoảng trắng'}
           </Text>
 
-          <TextInput
-            style={[styles.textInput, isManualDisabled && { backgroundColor: COLORS.gray200 }]}
-            value={inputNumbers}
-            onChangeText={setInputNumbers}
-            placeholder={isManualDisabled ? "Không nhập tay được. Vui lòng bấm chọn số bất kỳ." : isXienCombo(selectedSub.name) ? getXienPlaceholder(selectedSub.name) : "Nhập số... (VD: 688,788)"}
-            placeholderTextColor={COLORS.textMuted}
-            keyboardType="numbers-and-punctuation"
-            multiline
-            editable={!isManualDisabled}
-          />
+          {!isManualDisabled && (
+            <>
+              {!isInputExpanded && inputNumbers.split(/[,;\s]+/).filter(Boolean).length > 10 ? (
+                <TouchableOpacity
+                  style={[styles.textInput, { minHeight: 48, justifyContent: 'center' }]}
+                  onPress={() => setIsInputExpanded(true)}
+                >
+                  <Text style={{ color: COLORS.textDark, lineHeight: 22 }}>
+                    {inputNumbers.split(/[,;\s]+/).filter(Boolean).slice(0, 10).join(', ')}...
+                  </Text>
+                  <Text style={{ color: COLORS.primary, marginTop: 4, fontWeight: 'bold' }}>Xem thêm</Text>
+                </TouchableOpacity>
+              ) : (
+                <View>
+                  <TextInput
+                    style={[styles.textInput, { maxHeight: 200 }]}
+                    value={inputNumbers}
+                    onChangeText={setInputNumbers}
+                    placeholder={isXienCombo(selectedSub.name) ? getXienPlaceholder(selectedSub.name) : "Nhập số... (VD: 688,788)"}
+                    placeholderTextColor={COLORS.textMuted}
+                    keyboardType="numbers-and-punctuation"
+                    multiline
+                    editable={true}
+                    onBlur={() => setIsInputExpanded(false)}
+                  />
+                  {isInputExpanded && inputNumbers.split(/[,;\s]+/).filter(Boolean).length > 10 && (
+                    <TouchableOpacity style={{ alignSelf: 'flex-end', marginRight: SPACING.md, marginTop: 4 }} onPress={() => setIsInputExpanded(false)}>
+                      <Text style={{ color: COLORS.primary, fontWeight: 'bold' }}>Thu gọn</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              )}
+            </>
+          )}
 
           <Text style={[styles.sectionTitle, { marginTop: SPACING.md }]}>Số tiền cược (vnđ/1 con)</Text>
           <TextInput
@@ -545,17 +578,29 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
         <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
           {inputNumbers.length > 0 && (
             <View style={styles.previewContainer}>
-              <Text style={styles.previewTitle}>Số đã chọn:</Text>
+              <Text style={styles.previewTitle}>Số đã chọn: {currentParsed.numbers.length > 0 ? `(${currentParsed.numbers.length} số)` : ''}</Text>
               {currentParsed.error ? (
                 <Text style={styles.previewError}>{currentParsed.error}</Text>
               ) : currentParsed.numbers.length > 0 ? (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.previewScroll}>
-                  {currentParsed.numbers.map((n, i) => (
-                    <View key={i} style={styles.previewTag}>
-                      <Text style={styles.previewTagText}>{n}</Text>
-                    </View>
-                  ))}
-                </ScrollView>
+                <View>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.previewScroll}>
+                    {(showAllNumbers ? currentParsed.numbers : currentParsed.numbers.slice(0, 10)).map((n, i) => (
+                      <View key={i} style={styles.previewTag}>
+                        <Text style={styles.previewTagText}>{n}</Text>
+                      </View>
+                    ))}
+                    {!showAllNumbers && currentParsed.numbers.length > 10 && (
+                      <TouchableOpacity style={[styles.previewTag, { backgroundColor: COLORS.gray200, borderColor: COLORS.gray300 }]} onPress={() => setShowAllNumbers(true)}>
+                        <Text style={[styles.previewTagText, { color: COLORS.gray600 }]}>+{currentParsed.numbers.length - 10} số nữa</Text>
+                      </TouchableOpacity>
+                    )}
+                  </ScrollView>
+                  {showAllNumbers && currentParsed.numbers.length > 10 && (
+                    <TouchableOpacity style={{ marginTop: 8, alignSelf: 'flex-start' }} onPress={() => setShowAllNumbers(false)}>
+                      <Text style={{ color: COLORS.primary, fontSize: TYPOGRAPHY.fontSize.sm }}>Thu gọn</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
               ) : null}
             </View>
           )}
@@ -570,9 +615,14 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
               <Text style={styles.footerWin}>{calculateWinAmount().toLocaleString('vi-VN')} đ</Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.addBtn} onPress={handleAddToCart}>
-            <Text style={styles.addBtnText}>THÊM VÀO GIỎ VÉ</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: "row", gap: 10 }}>
+            <TouchableOpacity style={[styles.addBtn, { flex: 1, backgroundColor: COLORS.secondary }]} onPress={() => { setIsBuyNow(false); handleAddToCart(); }}>
+              <Text style={styles.addBtnText}>THÊM VÀO GIỎ</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.addBtn, { flex: 1 }]} onPress={() => { setIsBuyNow(true); handleAddToCart(); }}>
+              <Text style={styles.addBtnText}>MUA NGAY</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </KeyboardAvoidingView>
 

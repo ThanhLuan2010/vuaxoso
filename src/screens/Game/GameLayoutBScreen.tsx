@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { ArrowLeft, Delete, ShoppingCart } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
+import Toast from 'react-native-toast-message';
 import { useAppStore } from '../../store/useAppStore';
-import { ArrowLeft, ShoppingCart, Delete } from 'lucide-react-native';
+import { BORDER_RADIUS, COLORS, SHADOWS, SPACING, TYPOGRAPHY } from '../../theme/theme';
 
 export default function GameLayoutBScreen({ route, navigation }: any) {
   const { gameId } = route.params;
@@ -62,7 +63,7 @@ export default function GameLayoutBScreen({ route, navigation }: any) {
     const updated = [...slots];
     updated[activeSlotIndex] = '';
     setSlots(updated);
-    
+
     // Auto retreat
     if (activeSlotIndex > 0) {
       setActiveSlotIndex(activeSlotIndex - 1);
@@ -70,7 +71,7 @@ export default function GameLayoutBScreen({ route, navigation }: any) {
   };
 
   const handleAutoFill = () => {
-    const randDigits = Array.from({ length: slots.length }, () => 
+    const randDigits = Array.from({ length: slots.length }, () =>
       Math.floor(Math.random() * 10).toString()
     );
     setSlots(randDigits);
@@ -79,25 +80,22 @@ export default function GameLayoutBScreen({ route, navigation }: any) {
 
   const handleAddToCart = () => {
     if (slots.some((s) => s === '')) {
-      Alert.alert('Lỗi', 'Vui lòng điền đầy đủ tất cả các chữ số.');
+      Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Vui lòng điền đầy đủ tất cả các chữ số.' });
       return;
     }
 
     const numberStr = slots.join('');
     const cost = 10000; // 10k VND standard price
 
-    navigation.navigate('GamePayment', {
+    addToCart({
       gameId,
       gameName: initialName,
       playType: gameId === 'loto_235' ? `Lô tô ${activeSlotTab} số` : 'Vé Điện Toán',
-      boards: [{
-        id: 'A',
-        isTC: false,
-        numbers: [numberStr],
-        cost: cost
-      }],
-      totalCost: cost
+      numbers: [numberStr],
+      cost: cost,
+      quantity: 1,
     });
+    Toast.show({ type: 'success', text1: 'Thành công', text2: 'Đã thêm vào giỏ hàng' });
   };
 
   return (
@@ -212,10 +210,34 @@ export default function GameLayoutBScreen({ route, navigation }: any) {
           <Text style={styles.footerCostVal}>10.000 đ</Text>
         </View>
 
-        <TouchableOpacity style={styles.addBtn} onPress={handleAddToCart}>
-          <ShoppingCart size={20} color={COLORS.textLight} />
-          <Text style={styles.addBtnText}>Thêm vào giỏ</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: "row", gap: 10 }}>
+          <TouchableOpacity style={[styles.addBtn, { paddingHorizontal: 16, backgroundColor: COLORS.secondary }]} onPress={() => { handleAddToCart(); }}>
+            <ShoppingCart size={20} color={COLORS.textLight} />
+            <Text style={styles.addBtnText}>Thêm vào giỏ</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.addBtn, { paddingHorizontal: 16 }]} onPress={() => {
+            if (slots.some((s) => s === '')) {
+              Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Vui lòng điền đầy đủ tất cả các chữ số.' });
+              return;
+            }
+            processCheckout({
+              gameId,
+              gameName: initialName,
+              playType: gameId === 'loto_235' ? `Lô tô ${activeSlotTab} số` : undefined,
+              boards: [
+                {
+                  id: 'A',
+                  isTC: false,
+                  numbers: [slots.join('')],
+                  cost: 10000
+                }
+              ],
+              cost: 10000
+            });
+          }}>
+            <Text style={styles.addBtnText}>Mua ngay</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );

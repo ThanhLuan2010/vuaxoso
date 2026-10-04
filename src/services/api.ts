@@ -9,7 +9,8 @@ import { Platform } from 'react-native';
 const LOCAL_API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5001/api' : 'http://localhost:5001/api';
 
 const api = axios.create({
-  baseURL: __DEV__ ? LOCAL_API_URL : MAIN_API_URL,
+  baseURL: MAIN_API_URL,
+  // baseURL: __DEV__ ? LOCAL_API_URL : MAIN_API_URL,
   headers: {
     'Content-Type': 'application/json',
   },

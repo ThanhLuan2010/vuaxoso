@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, StatusBar, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import { ChevronLeft } from 'lucide-react-native';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
 import api from '../../services/api';
@@ -9,7 +9,7 @@ import api from '../../services/api';
 export default function TransactionHistoryScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
-  const route = require('@react-navigation/native').useRoute<any>();
+  const route = useRoute<any>();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -72,19 +72,31 @@ export default function TransactionHistoryScreen() {
   const renderItem = ({ item }: { item: any }) => {
     const isDeposit = item.type === 'deposit';
     return (
-      <View style={styles.transactionCard}>
-        <View style={styles.tLeft}>
-          <Text style={styles.tTitle}>{isDeposit ? 'Nạp tiền' : 'Rút tiền'}</Text>
-          <Text style={styles.tDate}>{new Date(item.createdAt).toLocaleString('vi-VN')}</Text>
+      <View style={[styles.transactionCard, { flexDirection: 'column', alignItems: 'stretch' }]}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          <View style={styles.tLeft}>
+            <Text style={styles.tTitle}>{isDeposit ? 'Nạp tiền' : 'Rút tiền'}</Text>
+            <Text style={styles.tDate}>{new Date(item.createdAt).toLocaleString('vi-VN')}</Text>
+          </View>
+          <View style={styles.tRight}>
+            <Text style={[styles.tAmount, { color: isDeposit ? '#10B981' : '#EF4444' }]}>
+              {isDeposit ? '+' : '-'}{formatVND(item.amount)}
+            </Text>
+            <Text style={[styles.tStatus, { color: getStatusColor(item.status) }]}>
+              {getStatusText(item.status)}
+            </Text>
+          </View>
         </View>
-        <View style={styles.tRight}>
-          <Text style={[styles.tAmount, { color: isDeposit ? '#10B981' : '#EF4444' }]}>
-            {isDeposit ? '+' : '-'}{formatVND(item.amount)}
-          </Text>
-          <Text style={[styles.tStatus, { color: getStatusColor(item.status) }]}>
-            {getStatusText(item.status)}
-          </Text>
-        </View>
+        {(item.balanceBefore != null && item.balanceAfter != null) && (
+          <View style={{ width: '100%', marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#f0f0f0', flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Text style={{ fontSize: 12, color: '#666' }}>
+              Số dư trước: <Text style={{ fontWeight: '500', color: '#333' }}>{formatVND(item.balanceBefore)}</Text>
+            </Text>
+            <Text style={{ fontSize: 12, color: '#666' }}>
+              Số dư sau: <Text style={{ fontWeight: '500', color: '#333' }}>{formatVND(item.balanceAfter)}</Text>
+            </Text>
+          </View>
+        )}
       </View>
     );
   };

@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { Alert, Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Toast from 'react-native-toast-message';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { Alert, Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View, FlatList, Modal, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import api from '../../services/api';
 import { useAppStore } from '../../store/useAppStore';
@@ -12,6 +14,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 interface Board {
   id: string; // A, B, C, D, E, F
   numbers: string[];
+  multiplier?: number;
 }
 
 export default function GameLayoutAScreen({ route, navigation }: any) {
@@ -19,19 +22,62 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   const addToCart = useAppStore((state) => state.addToCart);
   const insets = useSafeAreaInsets();
 
+  const isAddingToCart = React.useRef(false);
+
+  const processCheckout = (payload: any) => {
+    if (isAddingToCart.current) {
+      if (!payload.boards || payload.boards.length === 0) {
+        Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Không có vé nào để thêm.' });
+        return;
+      }
+
+      // Gộp tất cả các dãy số (boards) thành 1 record trong giỏ hàng
+      const allNumbers = payload.boards.reduce((acc: string[], b: any) => {
+        if (b.numbers) {
+          // Xử lý nối chuỗi các dãy số cho dễ nhìn (ví dụ: Lotto có thêm specialNumbers)
+          const numStr = b.specialNumbers
+            ? `${b.numbers.join(' ')} | ${b.specialNumbers.join(' ')}`
+            : b.numbers.join(' ');
+          acc.push(`Dãy ${b.id}: ${numStr}`);
+        }
+        return acc;
+      }, []);
+
+      const totalCost = payload.boards.reduce((sum: number, b: any) => sum + (b.cost || 0), 0);
+
+      addToCart({
+        gameId: payload.gameId,
+        gameName: payload.gameName,
+        playType: payload.playType,
+        numbers: allNumbers,
+        cost: totalCost,
+        baseCost: payload.boards[0]?.cost || 10000,
+        quantity: payload.drawIds ? payload.drawIds.length : 1,
+        boards: payload.boards, // Quan trọng: lưu lại danh sách boards gốc để checkout bóc tách lại
+      });
+
+      Toast.show({ type: 'success', text1: 'Thành công', text2: 'Đã thêm vé vào giỏ hàng' });
+      isAddingToCart.current = false;
+    } else {
+      navigation.navigate('GamePayment', payload);
+    }
+  };
+
+
   // Keno Specific States
   const [kenoTab, setKenoTab] = useState<'basic' | 'bao' | 'cl_ln'>(
     initialTab || (gameId === 'bao_keno' ? 'bao' : gameId === 'clln_keno' ? 'cl_ln' : 'basic')
   );
   const [kenoBac, setKenoBac] = useState<number>(2); // Default Bậc 2
   const [kenoBoards, setKenoBoards] = useState<Board[]>([
-    { id: 'A', numbers: [] },
-    { id: 'B', numbers: [] },
-    { id: 'C', numbers: [] },
-    { id: 'D', numbers: [] },
-    { id: 'E', numbers: [] },
-    { id: 'F', numbers: [] },
+    { id: 'A', numbers: [], multiplier: 10000 },
+    { id: 'B', numbers: [], multiplier: 10000 },
+    { id: 'C', numbers: [], multiplier: 10000 },
+    { id: 'D', numbers: [], multiplier: 10000 },
+    { id: 'E', numbers: [], multiplier: 10000 },
+    { id: 'F', numbers: [], multiplier: 10000 },
   ]);
+  const [activeKenoBoardId, setActiveKenoBoardId] = useState<string | null>(null);
   const [activeBoardId, setActiveBoardId] = useState<string | null>(null);
   const [tempSelectedNumbers, setTempSelectedNumbers] = useState<string[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -40,6 +86,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   const [baoType, setBaoType] = useState<number>(3); // Default Bao 3
   const [baoBac, setBaoBac] = useState<number>(2); // Default Bậc 2
   const [baoNumbers, setBaoNumbers] = useState<string[]>([]);
+  const [isAllCombosModalVisible, setIsAllCombosModalVisible] = useState(false);
   const [isBaoTypePickerVisible, setIsBaoTypePickerVisible] = useState(false);
   const [isBaoBacPickerVisible, setIsBaoBacPickerVisible] = useState(false);
 
@@ -53,10 +100,11 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
   // Draw Cycles State
   const [isDrawPickerVisible, setIsDrawPickerVisible] = useState(false);
-  const [selectedDraws, setSelectedDraws] = useState<string[]>(['#287264']);
-  const [tempSelectedDraws, setTempSelectedDraws] = useState<string[]>(['#287264']);
+  const [selectedDraws, setSelectedDraws] = useState<string[]>([]);
+  const [tempSelectedDraws, setTempSelectedDraws] = useState<string[]>([]);
 
   const [drawCycles, setDrawCycles] = useState<any[]>([]);
+  const [isDrawLoading, setIsDrawLoading] = useState<boolean>(false);
   const handleOpenDrawPicker = () => {
     setTempSelectedDraws([...selectedDraws]);
     setIsDrawPickerVisible(true);
@@ -74,6 +122,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
   // General Game configurations
   const isLottoGame = gameId === 'lotto_535' || gameId === 'lotto_570';
+  const isKenoGame = gameId === 'keno' || gameId === 'bao_keno' || gameId === 'clln_keno' || (typeof gameId === 'string' && gameId.includes('keno'));
   let gameName = '';
   let maxNumber = 45;
   let requiredSelectCount = 6;
@@ -123,7 +172,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
     initialJackpot = '15.000.000 đ';
     initialCountdown = 8000;
   } else if (gameId === 'loto_235') {
-    gameName = 'XỔ SỐ THỦ ĐÔ';
+    gameName = 'LÔ TÔ 2,3,5';
     maxNumber = 10;
     requiredSelectCount = 2;
     initialJackpot = '';
@@ -196,6 +245,8 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   const [loto235Bao2Multiplier, setLoto235Bao2Multiplier] = useState<number>(10000);
   const [isLotoMultiplierModalVisible, setIsLotoMultiplierModalVisible] = useState(false);
   const [activeMultiplierBoardIndex, setActiveMultiplierBoardIndex] = useState<number | null>(null);
+  const [loto235DrawCount, setLoto235DrawCount] = useState<number>(1);
+  const [isLoto235DrawPickerVisible, setIsLoto235DrawPickerVisible] = useState(false);
 
   // Loto Cap States
   const [lotoCapPlayType, setLotoCapPlayType] = useState<string>('Lô tô 2 cặp');
@@ -217,6 +268,8 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   const handleStandardPlayTypeChange = (type: string) => {
     setStandardPlayType(type);
     setIsBaoDropdownOpen(false);
+    setDrawCycles([]);
+    setIsDrawLoading(true);
     setStandardBoards([
       { id: 'A', numbers: [], isTC: false, multiplier: 10000 },
       { id: 'B', numbers: [], isTC: false, multiplier: 10000 },
@@ -402,11 +455,16 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   };
 
   const handleAddBoard = () => {
-    if (standardBoards.length >= 10) {
+    if (gameId !== 'loto_235' && standardBoards.length >= 10) {
       Alert.alert('Thông báo', 'Tối đa 10 dãy số.');
       return;
     }
-    const nextId = String.fromCharCode(65 + standardBoards.length);
+    let nextId = '';
+    if (standardBoards.length < 26) {
+      nextId = String.fromCharCode(65 + standardBoards.length);
+    } else {
+      nextId = `A${String.fromCharCode(65 + standardBoards.length - 26)}`;
+    }
     setStandardBoards([
       ...standardBoards,
       { id: nextId, numbers: [], specialNumbers: [], isTC: false, multiplier: 10000 }
@@ -414,48 +472,9 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   };
 
   const handleSelectMultiplier = (index: number) => {
-    Alert.alert('Chọn mệnh giá', 'Vui lòng chọn mức tiền cho dãy này:', [
-      {
-        text: '10K',
-        onPress: () => {
-          const updated = [...standardBoards];
-          updated[index].multiplier = 10000;
-          setStandardBoards(updated);
-        }
-      },
-      {
-        text: '20K',
-        onPress: () => {
-          const updated = [...standardBoards];
-          updated[index].multiplier = 20000;
-          setStandardBoards(updated);
-        }
-      },
-      {
-        text: '30K',
-        onPress: () => {
-          const updated = [...standardBoards];
-          updated[index].multiplier = 30000;
-          setStandardBoards(updated);
-        }
-      },
-      {
-        text: '50K',
-        onPress: () => {
-          const updated = [...standardBoards];
-          updated[index].multiplier = 50000;
-          setStandardBoards(updated);
-        }
-      },
-      {
-        text: '100K',
-        onPress: () => {
-          const updated = [...standardBoards];
-          updated[index].multiplier = 100000;
-          setStandardBoards(updated);
-        }
-      },
-    ]);
+    setActiveKenoBoardId(null);
+    setActiveMultiplierBoardIndex(index);
+    setIsLotoMultiplierModalVisible(true);
   };
 
   const getCostPerBoard = (type: string) => {
@@ -644,18 +663,18 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
     }
     const activeBoards = standardBoards.filter((b) => b.numbers.length > 0 || b.isTC);
     if (activeBoards.length === 0) {
-      Alert.alert('Lỗi', 'Vui lòng chọn số hoặc tự chọn cho ít nhất 1 dãy.');
+      Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Vui lòng chọn số hoặc tự chọn cho ít nhất 1 dãy.' });
       return;
     }
 
     const reqCount = getRequiredNumbersCount(standardPlayType);
     const invalidBoard = activeBoards.find((b) => !b.isTC && b.numbers.length !== reqCount);
     if (invalidBoard) {
-      Alert.alert('Lỗi', `Dãy ${invalidBoard.id} chưa được chọn đủ ${reqCount} số.`);
+      Toast.show({ type: 'error', text1: 'Lỗi', text2: `Dãy ${invalidBoard.id} chưa được chọn đủ ${reqCount} số.` });
       return;
     }
 
-    navigation.navigate('GamePayment', {
+    processCheckout({
       gameId,
       gameName,
       playType: standardPlayType,
@@ -863,14 +882,14 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   const handleLottoCheckout = () => {
     const activeBoards = standardBoards.filter((b) => b.numbers.length > 0 || b.isTC);
     if (activeBoards.length === 0) {
-      Alert.alert('Lỗi', 'Vui lòng chọn số hoặc tự chọn cho ít nhất 1 dãy.');
+      Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Vui lòng chọn số hoặc tự chọn cho ít nhất 1 dãy.' });
       return;
     }
 
     const { main: reqMain, special: reqSpecial } = getLottoRequiredCounts();
     const invalidBoard = activeBoards.find((b) => !b.isTC && (b.numbers.length !== reqMain || !b.specialNumbers || b.specialNumbers.length !== reqSpecial));
     if (invalidBoard) {
-      Alert.alert('Lỗi', `Dãy ${invalidBoard.id} chưa chọn đủ số chính hoặc số đặc biệt.`);
+      Toast.show({ type: 'error', text1: 'Lỗi', text2: `Dãy ${invalidBoard.id} chưa chọn đủ số chính hoặc số đặc biệt.` });
       return;
     }
 
@@ -878,7 +897,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
     if (lottoPlayType === 'Bao số chính') displayPlayType = `Bao số chính (Bao ${lottoMainBao})`;
     if (lottoPlayType === 'Bao số đặc biệt') displayPlayType = `Bao số đặc biệt (Bao ${lottoSpecialBao})`;
 
-    navigation.navigate('GamePayment', {
+    processCheckout({
       gameId,
       gameName,
       playType: displayPlayType,
@@ -1008,15 +1027,15 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
     if (dientoan636PlayType === 'Cơ bản') {
       const activeBoards = standardBoards.slice(0, 5).filter((b) => b.numbers.length > 0);
       if (activeBoards.length === 0) {
-        Alert.alert('Lỗi', 'Vui lòng chọn số cho ít nhất 1 dãy.');
+        Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Vui lòng chọn số cho ít nhất 1 dãy.' });
         return;
       }
       const invalidBoard = activeBoards.find((b) => b.numbers.length !== 6);
       if (invalidBoard) {
-        Alert.alert('Lỗi', `Dãy ${invalidBoard.id} chưa chọn đủ 6 số.`);
+        Toast.show({ type: 'error', text1: 'Lỗi', text2: `Dãy ${invalidBoard.id} chưa chọn đủ 6 số.` });
         return;
       }
-      navigation.navigate('GamePayment', {
+      processCheckout({
         gameId,
         gameName,
         playType: dientoan636PlayType,
@@ -1032,11 +1051,11 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
     } else {
       const boardA = standardBoards[0];
       if (boardA.numbers.length < dientoan636BaoType) {
-        Alert.alert('Lỗi', `Vui lòng chọn đủ ${dientoan636BaoType} số cho Bao ${dientoan636BaoType}.`);
+        Toast.show({ type: 'error', text1: 'Lỗi', text2: `Vui lòng chọn đủ ${dientoan636BaoType} số cho Bao ${dientoan636BaoType}.` });
         return;
       }
       const comb = getDientoan636CombinationsCount(dientoan636BaoType, boardA.numbers.length);
-      navigation.navigate('GamePayment', {
+      processCheckout({
         gameId,
         gameName,
         playType: `Bao ${dientoan636BaoType}`,
@@ -1103,16 +1122,16 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   const handleThanTaiCheckout = () => {
     const activeBoards = standardBoards.slice(0, 5).filter((b) => b.numbers.length > 0);
     if (activeBoards.length === 0) {
-      Alert.alert('Lỗi', 'Vui lòng chọn số cho ít nhất 1 dãy.');
+      Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Vui lòng chọn số cho ít nhất 1 dãy.' });
       return;
     }
     const reqCount = thanTaiPlayType === 'Thần tài 4' ? 4 : 6;
     const invalidBoard = activeBoards.find((b) => b.numbers.length !== reqCount);
     if (invalidBoard) {
-      Alert.alert('Lỗi', `Dãy ${invalidBoard.id} chưa chọn đủ số.`);
+      Toast.show({ type: 'error', text1: 'Lỗi', text2: `Dãy ${invalidBoard.id} chưa chọn đủ số.` });
       return;
     }
-    navigation.navigate('GamePayment', {
+    processCheckout({
       gameId,
       gameName,
       playType: thanTaiPlayType,
@@ -1198,18 +1217,18 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   const handleLotoCapCheckout = () => {
     const activeBoards = standardBoards.slice(0, 5).filter((b) => b.numbers.length > 0);
     if (activeBoards.length === 0) {
-      Alert.alert('Lỗi', 'Vui lòng chọn số cho ít nhất 1 dãy.');
+      Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Vui lòng chọn số cho ít nhất 1 dãy.' });
       return;
     }
 
     const reqCount = gameId === 'truot_loto' ? getTruotLotoRequiredCount(truotLotoPlayType) : getLotoCapRequiredCount(lotoCapPlayType);
     const invalidBoard = activeBoards.find((b) => b.numbers.length !== reqCount);
     if (invalidBoard) {
-      Alert.alert('Lỗi', `Dãy ${invalidBoard.id} chưa chọn đủ ${reqCount} cặp.`);
+      Toast.show({ type: 'error', text1: 'Lỗi', text2: `Dãy ${invalidBoard.id} chưa chọn đủ ${reqCount} cặp.` });
       return;
     }
 
-    navigation.navigate('GamePayment', {
+    processCheckout({
       gameId,
       gameName,
       playType: gameId === 'truot_loto' ? truotLotoPlayType : lotoCapPlayType,
@@ -1230,6 +1249,14 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
     if (playType === 'Lô tô 4 số') return 4;
     if (playType === 'Lô tô 5 số') return 5;
     return 2;
+  };
+
+  const getLoto235CapNhan = (playType: string) => {
+    if (playType === 'Lô tô 2 số') return 4;
+    if (playType === 'Lô tô 3 số') return 4;
+    if (playType === 'Lô tô 4 số') return 4;
+    if (playType === 'Lô tô 5 số') return 27;
+    return 1;
   };
 
   const applyLoto235Bao2Filter = (filter: string) => {
@@ -1260,6 +1287,28 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
     } else {
       setLoto235Bao2Numbers([...loto235Bao2Numbers, numStr].sort());
     }
+  };
+
+  const getGeneratedBao2Numbers = () => {
+    if (loto235Bao2Filter === 'ĐẦU') {
+      const result: string[] = [];
+      loto235Bao2Numbers.forEach(d => {
+        for (let i = 0; i <= 9; i++) {
+          result.push(`${d}${i}`);
+        }
+      });
+      return result;
+    }
+    if (loto235Bao2Filter === 'ĐUÔI') {
+      const result: string[] = [];
+      loto235Bao2Numbers.forEach(d => {
+        for (let i = 0; i <= 9; i++) {
+          result.push(`${i}${d}`);
+        }
+      });
+      return result;
+    }
+    return loto235Bao2Numbers;
   };
 
   const handleLoto235AutoPickBoard = (index: number) => {
@@ -1308,25 +1357,28 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   };
 
   const getLoto235TotalCost = () => {
+    const numDraws = (selectedDraws && selectedDraws.length > 0) ? selectedDraws.length : (loto235DrawCount || 1);
     if (loto235PlayType === 'Bao 2 số') {
       let count = loto235Bao2Numbers.length;
       if (loto235Bao2Filter === 'ĐẦU' || loto235Bao2Filter === 'ĐUÔI') {
         count = count * 10;
       }
-      return count * (loto235Bao2Multiplier || 10000);
+      return count * (loto235Bao2Multiplier || 10000) * numDraws;
     }
-    const activeBoards = standardBoards.slice(0, 5).filter((b) => b.numbers.length > 0);
-    let capNhan = 4;
-    if (loto235PlayType === 'Lô tô 5 số') capNhan = 27;
-    return activeBoards.reduce((sum, b) => sum + (b.multiplier || 10000) * capNhan, 0);
+    const capNhan = getLoto235CapNhan(loto235PlayType);
+    const activeBoards = standardBoards.filter((b) => b.numbers.length > 0);
+    const sumBase = activeBoards.reduce((sum, b) => sum + (b.multiplier || 10000) * capNhan, 0);
+    return sumBase * numDraws;
   };
 
   const getEstimatedWinInfo = () => {
     let multiplier = 0;
     if (isLoto235) {
-      if (loto235PlayType === 'Lô tô 2 số' || loto235PlayType === 'Bao 2 số') multiplier = 90;
+      if (loto235PlayType === 'Lô tô 2 số') multiplier = 90;
       else if (loto235PlayType === 'Lô tô 3 số') multiplier = 900;
-      else if (loto235PlayType === 'Lô tô 5 số') multiplier = 8000;
+      else if (loto235PlayType === 'Lô tô 4 số') multiplier = 9000;
+      else if (loto235PlayType === 'Lô tô 5 số') multiplier = 90000;
+      else if (loto235PlayType === 'Bao 2 số') multiplier = 2.7;
     } else if (isLotoCap) {
       if (lotoCapPlayType === 'Lô tô 2 cặp') multiplier = 15;
       else if (lotoCapPlayType === 'Lô tô 3 cặp') multiplier = 65;
@@ -1337,12 +1389,8 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
       const activeBoards = standardBoards.slice(0, 5).filter((b) => b.numbers.length > 0);
       let totalCost = getDientoan636TotalCost();
       if (totalCost === 0) return null;
-      // Trúng 6 số (100,000 * multiplier)
       let estimatedWin = 500000000;
       if (dientoan636PlayType !== 'Cơ bản') {
-        // Tính the win potential for Bao based on hitting all 6 numbers.
-        // If a player hits 6 numbers with Bao, their prize is complex, but usually max is displayed.
-        // In standard ticket, base win is 500M. The UI image shows Max win for Bao is also 500,000,000.
         estimatedWin = 500000000;
       }
       return { multiplier: 100000, totalCost, estimatedWin };
@@ -1355,11 +1403,9 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
       let estimatedWin = 0;
       if (thanTaiPlayType === 'Thần tài 4') {
         const baseCostSum = activeBoards.reduce((sum, b) => sum + (b.multiplier || 10000), 0);
-        // Max prize is x10,000 for winning exact 4 digits
         estimatedWin = baseCostSum * 10000;
       } else if (thanTaiPlayType === 'Điện toán 1-2-3') {
         const baseCostSum = activeBoards.reduce((sum, b) => sum + (b.multiplier || 10000), 0);
-        // Max prize is x1000 + x75 + x5 = x1080 (if all 3 parts win max)
         estimatedWin = baseCostSum * 1080;
       }
       return { multiplier: 1, totalCost, estimatedWin };
@@ -1367,22 +1413,27 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
     if (!multiplier) return null;
 
-    // For normal loto235, the estimated win is the base ticket price (e.g. 10000) * multiplier
-    // not the total cost (which includes capNhan). So we extract the base cost.
     let estimatedWin = 0;
     let totalCost = 0;
     if (isLoto235) {
+      totalCost = getLoto235TotalCost();
+      if (totalCost === 0) return null;
       if (loto235PlayType === 'Bao 2 số') {
-        const count = loto235Bao2Numbers.length * (loto235Bao2Filter === 'ĐẦU' || loto235Bao2Filter === 'ĐUÔI' ? 10 : 1);
-        totalCost = count * (loto235Bao2Multiplier || 10000);
-        estimatedWin = (loto235Bao2Multiplier || 10000) * multiplier * count; // each hit wins multiplier * base
+        const baseBet = loto235Bao2Multiplier || 10000;
+        estimatedWin = baseBet * multiplier;
       } else {
-        const activeBoards = standardBoards.slice(0, 5).filter((b) => b.numbers.length > 0);
-        totalCost = getLoto235TotalCost();
-        // Assume maximum potential win (hitting all positions is unlikely, but UI shows multiplier * base cost)
-        const baseCostSum = activeBoards.reduce((sum, b) => sum + (b.multiplier || 10000), 0);
-        estimatedWin = baseCostSum * multiplier;
+        const activeBoards = standardBoards.filter((b) => b.numbers.length > 0);
+        if (activeBoards.length === 0) return null;
+        const maxBet = Math.max(...activeBoards.map((b) => b.multiplier || 10000));
+        estimatedWin = maxBet * multiplier;
       }
+    } else if (isLotoCap) {
+      totalCost = getLotoCapTotalCost();
+      if (totalCost === 0) return null;
+      const activeBoards = standardBoards.filter((b) => b.numbers.length > 0);
+      if (activeBoards.length === 0) return null;
+      const maxBet = Math.max(...activeBoards.map((b) => b.multiplier || 10000));
+      estimatedWin = maxBet * multiplier;
     } else {
       totalCost = getStandardTotalCost();
       estimatedWin = totalCost * multiplier;
@@ -1394,7 +1445,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   const handleLoto235Checkout = () => {
     if (loto235PlayType === 'Bao 2 số') {
       if (loto235Bao2Numbers.length === 0) {
-        Alert.alert('Lỗi', 'Vui lòng chọn ít nhất 1 bộ số.');
+        Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Vui lòng chọn ít nhất 1 bộ số.' });
         return;
       }
       let finalNumbers = [...loto235Bao2Numbers];
@@ -1414,7 +1465,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
         });
       }
 
-      navigation.navigate('GamePayment', {
+      processCheckout({
         gameId,
         gameName,
         playType: `Bao 2 số (${loto235Bao2Filter})`,
@@ -1423,27 +1474,29 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
           id: 'A',
           isTC: false,
           numbers: finalNumbers,
-          cost: loto235Bao2Multiplier || 10000
+          cost: (loto235Bao2Multiplier || 10000) * finalNumbers.length,
+          baseCost: loto235Bao2Multiplier || 10000
         }],
         totalCost: getLoto235TotalCost()
       });
       return;
     }
 
-    const activeBoards = standardBoards.slice(0, 5).filter((b) => b.numbers.length > 0);
+    const activeBoards = standardBoards.filter((b) => b.numbers.length > 0);
     if (activeBoards.length === 0) {
-      Alert.alert('Lỗi', 'Vui lòng chọn số cho ít nhất 1 dãy.');
+      Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Vui lòng chọn số cho ít nhất 1 dãy.' });
       return;
     }
 
     const reqCount = getLoto235RequiredCount(loto235PlayType);
     const invalidBoard = activeBoards.find((b) => b.numbers.length !== reqCount);
     if (invalidBoard) {
-      Alert.alert('Lỗi', `Dãy ${invalidBoard.id} chưa được điền đầy đủ các ô số.`);
+      Toast.show({ type: 'error', text1: 'Lỗi', text2: `Dãy ${invalidBoard.id} chưa được điền đầy đủ các ô số.` });
       return;
     }
 
-    navigation.navigate('GamePayment', {
+    const capNhan = getLoto235CapNhan(loto235PlayType);
+    processCheckout({
       gameId,
       gameName,
       playType: loto235PlayType,
@@ -1451,8 +1504,9 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
       boards: activeBoards.map(b => ({
         id: b.id,
         isTC: false,
-        numbers: b.numbers,
-        cost: b.multiplier || 10000
+        numbers: [b.numbers.join('')],
+        cost: (b.multiplier || 10000) * capNhan,
+        baseCost: b.multiplier || 10000
       })),
       totalCost: getLoto235TotalCost()
     });
@@ -1464,65 +1518,108 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
     }
   }, [loto235PlayType, loto235Bao2Filter]);
 
-  // Fetch real countdown and draw cycles from API
-  useEffect(() => {
-    const fetchActiveDraw = async () => {
-      try {
-        const res = await api.get('/draws/active');
-        const draws = res.data;
-        // Map UI gameId to backend game code
-        let mappedGameCode = gameId;
-        if (gameId === 'bao_keno' || gameId === 'clln_keno') mappedGameCode = 'keno';
+  const fetchActiveDraw = async () => {
+    setIsDrawLoading(true);
+    try {
+      const res = await api.get('/draws/active');
+      const draws = res.data;
+      // Map UI gameId to backend game code
+      let mappedGameCode = gameId;
+      if (gameId === 'bao_keno' || gameId === 'clln_keno') mappedGameCode = 'keno';
+      if (gameId === 'max_3d' && standardPlayType === 'Max3D Pro') mappedGameCode = 'max_3d_pro';
 
-        // Find all active draws for this game
-        const activeDrawsForGame = draws.filter((d: any) => d.game && d.game.code === mappedGameCode);
+      const nowMs = Date.now();
+      // Find all active draws for this game that are in the future (max 10 upcoming)
+      const activeDrawsForGame = draws
+        .filter((d: any) =>
+          d.game && d.game.code === mappedGameCode && new Date(d.closeTime).getTime() > nowMs
+        )
+        .slice(0, 10);
 
-        if (activeDrawsForGame.length > 0) {
-          const formattedDraws = activeDrawsForGame.map((d: any) => {
-            const closeTime = new Date(d.closeTime);
-            const day = String(closeTime.getDate()).padStart(2, '0');
-            const month = String(closeTime.getMonth() + 1).padStart(2, '0');
-            const year = closeTime.getFullYear();
-            const hrs = String(closeTime.getHours()).padStart(2, '0');
-            const mins = String(closeTime.getMinutes()).padStart(2, '0');
-            const secs = String(closeTime.getSeconds()).padStart(2, '0');
+      if (activeDrawsForGame.length > 0) {
+        const formattedDraws = activeDrawsForGame.map((d: any) => {
+          const closeTime = new Date(d.closeTime);
+          const isLotto535 = mappedGameCode === 'lotto_535';
+          // For lotto_535, closeTime is cutoff (12h/20h), draw time is 1 hour later (13h/21h)
+          const displayTime = isLotto535 ? new Date(closeTime.getTime() + 60 * 60 * 1000) : closeTime;
 
-            return {
-              id: d._id,
-              drawCode: d.drawCode,
-              label: `${d.drawCode} - ${day}/${month}/${year} ${hrs}:${mins}:${secs}`,
-              timeStr: `${hrs}:${mins}:${secs}`,
-              dateStr: `${day}/${month}`
-            };
-          });
+          const day = String(displayTime.getDate()).padStart(2, '0');
+          const month = String(displayTime.getMonth() + 1).padStart(2, '0');
+          const year = displayTime.getFullYear();
+          const hrs = String(displayTime.getHours()).padStart(2, '0');
+          const mins = String(displayTime.getMinutes()).padStart(2, '0');
+          const secs = String(displayTime.getSeconds()).padStart(2, '0');
 
-          setDrawCycles(formattedDraws);
+          const isKeno = mappedGameCode.includes('keno');
+          return {
+            id: d._id,
+            drawCode: d.drawCode,
+            label: isLotto535
+              ? `${d.drawCode} - ${day}/${month}/${year} ${hrs}:${mins}:${secs}`
+              : `${d.drawCode} - ${day}/${month}/${year}`,
+            timeStr: `${hrs}:${mins}:${secs}`,
+            dateStr: isLotto535 ? `${day}/${month} ${hrs}:${mins}` : `${day}/${month}`
+          };
+        });
 
-          // Select the first active draw by default
-          if (formattedDraws.length > 0) {
-            setSelectedDraws([formattedDraws[0].id]);
+        setDrawCycles(formattedDraws);
+
+        setSelectedDrawIndex((prevIndex) => {
+          if (prevIndex < 0 || prevIndex >= formattedDraws.length) {
+            setTempSelectedDrawIndex(0);
+            return 0;
+          }
+          return prevIndex;
+        });
+
+        // Auto switch to first active draw if current selection is invalid or expired
+        setSelectedDraws((prev) => {
+          const isValidPrev = prev && prev.length > 0 && formattedDraws.some((d: any) => prev.includes(d.id));
+          if (!isValidPrev) {
             setTempSelectedDraws([formattedDraws[0].id]);
+            return [formattedDraws[0].id];
           }
+          return prev;
+        });
 
-          const activeDraw = activeDrawsForGame[0];
-          if (activeDraw && activeDraw.closeTime) {
-            const closeTimeMs = new Date(activeDraw.closeTime).getTime();
-            const nowMs = Date.now();
-            const diffSecs = Math.max(0, Math.floor((closeTimeMs - nowMs) / 1000));
-            setCountdown(diffSecs);
-          }
+        const currentSelectedId = (selectedDraws && selectedDraws[0]) || formattedDraws[0]?.id;
+        const activeDraw = activeDrawsForGame.find((d: any) => d._id === currentSelectedId) || activeDrawsForGame[0];
+        if (activeDraw && activeDraw.closeTime) {
+          const closeTimeMs = new Date(activeDraw.closeTime).getTime();
+          const diffSecs = Math.max(0, Math.floor((closeTimeMs - Date.now()) / 1000));
+          setCountdown(diffSecs);
         }
-      } catch (error) {
-        console.error('Lỗi khi lấy thông tin kỳ quay:', error);
+      } else {
+        setDrawCycles([]);
       }
-    };
+    } catch (error) {
+      console.error('Lỗi khi lấy thông tin kỳ quay:', error);
+    } finally {
+      setIsDrawLoading(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchActiveDraw();
+    }, [gameId, standardPlayType])
+  );
+
+  useEffect(() => {
     fetchActiveDraw();
-  }, [gameId]);
+  }, [gameId, standardPlayType]);
+
+  useEffect(() => {
+    if (countdown === 0) {
+      fetchActiveDraw();
+    }
+  }, [countdown]);
+
 
   // Countdown timer logic
   useEffect(() => {
     const timer = setInterval(() => {
-      setCountdown((prev) => (prev > 0 ? prev - 1 : initialCountdown));
+      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
     return () => clearInterval(timer);
   }, []);
@@ -1622,14 +1719,14 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   const handleKenoCheckout = () => {
     const activeBoards = kenoBoards.filter((b) => b.numbers.length === kenoBac);
     if (activeBoards.length === 0) {
-      Alert.alert('Lỗi', 'Vui lòng chọn số cho ít nhất 1 bảng.');
+      Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Vui lòng chọn số cho ít nhất 1 bảng.' });
       return;
     }
 
     const drawCount = selectedDraws.length || 1;
-    const totalCost = activeBoards.length * 10000 * drawCount;
+    const totalCost = activeBoards.reduce((sum, b) => sum + ((b.multiplier || 10000) * drawCount), 0);
 
-    navigation.navigate('GamePayment', {
+    processCheckout({
       gameId: 'keno',
       gameName: 'KENO',
       playType: `Bậc ${kenoBac} (${drawCount} kỳ)`,
@@ -1638,7 +1735,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
         id: board.id,
         isTC: false,
         numbers: board.numbers,
-        cost: 10000 * drawCount
+        cost: (board.multiplier || 10000) * drawCount
       })),
       totalCost
     });
@@ -1692,7 +1789,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
   const handleBaoCheckout = () => {
     if (baoNumbers.length !== baoType) {
-      Alert.alert('Lỗi', `Vui lòng chọn đủ ${baoType} số cho Bao này.`);
+      Toast.show({ type: 'error', text1: 'Lỗi', text2: `Vui lòng chọn đủ ${baoType} số cho Bao này.` });
       return;
     }
 
@@ -1700,7 +1797,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
     const drawCount = selectedDraws.length || 1;
     const cost = combinationsList.length * 10000 * drawCount;
 
-    navigation.navigate('GamePayment', {
+    processCheckout({
       gameId: 'keno',
       gameName: 'KENO',
       playType: `Bao ${baoType} - Bậc ${baoBac} (${drawCount} kỳ)`,
@@ -1756,14 +1853,14 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   const handleClLnCheckout = () => {
     const activeBoards = clLnBoards.filter((b) => b.selection !== null);
     if (activeBoards.length === 0) {
-      Alert.alert('Lỗi', 'Vui lòng chọn ít nhất 1 cửa đặt.');
+      Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Vui lòng chọn ít nhất 1 cửa đặt.' });
       return;
     }
 
     const drawCount = selectedDraws.length || 1;
     const totalCost = activeBoards.length * 10000 * drawCount;
 
-    navigation.navigate('GamePayment', {
+    processCheckout({
       gameId: 'clln_keno',
       gameName: 'KENO - CL/LN',
       playType: `Chẵn Lẻ / Lớn Nhỏ (${drawCount} kỳ)`,
@@ -1804,13 +1901,13 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
   const handleAddToCart = () => {
     if (selectedNumbers.length !== requiredSelectCount) {
-      Alert.alert('Lỗi', `Vui lòng chọn đúng ${requiredSelectCount} số.`);
+      Toast.show({ type: 'error', text1: 'Lỗi', text2: `Vui lòng chọn đúng ${requiredSelectCount} số.` });
       return;
     }
 
     const formattedNumbers = selectedNumbers.map((n) => String(n).padStart(2, '0'));
 
-    navigation.navigate('GamePayment', {
+    processCheckout({
       gameId,
       gameName,
       playType: 'Vé thường',
@@ -1839,7 +1936,9 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
   };
 
   const activeKenoBoardsCount = kenoBoards.filter((b) => b.numbers.length === kenoBac).length;
-  const totalCost = activeKenoBoardsCount * 10000 * (selectedDraws.length || 1);
+  const kenoTotalCost = kenoBoards
+    .filter((b) => b.numbers.length === kenoBac)
+    .reduce((sum, b) => sum + ((b.multiplier || 10000) * (selectedDraws.length || 1)), 0);
 
   const handleAddKenoBoard = () => {
     if (kenoBoards.length >= 10) {
@@ -1849,11 +1948,20 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
     const nextId = String.fromCharCode(65 + kenoBoards.length);
     setKenoBoards([
       ...kenoBoards,
-      { id: nextId, numbers: [] }
+      { id: nextId, numbers: [], multiplier: 10000 }
     ]);
   };
 
+
+  const generatedBaoCombos = React.useMemo(() => {
+    if (baoNumbers.length === baoType) {
+      return getCombinations(baoNumbers, baoBac);
+    }
+    return [];
+  }, [baoNumbers, baoType, baoBac]);
+
   if (gameId === 'keno') {
+
     return (
       <View style={styles.container}>
         {/* Custom Header */}
@@ -1910,7 +2018,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
             <View style={styles.drawInfoBarContainer}>
               <TouchableOpacity style={styles.drawBox} onPress={handleOpenDrawPicker}>
                 <Text style={styles.drawLabel}>Kỳ quay:</Text>
-                <Text style={styles.drawCycleRed}>{(drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.drawCode || 'Đang tải...'} - {(drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.timeStr || ''}</Text>
+                <Text style={styles.drawCycleRed}>{isDrawLoading || drawCycles.length === 0 ? 'Đang tải...' : `${(drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.drawCode || 'Đang tải...'} - ${isKenoGame ? (drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.timeStr : (drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.dateStr}`}</Text>
                 <Text style={styles.drawTime}>
                   {selectedDraws.length > 1 ? `+${selectedDraws.length - 1} kỳ` : `${formatTime(countdown)} ▼`}
                 </Text>
@@ -1972,9 +2080,18 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                       >
                         <RefreshCw size={14} color="#FFFFFF" />
                       </TouchableOpacity>
-                      <View style={styles.pricePill}>
-                        <Text style={styles.pricePillText}>10K</Text>
-                      </View>
+                      <TouchableOpacity
+                        style={styles.pricePill}
+                        onPress={() => {
+                          setActiveKenoBoardId(board.id);
+                          setActiveMultiplierBoardIndex(null);
+                          setIsLotoMultiplierModalVisible(true);
+                        }}
+                      >
+                        <Text style={styles.pricePillText}>
+                          {(((board.multiplier || 10000) / 1000)).toString()}K
+                        </Text>
+                      </TouchableOpacity>
                     </View>
                   </View>
                 );
@@ -1989,10 +2106,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                   <Text style={styles.pillActionBtnText}>Chọn nhanh</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.pillActionBtn} onPress={autoSelectAllBoards}>
-                  <RotateCw size={14} color="#007AFF" />
-                  <Text style={styles.pillActionBtnText}>TC</Text>
-                </TouchableOpacity>
+
 
                 <TouchableOpacity style={styles.pillActionBtn} onPress={handleAddKenoBoard}>
                   <Plus size={14} color="#FF6F00" />
@@ -2002,12 +2116,29 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
               <View style={styles.totalRow}>
                 <Text style={styles.totalLabel}>Tạm tính:</Text>
-                <Text style={styles.totalValue}>{totalCost.toLocaleString('vi-VN')} VNĐ</Text>
+                <Text style={styles.totalValue}>{kenoTotalCost.toLocaleString('vi-VN')} VNĐ</Text>
               </View>
 
-              <TouchableOpacity style={styles.checkoutBtn} onPress={handleKenoCheckout}>
-                <Text style={styles.checkoutBtnText}>Đặt vé</Text>
-              </TouchableOpacity>
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 12, width: '100%' }}>
+                <TouchableOpacity
+                  style={[styles.checkoutBtn, { flex: 1, backgroundColor: COLORS.secondary }]}
+                  onPress={() => {
+                    isAddingToCart.current = true;
+                    handleKenoCheckout();
+                  }}
+                >
+                  <Text style={styles.checkoutBtnText}>Thêm vé</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.checkoutBtn, { flex: 1 }]}
+                  onPress={() => {
+                    isAddingToCart.current = false;
+                    handleKenoCheckout();
+                  }}
+                >
+                  <Text style={styles.checkoutBtnText}>Cược ngay</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </>
         ) : kenoTab === 'bao' ? (
@@ -2037,7 +2168,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
             <View style={styles.drawInfoBarContainer}>
               <TouchableOpacity style={styles.drawBox} onPress={handleOpenDrawPicker}>
                 <Text style={styles.drawLabel}>Kỳ quay:</Text>
-                <Text style={styles.drawCycleRed}>{(drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.drawCode || 'Đang tải...'} - {(drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.timeStr || ''}</Text>
+                <Text style={styles.drawCycleRed}>{(drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.drawCode || 'Đang tải...'} - {isKenoGame ? (drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.timeStr : (drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.dateStr}</Text>
                 <Text style={styles.drawTime}>
                   {selectedDraws.length > 1 ? `+${selectedDraws.length - 1} kỳ` : `${formatTime(countdown)} ▼`}
                 </Text>
@@ -2102,17 +2233,19 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
               {/* Generated combinations display */}
               {baoNumbers.length === baoType && (
                 <View style={styles.generatedCombosContainer}>
-                  <Text style={styles.generatedTitle}>Bộ số được tạo({getCombinations(baoNumbers, baoBac).length})</Text>
+                  <Text style={styles.generatedTitle}>Bộ số được tạo ({generatedBaoCombos.length})</Text>
                   <View style={styles.combosList}>
-                    {getCombinations(baoNumbers, baoBac).slice(0, 50).map((combo, idx) => (
+                    {generatedBaoCombos.slice(0, 10).map((combo, idx) => (
                       <Text key={idx} style={styles.comboText}>
                         {combo.join(' ')}
                       </Text>
                     ))}
-                    {getCombinations(baoNumbers, baoBac).length > 50 && (
-                      <Text style={[styles.comboText, { fontStyle: 'italic', color: '#7F8E9C' }]}>
-                        ... và {getCombinations(baoNumbers, baoBac).length - 50} bộ số khác
-                      </Text>
+                    {generatedBaoCombos.length > 10 && (
+                      <TouchableOpacity onPress={() => setIsAllCombosModalVisible(true)} style={{ marginTop: 8 }}>
+                        <Text style={[styles.comboText, { fontStyle: 'italic', color: '#0084FA', fontWeight: 'bold' }]}>
+                          Xem tất cả {generatedBaoCombos.length} bộ số
+                        </Text>
+                      </TouchableOpacity>
                     )}
                   </View>
                 </View>
@@ -2138,9 +2271,26 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                 </Text>
               </View>
 
-              <TouchableOpacity style={styles.checkoutBtn} onPress={handleBaoCheckout}>
-                <Text style={styles.checkoutBtnText}>Đặt vé</Text>
-              </TouchableOpacity>
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 12, width: '100%' }}>
+                <TouchableOpacity
+                  style={[styles.checkoutBtn, { flex: 1, backgroundColor: COLORS.secondary }]}
+                  onPress={() => {
+                    isAddingToCart.current = true;
+                    handleBaoCheckout();
+                  }}
+                >
+                  <Text style={styles.checkoutBtnText}>Thêm vé</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.checkoutBtn, { flex: 1 }]}
+                  onPress={() => {
+                    isAddingToCart.current = false;
+                    handleBaoCheckout();
+                  }}
+                >
+                  <Text style={styles.checkoutBtnText}>Cược ngay</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </>
         ) : (
@@ -2149,7 +2299,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
             <View style={styles.drawInfoBarContainer}>
               <TouchableOpacity style={styles.drawBox} onPress={handleOpenDrawPicker}>
                 <Text style={styles.drawLabel}>Kỳ quay:</Text>
-                <Text style={styles.drawCycleRed}>{(drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.drawCode || 'Đang tải...'} - {(drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.timeStr || ''}</Text>
+                <Text style={styles.drawCycleRed}>{(drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.drawCode || 'Đang tải...'} - {isKenoGame ? (drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.timeStr : (drawCycles.find(d => selectedDraws.includes(d.id)) || drawCycles[0])?.dateStr}</Text>
                 <Text style={styles.drawTime}>
                   {selectedDraws.length > 1 ? `+${selectedDraws.length - 1} kỳ` : `${formatTime(countdown)} ▼`}
                 </Text>
@@ -2453,9 +2603,26 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                 </Text>
               </View>
 
-              <TouchableOpacity style={styles.checkoutBtn} onPress={handleClLnCheckout}>
-                <Text style={styles.checkoutBtnText}>Đặt vé</Text>
-              </TouchableOpacity>
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 12, width: '100%' }}>
+                <TouchableOpacity
+                  style={[styles.checkoutBtn, { flex: 1, backgroundColor: COLORS.secondary }]}
+                  onPress={() => {
+                    isAddingToCart.current = true;
+                    handleClLnCheckout();
+                  }}
+                >
+                  <Text style={styles.checkoutBtnText}>Thêm vé</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.checkoutBtn, { flex: 1 }]}
+                  onPress={() => {
+                    isAddingToCart.current = false;
+                    handleClLnCheckout();
+                  }}
+                >
+                  <Text style={styles.checkoutBtnText}>Cược ngay</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </>
         )}
@@ -2617,36 +2784,45 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
               </View>
 
               <ScrollView style={styles.drawModalScrollList} showsVerticalScrollIndicator={false}>
-                {drawCycles.map((cycle) => {
-                  const isChecked = tempSelectedDraws.includes(cycle.id);
-                  return (
-                    <TouchableOpacity
-                      key={cycle.id}
-                      style={styles.drawModalItem}
-                      onPress={() => {
-                        if (isChecked) {
-                          if (tempSelectedDraws.length > 1) {
-                            setTempSelectedDraws(tempSelectedDraws.filter(id => id !== cycle.id));
+                {isDrawLoading || drawCycles.length === 0 ? (
+                  <View style={{ paddingVertical: 40, alignItems: 'center', justifyContent: 'center' }}>
+                    <ActivityIndicator size="small" color="#00A859" />
+                    <Text style={{ marginTop: 10, color: '#7F8E9C', fontSize: 14 }}>Đang tải danh sách kỳ quay...</Text>
+                  </View>
+                ) : (
+                  drawCycles.map((cycle, idx) => {
+                    const isChecked = tempSelectedDraws.includes(cycle.id);
+                    return (
+                      <TouchableOpacity
+                        key={cycle.id}
+                        style={styles.drawModalItem}
+                        onPress={() => {
+                          if (isChecked) {
+                            if (tempSelectedDraws.length > 1) {
+                              setTempSelectedDraws(tempSelectedDraws.filter(id => id !== cycle.id));
+                            }
+                          } else {
+                            setTempSelectedDraws([...tempSelectedDraws, cycle.id]);
                           }
-                        } else {
-                          setTempSelectedDraws([...tempSelectedDraws, cycle.id]);
-                        }
-                      }}
-                    >
-                      <View style={[styles.drawCheckbox, isChecked && styles.drawCheckboxChecked]}>
-                        {isChecked && (
-                          <Check size={14} color="#FF3B30" strokeWidth={3} />
-                        )}
-                      </View>
-                      <Text style={styles.drawModalItemText}>
-                        {cycle.label}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
+                        }}
+                      >
+                        <View style={styles.drawModalLeftGroup}>
+                          <View style={[styles.drawCheckbox, isChecked && styles.drawCheckboxChecked]}>
+                            {isChecked && (
+                              <Check size={14} color="#FF3B30" strokeWidth={3} />
+                            )}
+                          </View>
+                          <Text style={styles.drawModalItemText}>
+                            {cycle.label}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })
+                )}
               </ScrollView>
 
-              <View style={styles.drawModalFooter}>
+              <View style={[styles.drawModalFooter, { paddingBottom: Math.max(16, insets.bottom + 12) }]}>
                 <TouchableOpacity
                   style={styles.drawConfirmBtn}
                   onPress={() => {
@@ -2656,6 +2832,72 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                 >
                   <Text style={styles.drawConfirmBtnText}>Xác nhận</Text>
                 </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        )}
+        {/* Chọn mệnh giá Multiplier Modal for Keno */}
+        {isLotoMultiplierModalVisible && (
+          <View style={[styles.pickerOverlay, { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }]}>
+            <View style={{ backgroundColor: '#FFFFFF', borderRadius: 16, width: '85%', overflow: 'hidden' }}>
+              {/* Header */}
+              <View style={{ backgroundColor: '#0084FA', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 16, paddingHorizontal: 16 }}>
+                <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#FFFFFF' }}>Chọn mệnh giá</Text>
+                <TouchableOpacity onPress={() => setIsLotoMultiplierModalVisible(false)}>
+                  <X size={20} color="#FFFFFF" />
+                </TouchableOpacity>
+              </View>
+
+              {/* List options */}
+              <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
+                {[10000, 20000, 30000, 40000, 50000].map((val) => {
+                  let isSelected = false;
+                  if (activeKenoBoardId !== null) {
+                    const kb = kenoBoards.find(b => b.id === activeKenoBoardId);
+                    isSelected = (kb?.multiplier || 10000) === val;
+                  } else if (activeMultiplierBoardIndex !== null) {
+                    isSelected = (standardBoards[activeMultiplierBoardIndex]?.multiplier || 10000) === val;
+                  } else {
+                    isSelected = loto235Bao2Multiplier === val;
+                  }
+                  return (
+                    <TouchableOpacity
+                      key={val}
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        paddingVertical: 14,
+                        borderBottomWidth: 1,
+                        borderBottomColor: '#F2F4F7'
+                      }}
+                      onPress={() => {
+                        if (activeKenoBoardId !== null) {
+                          setKenoBoards(kenoBoards.map(b => b.id === activeKenoBoardId ? { ...b, multiplier: val } : b));
+                        } else if (activeMultiplierBoardIndex !== null) {
+                          const updated = [...standardBoards];
+                          updated[activeMultiplierBoardIndex].multiplier = val;
+                          setStandardBoards(updated);
+                        } else {
+                          setLoto235Bao2Multiplier(val);
+                        }
+                        setIsLotoMultiplierModalVisible(false);
+                      }}
+                    >
+                      <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#1D2939' }}>
+                        {val.toLocaleString('vi-VN')} đ
+                      </Text>
+                      <View style={[
+                        { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: '#D0D5DD', justifyContent: 'center', alignItems: 'center' },
+                        isSelected && { borderColor: '#FF0000' }
+                      ]}>
+                        {isSelected && (
+                          <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#FF0000' }} />
+                        )}
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
             </View>
           </View>
@@ -2683,7 +2925,34 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
 
   return (
     <View style={styles.container}>
+
       {/* Header */}
+      <Modal visible={isAllCombosModalVisible} transparent animationType="slide">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end', zIndex: 9999 }}>
+          <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 16, borderTopRightRadius: 16, height: '80%', padding: 16 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#0F2942' }}>Tất cả {generatedBaoCombos.length} bộ số</Text>
+              <TouchableOpacity onPress={() => setIsAllCombosModalVisible(false)}>
+                <X size={24} color="#0F2942" />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={generatedBaoCombos}
+              keyExtractor={(_, index) => index.toString()}
+              renderItem={({ item, index }) => (
+                <View style={{ paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F0F0F0', flexDirection: 'row', alignItems: 'center' }}>
+                  <Text style={{ width: 40, color: '#7F8E9C', fontWeight: 'bold' }}>#{index + 1}</Text>
+                  <Text style={{ fontSize: 16, color: '#0F2942', fontWeight: '500' }}>{item.join(' ')}</Text>
+                </View>
+              )}
+              initialNumToRender={20}
+              maxToRenderPerBatch={50}
+              windowSize={5}
+            />
+          </View>
+        </View>
+      </Modal>
+
       <View style={[styles.header, { paddingTop: insets.top, height: 56 + insets.top }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
           <ArrowLeft size={24} color="#0F2942" />
@@ -3026,16 +3295,24 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
         <TouchableOpacity
           style={styles.periodBox}
           onPress={() => {
-            setTempSelectedDrawIndex(selectedDrawIndex);
-            setIsStandardDrawPickerVisible(true);
+            if (isLoto235) {
+              setIsLoto235DrawPickerVisible(true);
+            } else {
+              setTempSelectedDrawIndex(selectedDrawIndex);
+              setIsStandardDrawPickerVisible(true);
+            }
           }}
         >
           <Text style={styles.periodLabel}>Kỳ quay:</Text>
           <Text style={styles.periodValueRed}>
-            {activeDraw?.drawCode || 'Đang tải...'} - {activeDraw?.dateStr || ''}
+            {isDrawLoading || !activeDraw
+              ? 'Đang tải...'
+              : isLoto235
+                ? (loto235DrawCount > 1 ? `Đã chọn ${loto235DrawCount} kỳ` : `${activeDraw.dateStr}`)
+                : `${activeDraw.drawCode} - ${activeDraw.dateStr}`}
           </Text>
           <Text style={styles.periodTime}>
-            {formatTime(countdown)} ▼
+            {`${formatTime(countdown)} ▼`}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.chartBtn} onPress={handleStatsPress}>
@@ -3224,39 +3501,109 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
             </TouchableOpacity>
           </View>
 
-          {/* List Title */}
-          <Text style={styles.bao2ListHeading}>
-            Danh sách các bộ số được tạo ({loto235Bao2Numbers.length} bộ số)
-          </Text>
+          {/* Numbers Display */}
+          {loto235Bao2Filter === 'ĐẦU' || loto235Bao2Filter === 'ĐUÔI' ? (
+            <View>
+              {/* Digit selection header */}
+              <Text style={[styles.bao2ListHeading, { fontSize: 13, color: '#333333', marginBottom: 8 }]}>
+                Chọn số:
+              </Text>
 
-          {/* Numbers Grid */}
-          <View style={styles.bao2NumbersGrid}>
-            {Array.from({ length: 10 }, (_, i) => {
-              const numStr = String(i);
-              const isSelected = loto235Bao2Numbers.includes(numStr);
-              return (
-                <TouchableOpacity
-                  key={numStr}
-                  style={[
-                    styles.bao2NumberBall,
-                    isSelected && styles.bao2NumberBallSelected
-                  ]}
-                  onPress={() => toggleLoto235Bao2Number(numStr)}
-                >
-                  <Text style={[
-                    styles.bao2NumberBallText,
-                    isSelected && styles.bao2NumberBallTextSelected
-                  ]}>
-                    {numStr}
+              {/* Digit selection balls */}
+              <View style={styles.bao2NumbersGrid}>
+                {Array.from({ length: 10 }, (_, i) => {
+                  const numStr = String(i);
+                  const isSelected = loto235Bao2Numbers.includes(numStr);
+                  return (
+                    <TouchableOpacity
+                      key={numStr}
+                      style={[
+                        styles.bao2NumberBall,
+                        isSelected && { backgroundColor: '#E53935', borderColor: '#E53935' }
+                      ]}
+                      onPress={() => toggleLoto235Bao2Number(numStr)}
+                    >
+                      <Text style={[
+                        styles.bao2NumberBallText,
+                        isSelected && { color: '#FFFFFF' }
+                      ]}>
+                        {numStr}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              {/* Generated numbers below */}
+              {getGeneratedBao2Numbers().length > 0 && (
+                <View style={{ marginTop: 12 }}>
+                  <Text style={styles.bao2ListHeading}>
+                    Danh sách các bộ số được tạo ({getGeneratedBao2Numbers().length} bộ số)
                   </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10, paddingHorizontal: 2, paddingBottom: 16 }}>
+                    {getGeneratedBao2Numbers().map((numStr) => (
+                      <View
+                        key={numStr}
+                        style={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: 18,
+                          backgroundColor: '#0B2545',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          shadowColor: '#000',
+                          shadowOffset: { width: 0, height: 1 },
+                          shadowOpacity: 0.1,
+                          shadowRadius: 2,
+                          elevation: 1,
+                        }}
+                      >
+                        <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#FFFFFF' }}>
+                          {numStr}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              )}
+            </View>
+          ) : (
+            <View>
+              <Text style={styles.bao2ListHeading}>
+                Danh sách các bộ số được tạo ({getGeneratedBao2Numbers().length} bộ số)
+              </Text>
+
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10, paddingHorizontal: 2, paddingBottom: 16 }}>
+                {getGeneratedBao2Numbers().map((numStr) => (
+                  <View
+                    key={numStr}
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 18,
+                      backgroundColor: '#0B2545',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      shadowColor: '#000',
+                      shadowOffset: { width: 0, height: 1 },
+                      shadowOpacity: 0.1,
+                      shadowRadius: 2,
+                      elevation: 1,
+                    }}
+                  >
+                    <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#FFFFFF' }}>
+                      {numStr}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
         </ScrollView>
       ) : (
         <ScrollView contentContainerStyle={styles.boardsScrollContent} showsVerticalScrollIndicator={false}>
-          {((isLoto235 || isLotoCap || isDientoan636) ? standardBoards.slice(0, 5) : standardBoards).map((board, index) => {
+          {((isLotoCap || isDientoan636) ? standardBoards.slice(0, 5) : standardBoards).map((board, index) => {
             const requiredCount = getRequiredNumbersCount(standardPlayType);
             const hasContent = board.numbers.length > 0 || board.isTC || (board.specialNumbers && board.specialNumbers.length > 0);
 
@@ -3308,23 +3655,19 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
               };
 
               return (
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6, flex: 1 }}>
                   {/* Main numbers */}
-                  <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
-                    {Array.from({ length: reqMain }).map((_, idx) =>
-                      renderLottoBall(board.numbers[idx], false, idx)
-                    )}
-                  </View>
+                  {Array.from({ length: reqMain }).map((_, idx) =>
+                    renderLottoBall(board.numbers[idx], false, idx)
+                  )}
 
                   {/* Divider */}
-                  <View style={{ width: 1.5, height: 20, backgroundColor: '#D0D5DD', marginHorizontal: 4 }} />
+                  <View key="lotto-divider" style={{ width: 1.5, height: 20, backgroundColor: '#D0D5DD', marginHorizontal: 2 }} />
 
                   {/* Special numbers */}
-                  <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
-                    {Array.from({ length: reqSpecial }).map((_, idx) =>
-                      renderLottoBall(board.specialNumbers ? board.specialNumbers[idx] : undefined, true, idx)
-                    )}
-                  </View>
+                  {Array.from({ length: reqSpecial }).map((_, idx) =>
+                    renderLottoBall(board.specialNumbers ? board.specialNumbers[idx] : undefined, true, idx)
+                  )}
                 </View>
               );
             };
@@ -3508,27 +3851,22 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                   )}
                 </TouchableOpacity>
 
-                {/* Right control (refresh/delete + multiplier for Max3D / Loto 235 / Loto Cap) */}
+                {/* Right control (refresh/delete + multiplier for all standard games) */}
                 <View style={styles.standardRowControls}>
                   {hasContent ? (
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                      {(isMax3d || isMax4d || isLoto235 || isLotoCap) && (
-                        <TouchableOpacity
-                          style={styles.max3dPill}
-                          onPress={() => {
-                            if (isLoto235 || isLotoCap) {
-                              setActiveMultiplierBoardIndex(index);
-                              setIsLotoMultiplierModalVisible(true);
-                            } else {
-                              handleSelectMultiplier(index);
-                            }
-                          }}
-                        >
-                          <Text style={styles.max3dPillText}>
-                            {(((isLoto235 || isLotoCap ? board.multiplier : board.multiplier) || 10000) / 1000).toString()}K
-                          </Text>
-                        </TouchableOpacity>
-                      )}
+                      <TouchableOpacity
+                        style={styles.max3dPill}
+                        onPress={() => {
+                          setActiveKenoBoardId(null);
+                          setActiveMultiplierBoardIndex(index);
+                          setIsLotoMultiplierModalVisible(true);
+                        }}
+                      >
+                        <Text style={styles.max3dPillText}>
+                          {(((board.multiplier || 10000)) / 1000).toString()}K
+                        </Text>
+                      </TouchableOpacity>
                       <TouchableOpacity
                         style={styles.rowDeleteBtn}
                         onPress={() => handleClearBoard(index)}
@@ -3538,23 +3876,18 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                     </View>
                   ) : (
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                      {(isMax3d || isMax4d || isLoto235 || isLotoCap) && (
-                        <TouchableOpacity
-                          style={styles.max3dPill}
-                          onPress={() => {
-                            if (isLoto235 || isLotoCap) {
-                              setActiveMultiplierBoardIndex(index);
-                              setIsLotoMultiplierModalVisible(true);
-                            } else {
-                              handleSelectMultiplier(index);
-                            }
-                          }}
-                        >
-                          <Text style={styles.max3dPillText}>
-                            {(((isLoto235 || isLotoCap ? board.multiplier : board.multiplier) || 10000) / 1000).toString()}K
-                          </Text>
-                        </TouchableOpacity>
-                      )}
+                      <TouchableOpacity
+                        style={styles.max3dPill}
+                        onPress={() => {
+                          setActiveKenoBoardId(null);
+                          setActiveMultiplierBoardIndex(index);
+                          setIsLotoMultiplierModalVisible(true);
+                        }}
+                      >
+                        <Text style={styles.max3dPillText}>
+                          {(((board.multiplier || 10000)) / 1000).toString()}K
+                        </Text>
+                      </TouchableOpacity>
                       <TouchableOpacity
                         style={styles.rowRefreshBtn}
                         onPress={() => handleAutoPickBoard(index)}
@@ -3591,13 +3924,7 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
               <Text style={styles.standardPillBtnText}>Chọn nhanh</Text>
             </TouchableOpacity>
 
-            {/* Omit TC button for Max3D Pro and Lotto 535 */}
-            {!isLottoGame && standardPlayType !== 'Max3D Pro' && (
-              <TouchableOpacity style={styles.standardPillBtn} onPress={handleTCAll}>
-                <RotateCw size={14} color="#0084FA" />
-                <Text style={styles.standardPillBtnText}>TC</Text>
-              </TouchableOpacity>
-            )}
+
 
             <TouchableOpacity style={styles.standardPillBtn} onPress={handleAddBoard}>
               <Plus size={14} color="#FF8A00" />
@@ -3613,18 +3940,42 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
           </Text>
         </View>
 
-        {getEstimatedWinInfo() && (
+        {isDientoan636 ? (
+          <View style={[styles.standardTotalRow, { marginTop: 0, paddingTop: 4 }]}>
+            <Text style={[styles.standardTotalLabel, { color: '#00BA00', fontSize: 13 }]}>Giải đặc biệt:</Text>
+            <Text style={[styles.standardTotalVal, { color: '#00BA00', fontSize: 13 }]}>
+              500.000.000 VNĐ
+            </Text>
+          </View>
+        ) : getEstimatedWinInfo() && (
           <View style={[styles.standardTotalRow, { marginTop: 0, paddingTop: 4 }]}>
             <Text style={[styles.standardTotalLabel, { color: '#00BA00', fontSize: 13 }]}>Thắng tạm tính:</Text>
             <Text style={[styles.standardTotalVal, { color: '#00BA00', fontSize: 13 }]}>
-              = {getEstimatedWinInfo()?.totalCost.toLocaleString('vi-VN')} * {getEstimatedWinInfo()?.multiplier} = {(getEstimatedWinInfo()!.estimatedWin).toLocaleString('vi-VN')} VNĐ
+              {(getEstimatedWinInfo()!.estimatedWin).toLocaleString('vi-VN')} VNĐ
             </Text>
           </View>
         )}
 
-        <TouchableOpacity style={styles.standardCheckoutBtn} onPress={handleStandardCheckout}>
-          <Text style={styles.standardCheckoutBtnText}>Đặt vé</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
+          <TouchableOpacity
+            style={[styles.standardCheckoutBtn, { flex: 1, backgroundColor: COLORS.secondary }]}
+            onPress={() => {
+              isAddingToCart.current = true;
+              handleStandardCheckout();
+            }}
+          >
+            <Text style={styles.standardCheckoutBtnText}>Thêm vé</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.standardCheckoutBtn, { flex: 1 }]}
+            onPress={() => {
+              isAddingToCart.current = false;
+              handleStandardCheckout();
+            }}
+          >
+            <Text style={styles.standardCheckoutBtnText}>Cược ngay</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Modal Selector */}
@@ -3845,9 +4196,63 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
         </View>
       )}
 
+      {/* Chọn kỳ mua Lô tô 235 Modal */}
+      {isLoto235DrawPickerVisible && (
+        <View style={[styles.modalOverlay, { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }]}>
+          <View style={{ width: '85%', backgroundColor: '#FFFFFF', borderRadius: 14, overflow: 'hidden' }}>
+            <View style={{ backgroundColor: '#0084FA', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14, paddingHorizontal: 16 }}>
+              <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#FFFFFF' }}>Chọn kỳ mua</Text>
+              <TouchableOpacity onPress={() => setIsLoto235DrawPickerVisible(false)}>
+                <X size={20} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={{ paddingVertical: 8, paddingHorizontal: 16 }}>
+              {[1, 2, 5, 10].map((count, index) => {
+                const isSelected = loto235DrawCount === count;
+                return (
+                  <TouchableOpacity
+                    key={count}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      paddingVertical: 14,
+                      borderBottomWidth: index === 3 ? 0 : 1,
+                      borderBottomColor: '#F0F2F5',
+                    }}
+                    onPress={() => {
+                      setLoto235DrawCount(count);
+                      if (drawCycles && drawCycles.length > 0) {
+                        setSelectedDraws(drawCycles.slice(0, count).map((d: any) => d.id));
+                      }
+                      setIsLoto235DrawPickerVisible(false);
+                    }}
+                  >
+                    <Text style={{ fontSize: 15, fontWeight: '600', color: '#0F2942' }}>
+                      {count} kỳ
+                    </Text>
+                    <View
+                      style={{
+                        width: 20,
+                        height: 20,
+                        borderRadius: 10,
+                        borderWidth: isSelected ? 6 : 1.5,
+                        borderColor: isSelected ? '#E51F27' : '#D0D5DD',
+                        backgroundColor: '#FFFFFF',
+                      }}
+                    />
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        </View>
+      )}
+
       {/* Chọn kỳ mua Standard Modal */}
       {isStandardDrawPickerVisible && (
-        <View style={[styles.modalOverlay, { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }]}>
+        <View style={[styles.modalOverlay, { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, justifyContent: 'flex-end' }]}>
           <View style={styles.drawModalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Chọn kỳ mua</Text>
@@ -3857,28 +4262,37 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
             </View>
 
             <ScrollView style={styles.drawModalScrollList} showsVerticalScrollIndicator={false}>
-              {standardDrawCycles.map((cycle, idx) => {
-                const isSelected = tempSelectedDrawIndex === idx;
-                return (
-                  <TouchableOpacity
-                    key={cycle.id}
-                    style={styles.drawModalItem}
-                    onPress={() => setTempSelectedDrawIndex(idx)}
-                  >
-                    <View style={[styles.drawCheckbox, isSelected && styles.drawCheckboxChecked]}>
-                      {isSelected && (
-                        <Check size={14} color="#FF3B30" strokeWidth={3} />
-                      )}
-                    </View>
-                    <Text style={styles.drawModalItemText}>
-                      {cycle.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+              {isDrawLoading || standardDrawCycles.length === 0 ? (
+                <View style={{ paddingVertical: 40, alignItems: 'center', justifyContent: 'center' }}>
+                  <ActivityIndicator size="small" color="#00A859" />
+                  <Text style={{ marginTop: 10, color: '#7F8E9C', fontSize: 14 }}>Đang tải danh sách kỳ quay...</Text>
+                </View>
+              ) : (
+                standardDrawCycles.map((cycle, idx) => {
+                  const isSelected = tempSelectedDrawIndex === idx;
+                  return (
+                    <TouchableOpacity
+                      key={cycle.id}
+                      style={styles.drawModalItem}
+                      onPress={() => setTempSelectedDrawIndex(idx)}
+                    >
+                      <View style={styles.drawModalLeftGroup}>
+                        <View style={[styles.drawCheckbox, isSelected && styles.drawCheckboxChecked]}>
+                          {isSelected && (
+                            <Check size={14} color="#FF3B30" strokeWidth={3} />
+                          )}
+                        </View>
+                        <Text style={styles.drawModalItemText}>
+                          {cycle.label}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })
+              )}
             </ScrollView>
 
-            <View style={styles.drawModalFooter}>
+            <View style={[styles.drawModalFooter, { paddingBottom: Math.max(16, insets.bottom + 12) }]}>
               <TouchableOpacity
                 style={styles.drawConfirmBtn}
                 onPress={() => {
@@ -3908,9 +4322,15 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
             {/* List options */}
             <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
               {[10000, 20000, 30000, 40000, 50000].map((val) => {
-                const isSelected = activeMultiplierBoardIndex !== null
-                  ? (standardBoards[activeMultiplierBoardIndex]?.multiplier || 10000) === val
-                  : loto235Bao2Multiplier === val;
+                let isSelected = false;
+                if (activeKenoBoardId !== null) {
+                  const kb = kenoBoards.find(b => b.id === activeKenoBoardId);
+                  isSelected = (kb?.multiplier || 10000) === val;
+                } else if (activeMultiplierBoardIndex !== null) {
+                  isSelected = (standardBoards[activeMultiplierBoardIndex]?.multiplier || 10000) === val;
+                } else {
+                  isSelected = loto235Bao2Multiplier === val;
+                }
                 return (
                   <TouchableOpacity
                     key={val}
@@ -3923,7 +4343,9 @@ export default function GameLayoutAScreen({ route, navigation }: any) {
                       borderBottomColor: '#F2F4F7'
                     }}
                     onPress={() => {
-                      if (activeMultiplierBoardIndex !== null) {
+                      if (activeKenoBoardId !== null) {
+                        setKenoBoards(kenoBoards.map(b => b.id === activeKenoBoardId ? { ...b, multiplier: val } : b));
+                      } else if (activeMultiplierBoardIndex !== null) {
                         const updated = [...standardBoards];
                         updated[activeMultiplierBoardIndex].multiplier = val;
                         setStandardBoards(updated);
@@ -4744,9 +5166,15 @@ const styles = StyleSheet.create({
   drawModalItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    justifyContent: 'space-between',
+    paddingVertical: 14,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F2F5',
+  },
+  drawModalLeftGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   drawCheckbox: {
     width: 20,
@@ -4762,9 +5190,14 @@ const styles = StyleSheet.create({
     borderColor: '#FF3B30',
   },
   drawModalItemText: {
-    fontSize: 13,
-    fontWeight: 'bold',
+    fontSize: 14,
+    fontWeight: '600',
     color: '#0F2942',
+  },
+  drawModalItemPrice: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#0084FA',
   },
   drawModalFooter: {
     padding: 16,
@@ -4912,7 +5345,7 @@ const styles = StyleSheet.create({
   boardsScrollContent: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    paddingBottom: 220,
+    paddingBottom: 280,
   },
   standardBoardRow: {
     flexDirection: 'row',
@@ -5034,6 +5467,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#FF3B30',
+  },
+  lotoCapRateBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginTop: 4,
+    marginBottom: 8,
+  },
+  lotoCapRateLabel: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#00BA00',
+  },
+  lotoCapRateVal: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#00BA00',
   },
   standardCheckoutBtn: {
     backgroundColor: '#0084FA',
@@ -5215,7 +5671,9 @@ const styles = StyleSheet.create({
 
   // Loto 235 Redesign Styles
   bao2ScrollContent: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 260,
   },
   bao2FilterRowContainer: {
     flexDirection: 'row',

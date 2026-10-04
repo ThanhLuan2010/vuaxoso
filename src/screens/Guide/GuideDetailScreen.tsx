@@ -6,7 +6,9 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
+  useWindowDimensions,
 } from 'react-native';
+import RenderHtml from 'react-native-render-html';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { ChevronLeft } from 'lucide-react-native';
@@ -20,6 +22,7 @@ export default function GuideDetailScreen() {
   const navigation = useNavigation();
   const route = useRoute<GuideDetailRouteProp>();
   const { title, content } = route.params || { title: 'Hướng dẫn', content: '' };
+  const { width } = useWindowDimensions();
 
   const renderHeader = () => (
     <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) }]}>
@@ -38,9 +41,22 @@ export default function GuideDetailScreen() {
       
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.card}>
-          <Text style={styles.bodyText}>
-            {content || 'Nội dung hướng dẫn chi tiết đang được cập nhật...'}
-          </Text>
+          {content ? (
+            <RenderHtml
+              contentWidth={width - 48} // 24px padding on each side approx
+              source={{ html: content }}
+              tagsStyles={{
+                body: { color: '#495057', fontSize: 15, lineHeight: 24 },
+                p: { marginVertical: 4 },
+                h2: { marginTop: 16, marginBottom: 8, fontSize: 18, fontWeight: 'bold', color: '#0A3B7C' },
+                h3: { marginTop: 16, marginBottom: 8, fontSize: 16, fontWeight: 'bold', color: '#0A3B7C' },
+              }}
+            />
+          ) : (
+            <Text style={styles.bodyText}>
+              Nội dung hướng dẫn chi tiết đang được cập nhật...
+            </Text>
+          )}
         </View>
       </ScrollView>
     </View>

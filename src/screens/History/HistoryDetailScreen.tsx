@@ -8,11 +8,13 @@ import {
   StatusBar,
   Image,
   ActivityIndicator,
+  Modal,
+  FlatList,
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChevronLeft, Info, Trophy } from 'lucide-react-native';
+import { ChevronLeft, Trophy, X } from 'lucide-react-native';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
 import api from '../../services/api';
 
@@ -24,6 +26,10 @@ export default function HistoryDetailScreen() {
   
   const [ticket, setTicket] = useState<any>(initialTicket);
   const [loading, setLoading] = useState(!initialTicket);
+  const [imageViewerVisible, setImageViewerVisible] = useState(false);
+  const [selectedNumbers, setSelectedNumbers] = useState<string[]>([]);
+  const [allNumbersModalVisible, setAllNumbersModalVisible] = useState(false);
+  const [allItemsModalVisible, setAllItemsModalVisible] = useState(false);
 
   useEffect(() => {
     if (!initialTicket && orderId) {
@@ -59,10 +65,13 @@ export default function HistoryDetailScreen() {
   const prizeAmount = ticket?.prizeAmount ? ticket.prizeAmount.toLocaleString('vi-VN') + 'đ' : '0 đ';
   const getImageUrl = (path: string) => {
     if (!path) return '';
-    if (path.startsWith('http')) return path;
-    const baseURL = api.defaults.baseURL as string;
-    const host = baseURL.replace('/api', '');
-    return `${host}${path}`;
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    const baseURL = (api.defaults.baseURL as string) || '';
+    const host = baseURL.replace(/\/api\/?$/, '');
+    if (path.startsWith('/')) {
+      return `${host}${path}`;
+    }
+    return `${host}/${path}`;
   };
 
   const imageUrl = ticket?.ticketImageUrl ? { uri: getImageUrl(ticket.ticketImageUrl) } : require('../../assets/images/mock_ticket.jpg');
@@ -73,9 +82,7 @@ export default function HistoryDetailScreen() {
         <ChevronLeft size={24} color={COLORS.textDark} />
       </TouchableOpacity>
       <Text style={styles.headerTitle}>Đơn {ticket?.orderId}</Text>
-      <TouchableOpacity style={styles.headerBtn}>
-        <Info size={24} color={COLORS.primary} />
-      </TouchableOpacity>
+      <View style={styles.headerBtn} />
     </View>
   );
 
@@ -94,28 +101,43 @@ export default function HistoryDetailScreen() {
           <View style={styles.dashedDivider} />
 
           {ticket?.items && ticket.items.length > 0 ? (
-            ticket.items.map((item: any, idx: number) => (
-              <View key={idx} style={styles.ticketRow}>
-                <Text style={styles.ticketLabel}>{item.id || String.fromCharCode(65 + idx)}</Text>
-                <View style={styles.ticketNumbers}>
-                  {item.numbers?.map((n: string, i: number) => {
-                    const isWinningNumber = ticket.winningNumbers && ticket.winningNumbers.includes(n);
-                    return (
-                      <Text 
-                        key={i} 
-                        style={[
-                          styles.ticketNumText,
-                          isWinningNumber && { color: '#E51F27', fontWeight: 'bold' }
-                        ]}
-                      >
-                        {n}
-                      </Text>
-                    );
-                  })}
+            <>
+              {ticket.items.slice(0, 10).map((item: any, idx: number) => (
+                <View key={idx} style={styles.ticketRow}>
+                  <Text style={styles.ticketLabel}>{item.id || String.fromCharCode(65 + idx)}</Text>
+                  <View style={styles.ticketNumbers}>
+                    {item.numbers?.slice(0, 10).map((n: string, i: number) => {
+                      const isWinningNumber = ticket.winningNumbers && ticket.winningNumbers.includes(n);
+                      return (
+                        <Text 
+                          key={i} 
+                          style={[
+                            styles.ticketNumText,
+                            isWinningNumber && { color: '#E51F27', fontWeight: 'bold' }
+                          ]}
+                        >
+                          {n}
+                        </Text>
+                      );
+                    })}
+                    {item.numbers?.length > 10 && (
+                      <TouchableOpacity onPress={() => {
+                        setSelectedNumbers(item.numbers);
+                        setAllNumbersModalVisible(true);
+                      }}>
+                        <Text style={[styles.ticketNumText, { color: '#0084FA', fontWeight: 'bold' }]}>+{item.numbers.length - 10}</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                  <Text style={styles.ticketPrice}>{item.cost.toLocaleString('vi-VN')}đ</Text>
                 </View>
-                <Text style={styles.ticketPrice}>{item.cost.toLocaleString('vi-VN')}đ</Text>
-              </View>
-            ))
+              ))}
+              {ticket.items.length > 10 && (
+                <TouchableOpacity onPress={() => setAllItemsModalVisible(true)} style={{ padding: 12, alignItems: 'center' }}>
+                  <Text style={{ color: '#0084FA', fontWeight: 'bold' }}>Xem thêm {ticket.items.length - 10} dãy số khác...</Text>
+                </TouchableOpacity>
+              )}
+            </>
           ) : (
             <View style={styles.ticketRow}>
               <Text style={styles.ticketLabel}>A</Text>
@@ -143,6 +165,19 @@ export default function HistoryDetailScreen() {
             <Text style={styles.timeText}>{timeStr}</Text>
           </View>
 
+          {(ticket?.balanceBefore != null && ticket?.balanceAfter != null) && (
+            <>
+              <View style={styles.infoRow}>
+                <Text style={styles.infoLabel}>Số dư trước cược</Text>
+                <Text style={styles.infoValue}>{ticket.balanceBefore.toLocaleString('vi-VN')}đ</Text>
+              </View>
+              <View style={styles.infoRow}>
+                <Text style={styles.infoLabel}>Số dư sau cược</Text>
+                <Text style={styles.infoValue}>{ticket.balanceAfter.toLocaleString('vi-VN')}đ</Text>
+              </View>
+            </>
+          )}
+
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Kỳ QSMT</Text>
             <Text style={styles.infoValue}>{ticket?.drawId || 'Đang cập nhật'}</Text>
@@ -168,15 +203,87 @@ export default function HistoryDetailScreen() {
           {ticket?.status === 'completed' && (
             <View style={styles.ticketImageContainer}>
               <Text style={styles.ticketImageLabel}>Hình ảnh vé thực tế:</Text>
-              <Image 
-                source={imageUrl} 
-                style={styles.mockTicketImage}
-                resizeMode="cover"
-              />
+              <TouchableOpacity style={{ width: '100%' }} onPress={() => setImageViewerVisible(true)}>
+                <Image 
+                  source={imageUrl} 
+                  style={styles.mockTicketImage}
+                  resizeMode="cover"
+                />
+              </TouchableOpacity>
             </View>
           )}
         </View>
       </ScrollView>
+      <Modal visible={imageViewerVisible} transparent={true} animationType="fade" onRequestClose={() => setImageViewerVisible(false)}>
+        <View style={{flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center'}}>
+          <TouchableOpacity style={{position: 'absolute', top: Math.max(insets.top, 20), right: 20, zIndex: 10}} onPress={() => setImageViewerVisible(false)}>
+            <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold', padding: 10}}>ĐÓNG</Text>
+          </TouchableOpacity>
+          <Image source={imageUrl} style={{width: '95%', height: '80%'}} resizeMode="contain" />
+        </View>
+      </Modal>
+
+      {/* Items Modal */}
+      <Modal visible={allItemsModalVisible} transparent animationType="slide">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+          <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 16, borderTopRightRadius: 16, height: '80%', padding: 16 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#0F2942' }}>Tất cả {ticket?.items?.length} dãy số</Text>
+              <TouchableOpacity onPress={() => setAllItemsModalVisible(false)}>
+                <X size={24} color="#0F2942" />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={ticket?.items || []}
+              keyExtractor={(it, idx) => (it.id || idx).toString()}
+              renderItem={({ item, index }) => (
+                <View style={{ paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' }}>
+                  <Text style={{ color: '#7F8E9C', fontWeight: 'bold', marginBottom: 4 }}>Dãy {item.id || String.fromCharCode(65 + index)} - Cược: {item.cost?.toLocaleString('vi-VN')}đ</Text>
+                  <Text style={{ fontSize: 16, color: '#0F2942', fontWeight: '500' }}>
+                    {item.numbers?.join(' ')}
+                  </Text>
+                </View>
+              )}
+              initialNumToRender={20}
+              maxToRenderPerBatch={50}
+              windowSize={5}
+            />
+          </View>
+        </View>
+      </Modal>
+
+      {/* Numbers Modal */}
+      <Modal visible={allNumbersModalVisible} transparent animationType="slide">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+          <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 16, borderTopRightRadius: 16, height: '80%', padding: 16 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#0F2942' }}>Tất cả {selectedNumbers.length} số</Text>
+              <TouchableOpacity onPress={() => setAllNumbersModalVisible(false)}>
+                <X size={24} color="#0F2942" />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={selectedNumbers}
+              keyExtractor={(_, index) => index.toString()}
+              renderItem={({ item, index }) => {
+                const isWinningNumber = ticket?.winningNumbers && ticket.winningNumbers.includes(item);
+                return (
+                  <View style={{ paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F0F0F0', flexDirection: 'row' }}>
+                    <Text style={{ width: 40, color: '#7F8E9C', fontWeight: 'bold' }}>#{index + 1}</Text>
+                    <Text style={{ fontSize: 16, color: isWinningNumber ? '#E51F27' : '#0F2942', fontWeight: isWinningNumber ? 'bold' : '500' }}>
+                      {item}
+                    </Text>
+                  </View>
+                );
+              }}
+              initialNumToRender={20}
+              maxToRenderPerBatch={50}
+              windowSize={5}
+            />
+          </View>
+        </View>
+      </Modal>
+
     </View>
   );
 }

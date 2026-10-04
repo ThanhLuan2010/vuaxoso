@@ -1,3 +1,4 @@
+import Toast from 'react-native-toast-message';
 import { ArrowLeft, Search } from 'lucide-react-native';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
@@ -8,7 +9,7 @@ import {
   TextInput,
   TouchableOpacity,
   View
-} from 'react-native';
+, Modal, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import api from '../../services/api';
 import { useAppStore } from '../../store/useAppStore';
@@ -17,6 +18,7 @@ import {
   PROVINCE_SCHEDULES,
   ProvinceItem
 } from '../../utils/constants';
+import { COLORS } from '../../theme/theme';
 
 // ------------------------------------------------------------
 // Helpers: get region label from province id
@@ -93,6 +95,7 @@ const NormalTicketCard = ({
     style={[
       styles.normalCard,
       isSelected && styles.normalCardSelected,
+      ticket.sold && { opacity: 0.5 }
     ]}
     activeOpacity={0.8}
   >
@@ -125,6 +128,7 @@ const SpecialTicketCard = ({
     style={[
       styles.specialCard,
       isSelected && styles.specialCardSelected,
+      ticket.sold && { opacity: 0.5 }
     ]}
     activeOpacity={0.8}
   >
@@ -163,7 +167,9 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
 
   const [selectedProvinceId, setSelectedProvinceId] = useState<string>(provinceId);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTicketIds, setSelectedTicketIds] = useState<string[]>([]);
+  const [selectedTickets, setSelectedTickets] = useState<Record<string, number>>({});
+  const [qtyModalTicket, setQtyModalTicket] = useState<any>(null);
+  const [tempQty, setTempQty] = useState(1);
 
   const [apiTickets, setApiTickets] = useState<PaperTicket[]>([]);
   const [loadingTickets, setLoadingTickets] = useState(false);
@@ -192,9 +198,9 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
 
   const tickets = apiTickets;
 
-  // Split into normal and special
   const normalTickets = useMemo(() => {
-    let list = tickets.filter((t) => t.ticketType === 'normal');
+    let list = tickets.filter((t) => !t.number.toLowerCase().startsWith('x'));
+    list = list.filter(t => !t.sold);
     if (searchQuery.trim()) {
       list = list.filter((t) => t.number.includes(searchQuery.trim()));
     }
@@ -202,7 +208,8 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
   }, [tickets, searchQuery]);
 
   const specialTickets = useMemo(() => {
-    let list = tickets.filter((t) => t.ticketType === 'special');
+    let list = tickets.filter((t) => t.number.toLowerCase().startsWith('x'));
+    list = list.filter(t => !t.sold);
     if (searchQuery.trim()) {
       list = list.filter((t) => t.number.includes(searchQuery.trim()));
     }
@@ -211,31 +218,55 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
 
   const handleToggleSelect = (ticket: PaperTicket) => {
     if (ticket.sold) return;
-    if (selectedTicketIds.includes(ticket.id)) {
-      setSelectedTicketIds(selectedTicketIds.filter((id) => id !== ticket.id));
+    const isSpecial = ticket.number.toLowerCase().startsWith('x');
+    const maxQty = isSpecial ? 1 : (ticket.multiplier && Number(ticket.multiplier) > 1 ? Number(ticket.multiplier) : 1);
+    if (selectedTickets[ticket.id]) {
+      if (maxQty > 1) {
+        setTempQty(selectedTickets[ticket.id]);
+        setQtyModalTicket(ticket);
+      } else {
+        const newSel = { ...selectedTickets };
+        delete newSel[ticket.id];
+        setSelectedTickets(newSel);
+      }
     } else {
-      setSelectedTicketIds([...selectedTicketIds, ticket.id]);
+      if (maxQty > 1) {
+        setTempQty(1);
+        setQtyModalTicket(ticket);
+      } else {
+        setSelectedTickets({ ...selectedTickets, [ticket.id]: 1 });
+      }
     }
   };
 
   const handleReset = () => {
-    setSelectedTicketIds([]);
+    setSelectedTickets({});
     setSearchQuery('');
   };
 
   const handleBuy = () => {
-    if (selectedTicketIds.length === 0) {
+    if (Object.keys(selectedTickets).length === 0) {
       Alert.alert('Chưa chọn vé', 'Vui lòng chọn ít nhất 1 vé để đặt mua.');
       return;
     }
-    const boards = selectedTicketIds.map((id, index) => {
+    const boards: any[] = [];
+    let boardIndex = 0;
+    Object.entries(selectedTickets).forEach(([id, qty]) => {
       const ticket = tickets.find((t) => t.id === id);
-      return {
-        id: String.fromCharCode(65 + index), // A, B, C...
-        isTC: false,
-        numbers: [ticket?.number || ''],
-        cost: ticket?.price || 10000
-      };
+      if (ticket) {
+        const isSpecial = ticket.number.toLowerCase().startsWith('x');
+        const price = isSpecial ? 1600000 : (ticket.price || 10000);
+        for (let i = 0; i < qty; i++) {
+          boards.push({
+            id: String.fromCharCode(65 + boardIndex),
+            isTC: false,
+            numbers: [ticket.number],
+            cost: price,
+            baseCost: price
+          });
+          boardIndex++;
+        }
+      }
     });
 
     const totalCost = boards.reduce((sum, b) => sum + b.cost, 0);
@@ -250,10 +281,15 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
       drawDate
     });
 
-    setSelectedTicketIds([]);
+    setSelectedTickets({});
   };
 
-  const ticketFee = selectedTicketIds.length * 10000;
+  const ticketFee = Object.entries(selectedTickets).reduce((sum, [id, qty]) => { 
+    const t = tickets.find((tk) => tk.id === id); 
+    if (!t) return sum;
+    const price = t.number.toLowerCase().startsWith('x') ? 1600000 : (t.price || 10000);
+    return sum + price * qty; 
+  }, 0);
   const serviceFee = 0;
   const totalFee = ticketFee + serviceFee;
 
@@ -275,7 +311,7 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
               <NormalTicketCard
                 key={ticket.id}
                 ticket={ticket}
-                isSelected={selectedTicketIds.includes(ticket.id)}
+                isSelected={!!selectedTickets[ticket.id]}
                 onPress={() => handleToggleSelect(ticket)}
               />
             ))}
@@ -303,7 +339,7 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
               <SpecialTicketCard
                 key={ticket.id}
                 ticket={ticket}
-                isSelected={selectedTicketIds.includes(ticket.id)}
+                isSelected={!!selectedTickets[ticket.id]}
                 onPress={() => handleToggleSelect(ticket)}
               />
             ))}
@@ -363,7 +399,7 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
                 key={prov.id}
                 onPress={() => {
                   setSelectedProvinceId(prov.id);
-                  setSelectedTicketIds([]);
+                  setSelectedTickets({});
                 }}
                 style={[styles.provinceTabBtn, isActive && styles.provinceTabBtnActive]}
               >
@@ -418,12 +454,102 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
           </Text>
         </View>
 
-        <View style={styles.footerBtns}>
-          <TouchableOpacity style={styles.buyBtn} onPress={handleBuy}>
-            <Text style={styles.buyBtnText}>Đặt vé</Text>
+        <View style={[styles.footerBtns, { flexDirection: "row", gap: 10 }]}>
+          <TouchableOpacity style={[styles.buyBtn, { flex: 1, backgroundColor: COLORS.secondary }]} onPress={() => {
+            if (Object.keys(selectedTickets).length === 0) {
+              Alert.alert("Chưa chọn vé", "Vui lòng chọn ít nhất 1 vé để đặt mua.");
+              return;
+            }
+            Object.entries(selectedTickets).forEach(([id, qty]) => {
+              const ticket = tickets.find((t) => t.id === id);
+              if (ticket) {
+                addToCart({
+                  gameId: `kienthiet_${selectedProvinceId}`,
+                  gameName: `XỔ SỐ KIẾN THIẾT - ${regionLabel}`,
+                  numbers: [ticket.number],
+                  cost: ticket.price || 10000,
+                  baseCost: ticket.price || 10000,
+                  quantity: qty,
+                  provinceName: provinceName,
+                  provinceId: selectedProvinceId,
+                  drawDate: drawDate,
+                });
+              }
+            });
+            Toast.show({ type: 'success', text1: 'Thành công', text2: 'Đã thêm vào giỏ hàng' });
+            setSelectedTickets({});
+          }}>
+            <Text style={styles.buyBtnText}>Thêm vào giỏ</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.buyBtn, { flex: 1 }]} onPress={handleBuy}>
+            <Text style={styles.buyBtnText}>Mua ngay</Text>
           </TouchableOpacity>
         </View>
       </View>
+
+      <Modal visible={!!qtyModalTicket} transparent animationType="fade">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ backgroundColor: '#FFF', padding: 20, borderRadius: 12, width: '80%', alignItems: 'center' }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: '#0F2942' }}>Chọn số lượng vé</Text>
+            <Text style={{ fontSize: 16, marginBottom: 10 }}>Vé số: <Text style={{ color: '#E51F27', fontWeight: 'bold' }}>{qtyModalTicket?.number}</Text></Text>
+            {qtyModalTicket?.imageUrl ? (
+              <Image 
+                source={{ uri: qtyModalTicket.imageUrl }} 
+                style={{ width: '100%', height: 120, resizeMode: 'contain', marginBottom: 20, borderRadius: 8 }} 
+              />
+            ) : null}
+            
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
+              <TouchableOpacity 
+                style={{ width: 40, height: 40, backgroundColor: '#F0F0F0', borderRadius: 8, justifyContent: 'center', alignItems: 'center' }}
+                onPress={() => setTempQty(Math.max(1, tempQty - 1))}
+              >
+                <Text style={{ fontSize: 24, fontWeight: 'bold' }}>-</Text>
+              </TouchableOpacity>
+              
+              <Text style={{ fontSize: 20, fontWeight: 'bold', marginHorizontal: 20 }}>{tempQty}</Text>
+              
+              <TouchableOpacity 
+                style={{ width: 40, height: 40, backgroundColor: '#F0F0F0', borderRadius: 8, justifyContent: 'center', alignItems: 'center' }}
+                onPress={() => setTempQty(Math.min(qtyModalTicket?.multiplier || 1, tempQty + 1))}
+              >
+                <Text style={{ fontSize: 24, fontWeight: 'bold' }}>+</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <Text style={{ color: '#888', marginBottom: 20 }}>Số vé hiện có: {qtyModalTicket?.multiplier}</Text>
+            
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
+              <TouchableOpacity 
+                style={{ flex: 1, padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#DDD', marginRight: 10, alignItems: 'center' }}
+                onPress={() => {
+                  if (qtyModalTicket && selectedTickets[qtyModalTicket.id]) {
+                    const newSel = { ...selectedTickets };
+                    delete newSel[qtyModalTicket.id];
+                    setSelectedTickets(newSel);
+                  }
+                  setQtyModalTicket(null);
+                }}
+              >
+                <Text style={{ fontWeight: '600', color: '#666' }}>Bỏ chọn vé</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={{ flex: 1, padding: 12, borderRadius: 8, backgroundColor: '#E51F27', alignItems: 'center' }}
+                onPress={() => {
+                  if (qtyModalTicket) {
+                    setSelectedTickets({ ...selectedTickets, [qtyModalTicket.id]: tempQty });
+                  }
+                  setQtyModalTicket(null);
+                }}
+              >
+                <Text style={{ fontWeight: '600', color: '#FFF' }}>Xác nhận</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
     </View>
   );
 }

@@ -87,18 +87,20 @@ export default function KienThietMatrix() {
       </View>
 
       {/* Table Rows */}
-      {schedule && schedule.map((row: DaySchedule, index: number) => {
+      {schedule && schedule.map((row: any, index: number) => {
         const isToday = row.isToday;
-        const dateBlocks = getFormattedDateBlocks(index);
+        // Use row.offset from backend if available, otherwise fallback to index
+        const actualOffset = row.offset !== undefined ? row.offset : index;
+        const dateBlocks = getFormattedDateBlocks(actualOffset);
 
         return (
           <View key={index} style={styles.tableRow}>
             {/* Column 1: Date Sidebar */}
             <View style={[
-              styles.cell, 
-              styles.dateCol, 
-              styles.center, 
-              isToday ? styles.dateBgToday : styles.dateBgFuture
+              styles.cell,
+              styles.dateCol,
+              styles.center,
+              (index === 0) ? styles.dateBgToday : styles.dateBgFuture
             ]}>
               {dateBlocks.prefix ? (
                 <Text style={styles.prefixText}>{dateBlocks.prefix}</Text>
@@ -112,21 +114,21 @@ export default function KienThietMatrix() {
             {/* Column 2: Miền Bắc */}
             <View style={[styles.cell, styles.regionCol, styles.center, styles.borderDashed]}>
               <View style={styles.gridContainer}>
-                {row.mb.map((prov) => renderProvinceBtn(prov, row.dateString))}
+                {row.mb.map((prov: any) => renderProvinceBtn(prov, row.dateString))}
               </View>
             </View>
 
             {/* Column 3: Miền Trung */}
             <View style={[styles.cell, styles.regionCol, styles.borderDashed]}>
               <View style={styles.gridContainer}>
-                {row.mt.map((prov) => renderProvinceBtn(prov, row.dateString))}
+                {row.mt.map((prov: any) => renderProvinceBtn(prov, row.dateString))}
               </View>
             </View>
 
             {/* Column 4: Miền Nam */}
             <View style={[styles.cell, styles.regionCol]}>
               <View style={styles.gridContainer}>
-                {row.mn.map((prov) => renderProvinceBtn(prov, row.dateString))}
+                {row.mn.map((prov: any) => renderProvinceBtn(prov, row.dateString))}
               </View>
             </View>
           </View>

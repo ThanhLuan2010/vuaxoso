@@ -27,6 +27,7 @@ export interface PaperTicket {
   id: string;
   number: string;
   price: number;
+  imageUrl?: string;
   sold: boolean;
   ticketType: 'normal' | 'special';
   multiplier?: number;

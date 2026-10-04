@@ -134,7 +134,7 @@ export default function GameCard({ item, activeDraw, onPress, isHorizontal = fal
 
         <View style={styles.horizontalCenter}>
           <Text style={styles.horizontalTitleLabel}>GIÁ TRỊ ĐỘC ĐẮC</Text>
-          <Text style={styles.horizontalPrize}>🏆 {getPrize()}</Text>
+          <Text numberOfLines={1} ellipsizeMode="middle" style={styles.horizontalPrize}>🏆 {getPrize()}</Text>
           {secondsLeft > 0 && (
             <Text style={styles.horizontalTimer}>{formatCountdown(secondsLeft)}</Text>
           )}
@@ -288,26 +288,26 @@ export default function GameCard({ item, activeDraw, onPress, isHorizontal = fal
       {/* Bottom section: Prizes, rates and subtitles */}
       <View style={styles.bottomSection}>
         {item.subtext ? (
-          <Text style={item.subtext.includes('🏆') ? styles.goldPrizeText : (isBaoKeno ? styles.orangeItalicText : isMuaChung ? styles.blueItalicText : styles.orangeRateText)}>
+          <Text numberOfLines={1} ellipsizeMode="middle" style={item.subtext.includes('🏆') ? styles.goldPrizeText : (isBaoKeno ? styles.orangeItalicText : isMuaChung ? styles.blueItalicText : styles.orangeRateText)}>
             {item.subtext}
           </Text>
         ) : (
           <>
-            {isKeno && <Text style={styles.goldPrizeText}>🏆 {getPrize()}</Text>}
-            {isBaoKeno && <Text style={styles.orangeItalicText}>{getSubtext()}</Text>}
-            {isMuaChung && <Text style={styles.blueItalicText}>{getSubtext()}</Text>}
-            {isPower && <Text style={styles.goldPrizeText}>🏆 {getPrize()}</Text>}
-            {isMega && <Text style={styles.goldPrizeText}>🏆 {getPrize()}</Text>}
-            {isMax3d && <Text style={styles.goldPrizeText}>🏆 {getPrize()}</Text>}
-            {isLotto && <Text style={styles.goldPrizeText}>🏆 {getPrize()}</Text>}
-            {isLoto235 && <Text style={styles.orangeRateText}>🏆 x20.000 lần</Text>}
-            {isLotoCap && <Text style={styles.orangeRateText}>🏆 x110 lần</Text>}
-            {isDienToan636 && <Text style={styles.goldRateText}>🏆 6 Tỷ Đồng</Text>}
-            {isTruotLoto && <Text style={styles.orangeRateText}>🏆 x12 lần</Text>}
-            {isThanTai4 && <Text style={styles.orangeRateText}>🏆 x1220 lần</Text>}
-            {isBingo18 && <Text style={styles.orangeRateText}>10 phút - 1 kỳ</Text>}
-            {isBao636 && <Text style={styles.orangeRateText}>Chọn nhanh - Trúng lớn</Text>}
-            {isBaoLoto2 && <Text style={styles.orangeRateText}>Chọn nhanh - Trúng lớn</Text>}
+            {isKeno && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.goldPrizeText}>🏆 {getPrize()}</Text>}
+            {isBaoKeno && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.orangeItalicText}>{getSubtext()}</Text>}
+            {isMuaChung && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.blueItalicText}>{getSubtext()}</Text>}
+            {isPower && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.goldPrizeText}>🏆 {getPrize()}</Text>}
+            {isMega && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.goldPrizeText}>🏆 {getPrize()}</Text>}
+            {isMax3d && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.goldPrizeText}>🏆 {getPrize()}</Text>}
+            {isLotto && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.goldPrizeText}>🏆 {getPrize()}</Text>}
+            {isLoto235 && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.orangeRateText}>🏆 x20.000 lần</Text>}
+            {isLotoCap && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.orangeRateText}>🏆 x110 lần</Text>}
+            {isDienToan636 && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.goldRateText}>🏆 6 Tỷ Đồng</Text>}
+            {isTruotLoto && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.orangeRateText}>🏆 x12 lần</Text>}
+            {isThanTai4 && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.orangeRateText}>🏆 x1220 lần</Text>}
+            {isBingo18 && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.orangeRateText}>10 phút - 1 kỳ</Text>}
+            {isBao636 && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.orangeRateText}>Chọn nhanh - Trúng lớn</Text>}
+            {isBaoLoto2 && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.orangeRateText}>Chọn nhanh - Trúng lớn</Text>}
           </>
         )}
       </View>

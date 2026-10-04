@@ -12,6 +12,48 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function GameLayoutBingo18Screen({ route, navigation }: any) {
   const insets = useSafeAreaInsets();
+
+  const isAddingToCart = React.useRef(false);
+
+  const processCheckout = (payload: any) => {
+    if (isAddingToCart.current) {
+      if (!payload.boards || payload.boards.length === 0) {
+        Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Không có vé nào để thêm.' });
+        return;
+      }
+      
+      // Gộp tất cả các dãy số (boards) thành 1 record trong giỏ hàng
+      const allNumbers = payload.boards.reduce((acc: string[], b: any) => {
+        if (b.numbers) {
+          // Xử lý nối chuỗi các dãy số cho dễ nhìn (ví dụ: Lotto có thêm specialNumbers)
+          const numStr = b.specialNumbers 
+            ? `${b.numbers.join(' ')} | ${b.specialNumbers.join(' ')}`
+            : b.numbers.join(' ');
+          acc.push(`Dãy ${b.id}: ${numStr}`);
+        }
+        return acc;
+      }, []);
+      
+      const totalCost = payload.boards.reduce((sum: number, b: any) => sum + (b.cost || 0), 0);
+      
+      addToCart({
+        gameId: payload.gameId,
+        gameName: payload.gameName,
+        playType: payload.playType,
+        numbers: allNumbers,
+        cost: totalCost,
+        baseCost: payload.boards[0]?.cost || 10000,
+        quantity: payload.drawIds ? payload.drawIds.length : 1,
+        boards: payload.boards, // Quan trọng: lưu lại danh sách boards gốc để checkout bóc tách lại
+      });
+      
+      Toast.show({ type: 'success', text1: 'Thành công', text2: 'Đã thêm vé vào giỏ hàng' });
+      isAddingToCart.current = false;
+    } else {
+      navigation.navigate('GamePayment', payload);
+    }
+  };
+
   const { gameId, initialTab } = route.params || {};
 
   const [gameName] = useState('BINGO18');
@@ -49,7 +91,7 @@ export default function GameLayoutBingo18Screen({ route, navigation }: any) {
       cost: baseCost * multiplier
     }));
 
-    navigation.navigate('GamePayment', {
+    processCheckout({
       gameId: 'bingo18',
       gameName,
       playType,

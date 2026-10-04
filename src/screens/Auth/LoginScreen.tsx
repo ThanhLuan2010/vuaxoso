@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Linking } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Linking, Modal } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import Toast from 'react-native-toast-message';
 import { useAppStore } from '../../store/useAppStore';
@@ -9,6 +9,11 @@ import { Headset } from 'lucide-react-native';
 export default function LoginScreen() {
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [expiredModalVisible, setExpiredModalVisible] = useState(false);
+  const [expiredPhone, setExpiredPhone] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
 
   const { login, register: registerApi } = useAppStore();
   const { control, handleSubmit, formState: { errors }, reset } = useForm();
@@ -16,6 +21,39 @@ export default function LoginScreen() {
   const toggleMode = () => {
     setIsRegister(!isRegister);
     reset(); // clear form
+  };
+
+  const handleResetPassword = async () => {
+    if (!oldPassword || !newPassword) {
+      Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Vui lòng nhập đủ thông tin' });
+      return;
+    }
+    if (newPassword.length < 6) {
+      Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Mật khẩu mới tối thiểu 6 ký tự' });
+      return;
+    }
+    setResetLoading(true);
+    try {
+      // Import api or fetch directly
+      const response = await fetch(`${useAppStore.getState().token ? 'http://localhost:5000' : 'https://api-vuaxoso.vipmarts.com'}/api/auth/change-expired-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: expiredPhone, oldPassword, newPassword })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        Toast.show({ type: 'success', text1: 'Thành công', text2: 'Đổi mật khẩu thành công. Vui lòng đăng nhập lại!' });
+        setExpiredModalVisible(false);
+        setOldPassword('');
+        setNewPassword('');
+      } else {
+        Toast.show({ type: 'error', text1: 'Lỗi', text2: data.message || 'Lỗi đổi mật khẩu' });
+      }
+    } catch (e) {
+      Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Lỗi kết nối' });
+    } finally {
+      setResetLoading(false);
+    }
   };
 
   const onSubmit = async (data: any) => {
@@ -28,11 +66,16 @@ export default function LoginScreen() {
         Toast.show({ type: 'error', text1: 'Thất bại', text2: message || 'Đăng ký thất bại' });
       }
     } else {
-      const { success, message } = await login(data.phone, data.password);
+      const { success, message, code } = await login(data.phone, data.password);
       if (success) {
         Toast.show({ type: 'success', text1: 'Thành công', text2: 'Đăng nhập thành công!' });
       } else {
-        Toast.show({ type: 'error', text1: 'Thất bại', text2: message || 'Sai số điện thoại hoặc mật khẩu' });
+        if (code === 'PASSWORD_EXPIRED') {
+          setExpiredPhone(data.phone);
+          setExpiredModalVisible(true);
+        } else {
+          Toast.show({ type: 'error', text1: 'Thất bại', text2: message || 'Sai số điện thoại hoặc mật khẩu' });
+        }
       }
     }
     setLoading(false);
@@ -143,6 +186,39 @@ export default function LoginScreen() {
           <Headset size={20} color="#FFF" />
         </View>
       </TouchableOpacity>
+
+      <Modal visible={expiredModalVisible} transparent={true} animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Mật Khẩu Đã Hết Hạn</Text>
+            <Text style={styles.modalDesc}>Mật khẩu của bạn đã quá hạn sử dụng (2 tháng). Vui lòng đổi mật khẩu mới để tiếp tục.</Text>
+            
+            <TextInput
+              style={styles.input}
+              placeholder="Mật khẩu hiện tại"
+              secureTextEntry
+              value={oldPassword}
+              onChangeText={setOldPassword}
+            />
+            <TextInput
+              style={[styles.input, { marginTop: 10 }]}
+              placeholder="Mật khẩu mới (tối thiểu 6 ký tự)"
+              secureTextEntry
+              value={newPassword}
+              onChangeText={setNewPassword}
+            />
+
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
+              <TouchableOpacity style={[styles.btn, { flex: 1, marginRight: 10, backgroundColor: COLORS.gray400 }]} onPress={() => setExpiredModalVisible(false)}>
+                <Text style={styles.btnText}>Huỷ</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.btn, { flex: 1 }]} onPress={handleResetPassword} disabled={resetLoading}>
+                {resetLoading ? <ActivityIndicator color="#FFF" /> : <Text style={styles.btnText}>Đổi mật khẩu</Text>}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -221,5 +297,30 @@ const styles = StyleSheet.create({
     backgroundColor: '#0084FF',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '90%',
+    backgroundColor: '#FFF',
+    borderRadius: BORDER_RADIUS.md,
+    padding: SPACING.lg,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#E51F27',
+    marginBottom: SPACING.sm,
+    textAlign: 'center',
+  },
+  modalDesc: {
+    fontSize: 14,
+    color: COLORS.gray600,
+    marginBottom: SPACING.lg,
+    textAlign: 'center',
   }
 });

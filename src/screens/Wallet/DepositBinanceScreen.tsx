@@ -81,70 +81,51 @@ export default function DepositBinanceScreen() {
   };
 
   const handleDeposit = async () => {
-    if (activeMode === 'auto') {
-      if (!txId) {
-        Alert.alert('Lỗi', 'Vui lòng nhập Mã giao dịch (TxID)');
-        return;
-      }
+    const amtUsdt = parseFloat(amountStr.replace(/,/g, ''));
+    if (isNaN(amtUsdt) || amtUsdt <= 0) {
+      Alert.alert('Lỗi', 'Vui lòng nhập số tiền USDT nạp hợp lệ.');
+      return;
+    }
+    if (!receiptImageUri) {
+      Alert.alert('Lỗi', 'Vui lòng chọn ảnh biên lai.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      const ext = receiptImageUri.split('.').pop() || 'jpg';
+      formData.append('image', {
+        uri: Platform.OS === 'ios' ? receiptImageUri.replace('file://', '') : receiptImageUri,
+        type: `image/${ext === 'png' ? 'png' : 'jpeg'}`,
+        name: `receipt.${ext}`,
+      } as any);
 
-      setLoading(true);
-      try {
-        await api.post('/wallet/deposit/binance', { txId });
-        Alert.alert('Thành công', 'Nạp tiền tự động qua Binance thành công!', [
+      const res = await api.post('/upload?folder=ImageDEP', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      const uploadedImageUrl = res.data.url;
+
+      const rate = binanceConfig?.exchangeRate || 25000;
+      const vndAmount = amtUsdt * rate;
+
+      const prefix = 'VXS';
+      const identifierValue = user ? (user as any).phone || '' : '';
+      const transferContent = `${prefix} ${identifierValue} ${txTimeSuffix}`.trim();
+      const destinationInfo = { network: activeWallet?.network, walletAddress: activeWallet?.walletAddress };
+
+      const { success, message } = await requestDeposit(vndAmount, uploadedImageUrl, transferContent, 'binance', destinationInfo);
+
+      if (success) {
+        Alert.alert('Thành công', 'Gửi yêu cầu nạp thủ công thành công!', [
           { text: 'OK', onPress: () => navigation.goBack() }
         ]);
-      } catch (error: any) {
-        Alert.alert('Lỗi', error.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại');
-      } finally {
-        setLoading(false);
+      } else {
+        Alert.alert('Thất bại', message || 'Có lỗi xảy ra.');
       }
-    } else {
-      const amtUsdt = parseFloat(amountStr.replace(/,/g, ''));
-      if (isNaN(amtUsdt) || amtUsdt <= 0) {
-        Alert.alert('Lỗi', 'Vui lòng nhập số tiền USDT nạp hợp lệ.');
-        return;
-      }
-      if (!receiptImageUri) {
-        Alert.alert('Lỗi', 'Vui lòng chọn ảnh biên lai.');
-        return;
-      }
-      setLoading(true);
-      try {
-        const formData = new FormData();
-        const ext = receiptImageUri.split('.').pop() || 'jpg';
-        formData.append('image', {
-          uri: Platform.OS === 'ios' ? receiptImageUri.replace('file://', '') : receiptImageUri,
-          type: `image/${ext === 'png' ? 'png' : 'jpeg'}`,
-          name: `receipt.${ext}`,
-        } as any);
-
-        const res = await api.post('/upload?folder=ImageDEP', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        const uploadedImageUrl = res.data.url;
-
-        const rate = binanceConfig?.exchangeRate || 25000;
-        const vndAmount = amtUsdt * rate;
-
-        const prefix = 'VXS';
-        const identifierValue = user ? (user as any).phone || '' : '';
-        const transferContent = `${prefix} ${identifierValue} ${txTimeSuffix}`.trim();
-        const destinationInfo = { network: activeWallet?.network, walletAddress: activeWallet?.walletAddress };
-
-        const { success, message } = await requestDeposit(vndAmount, uploadedImageUrl, transferContent, 'binance', destinationInfo);
-
-        if (success) {
-          Alert.alert('Thành công', 'Gửi yêu cầu nạp thủ công thành công!', [
-            { text: 'OK', onPress: () => navigation.goBack() }
-          ]);
-        } else {
-          Alert.alert('Thất bại', message || 'Có lỗi xảy ra.');
-        }
-      } catch (err: any) {
-        Alert.alert('Lỗi', err.response?.data?.message || 'Có lỗi khi tải lên biên lai');
-      } finally {
-        setLoading(false);
-      }
+    } catch (err: any) {
+      Alert.alert('Lỗi', err.response?.data?.message || 'Có lỗi khi tải lên biên lai');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -177,21 +158,6 @@ export default function DepositBinanceScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <View style={styles.tabContainer}>
-          <TouchableOpacity
-            style={[styles.tabItem, activeMode === 'auto' && styles.tabItemActive]}
-            onPress={() => setActiveMode('auto')}
-          >
-            <Text style={[styles.tabText, activeMode === 'auto' && styles.tabTextActive]}>Tự động</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tabItem, activeMode === 'manual' && styles.tabItemActive]}
-            onPress={() => setActiveMode('manual')}
-          >
-            <Text style={[styles.tabText, activeMode === 'manual' && styles.tabTextActive]}>Thủ công</Text>
-          </TouchableOpacity>
-        </View>
-
         <View style={[styles.section, { zIndex: 10 }]}>
           <Text style={styles.sectionTitle}>1. Thông tin ví nhận</Text>
 
@@ -269,21 +235,6 @@ export default function DepositBinanceScreen() {
           </View>
         </View>
 
-        {activeMode === 'auto' ? (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>3. Nhập Mã Giao Dịch (TxID)</Text>
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.txIdInput}
-                value={txId}
-                onChangeText={setTxId}
-                placeholder="VD: 5543bd12..."
-                placeholderTextColor={COLORS.gray400}
-              />
-            </View>
-            <Text style={styles.noteText}>Sau khi chuyển khoản thành công trên app Binance (hoặc ví khác), copy mã TxID điền vào đây để hệ thống tự động duyệt.</Text>
-          </View>
-        ) : (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>3. Ảnh biên lai</Text>
             <TouchableOpacity style={styles.imagePickerBtn} onPress={handlePickReceipt}>
@@ -297,7 +248,6 @@ export default function DepositBinanceScreen() {
               )}
             </TouchableOpacity>
           </View>
-        )}
 
       </ScrollView>
 

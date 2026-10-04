@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert, Dimensions, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert, Dimensions, ActivityIndicator, Modal, FlatList } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, ChevronDown, ChevronUp, Info, Check } from 'lucide-react-native';
+import { ArrowLeft, ChevronDown, ChevronUp, Info, Check, X } from 'lucide-react-native';
 import { COLORS, TYPOGRAPHY, SHADOWS } from '../../theme/theme';
 import { useAppStore } from '../../store/useAppStore';
 import api from '../../services/api';
@@ -14,7 +14,7 @@ type PaymentMethod = 'wallet' | 'momo' | 'viettel' | 'qr';
 export default function GamePaymentScreen({ route, navigation }: any) {
   const { gameId, gameName, playType, boards, totalCost, drawIds, drawDate } = route.params;
   const insets = useSafeAreaInsets();
-  
+
   // App store states & actions
   const { user, fetchProfile } = useAppStore();
 
@@ -24,6 +24,7 @@ export default function GamePaymentScreen({ route, navigation }: any) {
   // Toggle collapsible cards
   const [isCustomerInfoExpanded, setIsCustomerInfoExpanded] = useState(true);
   const [isProductInfoExpanded, setIsProductInfoExpanded] = useState(true);
+  const [allBoardsModalVisible, setAllBoardsModalVisible] = useState(false);
 
 
 
@@ -46,8 +47,9 @@ export default function GamePaymentScreen({ route, navigation }: any) {
     try {
       const itemsPayload = boards.map((board: any) => ({
         id: board.id,
-        numbers: board.isTC ? ['TC'] : board.numbers,
-        cost: board.cost || (totalCost / boards.length),
+        numbers: board.isTC ? ['TC'] : (Array.isArray(board.numbers) ? board.numbers : [board.numbers]),
+        cost: board.cost || 10000,
+        baseCost: board.baseCost,
       }));
 
       // If drawIds is passed (Matrix/Keno games), create an order for each draw
@@ -64,7 +66,7 @@ export default function GamePaymentScreen({ route, navigation }: any) {
       }
 
       await fetchProfile();
-      
+
       setIsLoading(false);
       Alert.alert('Thành công', 'Đặt vé thành công!', [
         { text: 'Đóng', onPress: () => navigation.popToTop() }
@@ -78,9 +80,9 @@ export default function GamePaymentScreen({ route, navigation }: any) {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={[styles.header, { 
-        paddingTop: Platform.OS === 'android' ? insets.top : 0, 
-        height: 56 + (Platform.OS === 'android' ? insets.top : 0) 
+      <View style={[styles.header, {
+        paddingTop: Platform.OS === 'android' ? insets.top : 0,
+        height: 56 + (Platform.OS === 'android' ? insets.top : 0)
       }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
           <ArrowLeft size={24} color="#0F2942" />
@@ -94,7 +96,7 @@ export default function GamePaymentScreen({ route, navigation }: any) {
         <Text style={styles.sectionHeading}>Nguồn thanh toán:</Text>
 
         {/* TÀI KHOẢN MUA VÉ */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.paymentSourceBox, selectedMethod === 'wallet' && styles.paymentSourceBoxSelected]}
           onPress={() => setSelectedMethod('wallet')}
         >
@@ -105,7 +107,7 @@ export default function GamePaymentScreen({ route, navigation }: any) {
             <Text style={styles.paymentSourceTitle}>TÀI KHOẢN MUA VÉ:</Text>
           </View>
           <View style={styles.paymentSourceRight}>
-            <Text style={styles.balanceText}>{ (user?.balance || 0).toLocaleString('vi-VN')}đ</Text>
+            <Text style={styles.balanceText}>{(user?.balance || 0).toLocaleString('vi-VN')}đ</Text>
             <View style={[styles.radioButton, selectedMethod === 'wallet' && styles.radioButtonSelected]}>
               {selectedMethod === 'wallet' && <View style={styles.radioButtonInner} />}
             </View>
@@ -158,15 +160,15 @@ export default function GamePaymentScreen({ route, navigation }: any) {
             <Text style={styles.productText}>
               {gameName}-{playType}
             </Text>
-            
+
             {/* Show board numbers breakdown */}
             <View style={styles.boardsBreakdown}>
-              {boards.map((board: any, idx: number) => (
+              {boards.slice(0, 10).map((board: any, idx: number) => (
                 <View key={board.id} style={styles.boardDetailRow}>
                   <Text style={styles.boardDetailId}>Dãy {board.id}:</Text>
                   <Text style={styles.boardDetailNumbers}>
-                    {board.isTC 
-                      ? 'Tự chọn (TC)' 
+                    {board.isTC
+                      ? 'Tự chọn (TC)'
                       : gameId === 'lotto_535'
                         ? `${board.numbers.join(' ')} | ${board.specialNumbers ? board.specialNumbers.join(' ') : ''}`
                         : ((gameId === 'loto_235' && playType.includes('Bao 2 số')) || (gameId === 'dientoan_636' && playType.includes('Bao')))
@@ -177,6 +179,13 @@ export default function GamePaymentScreen({ route, navigation }: any) {
                   </Text>
                 </View>
               ))}
+              {boards.length > 10 && (
+                <TouchableOpacity onPress={() => setAllBoardsModalVisible(true)} style={{ marginTop: 8 }}>
+                  <Text style={{ color: '#0084FA', fontWeight: 'bold', fontStyle: 'italic' }}>
+                    + {boards.length - 10} dãy số khác (Xem thêm)
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
           </View>
         )}
@@ -205,9 +214,9 @@ export default function GamePaymentScreen({ route, navigation }: any) {
               <ChevronDown size={16} color="#FF3B30" style={{ marginLeft: 4 }} />
             </View>
           </View>
-          
-          <TouchableOpacity 
-            style={[styles.payBtn, isLoading && styles.payBtnDisabled]} 
+
+          <TouchableOpacity
+            style={[styles.payBtn, isLoading && styles.payBtnDisabled]}
             onPress={handlePayment}
             disabled={isLoading}
           >
@@ -219,6 +228,44 @@ export default function GamePaymentScreen({ route, navigation }: any) {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Boards Modal */}
+      <Modal visible={allBoardsModalVisible} transparent animationType="slide">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+          <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 16, borderTopRightRadius: 16, height: '80%', padding: 16 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#0F2942' }}>Tất cả {boards.length} dãy số</Text>
+              <TouchableOpacity onPress={() => setAllBoardsModalVisible(false)}>
+                <X size={24} color="#0F2942" />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={boards}
+              keyExtractor={(b, idx) => b.id || idx.toString()}
+              renderItem={({ item: board, index }) => (
+                <View style={{ paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' }}>
+                  <Text style={{ color: '#7F8E9C', fontWeight: 'bold', marginBottom: 4 }}>Dãy {board.id}</Text>
+                  <Text style={{ fontSize: 16, color: '#0F2942', fontWeight: '500' }}>
+                    {board.isTC
+                      ? 'Tự chọn (TC)'
+                      : gameId === 'lotto_535'
+                        ? `${board.numbers.join(' ')} | ${board.specialNumbers ? board.specialNumbers.join(' ') : ''}`
+                        : ((gameId === 'loto_235' && playType.includes('Bao 2 số')) || (gameId === 'dientoan_636' && playType.includes('Bao')))
+                          ? `Danh sách bộ số: ${board.numbers.join(', ')}`
+                          : (gameId === 'max_3d' && board.numbers.length === 6)
+                            ? `${board.numbers.slice(0, 3).join(' ')} | ${board.numbers.slice(3, 6).join(' ')}`
+                            : board.numbers.join(' ')}
+                  </Text>
+                </View>
+              )}
+              initialNumToRender={20}
+              maxToRenderPerBatch={50}
+              windowSize={5}
+            />
+          </View>
+        </View>
+      </Modal>
+
     </View>
   );
 }
