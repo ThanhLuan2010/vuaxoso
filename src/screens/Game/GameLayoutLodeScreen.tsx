@@ -52,8 +52,8 @@ const BET_DATA: Record<'mn_mt' | 'mb', Record<MainCategory, BetOption[]>> = {
       { name: 'Đề đầu', multiplier: 10, rate: 99.9 },
       { name: 'Đề đuôi', multiplier: 10, rate: 99.9 },
       { name: 'Đề đầu đuôi', multiplier: 2, rate: 99.9 },
-      { name: 'Xiên ĐB', multiplier: 1, rate: 4.9 },
-      { name: 'Xiên giải 1', multiplier: 1, rate: 4.9 },
+      { name: 'Xiên ĐB', multiplier: 1, rate: 4.8 },
+      { name: 'Xiên giải 1', multiplier: 1, rate: 4.8 },
     ],
     'Xiên': [
       { name: 'Xiên 2', multiplier: 1, rate: 28 },
@@ -101,8 +101,8 @@ const BET_DATA: Record<'mn_mt' | 'mb', Record<MainCategory, BetOption[]>> = {
       { name: 'Đề đầu', multiplier: 10, rate: 99.9 },
       { name: 'Đề đuôi', multiplier: 10, rate: 99.9 },
       { name: 'Đề đầu đuôi', multiplier: 5, rate: 99.9 },
-      { name: 'Xiên ĐB', multiplier: 1, rate: 4.9 },
-      { name: 'Xiên giải 1', multiplier: 1, rate: 4.9 },
+      { name: 'Xiên ĐB', multiplier: 1, rate: 4.8 },
+      { name: 'Xiên giải 1', multiplier: 1, rate: 4.8 },
     ],
     'Xiên': [
       { name: 'Xiên 2', multiplier: 1, rate: 16 },
@@ -210,14 +210,14 @@ const parseNumbers = (input: string, selectedSub: BetOption) => {
 
 const getXienPlaceholder = (name: string) => {
   const n = name.toLowerCase();
-  if (n.includes('trượt xiên 4')) return "Nhập số... (VD: 00&01&02&03)";
-  if (n.includes('trượt xiên 6')) return "Nhập số... (VD: 00&01&02&03&04&05)";
-  if (n.includes('trượt xiên 8')) return "Nhập số... (VD: 00&01&02&03&04&05&06&07)";
-  if (n.includes('trượt xiên 10')) return "Nhập số... (VD: 00&01&02&03&04&05&06&07&08&09)";
+  if (n.includes('trượt xiên 4')) return "Nhập số...";
+  if (n.includes('trượt xiên 6')) return "Nhập số...";
+  if (n.includes('trượt xiên 8')) return "Nhập số...";
+  if (n.includes('trượt xiên 10')) return "Nhập số...";
 
-  if (n.includes('3')) return "Nhập số... (VD: 68&78&88)";
-  if (n.includes('4')) return "Nhập số... (VD: 68&78&88&98)";
-  return "Nhập số... (VD: 68&78)";
+  if (n.includes('3')) return "Nhập số...";
+  if (n.includes('4')) return "Nhập số...";
+  return "Nhập số...";
 };
 
 const NumberPicker = ({ expectedLength, onNumbersGenerated, subName }: { expectedLength: number, onNumbersGenerated: (nums: string) => void, subName: string }) => {
@@ -303,17 +303,30 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
   const [provinceValue, setProvinceValue] = useState<string | null>(null);
   const [provinceItems, setProvinceItems] = useState<{ label: string, value: string }[]>([]);
   const [allProvinces, setAllProvinces] = useState<any[]>([]);
+  const [apiRates, setApiRates] = useState<Record<string, Record<string, number>>>({});
 
   useEffect(() => {
-    const fetchProvinces = async () => {
+    const fetchProvincesAndRates = async () => {
       try {
-        const { data } = await api.get('/provinces');
-        setAllProvinces(data);
+        const [provRes, gamesRes] = await Promise.all([
+          api.get('/provinces'),
+          api.get('/games')
+        ]);
+        if (provRes?.data) setAllProvinces(provRes.data);
+        if (Array.isArray(gamesRes?.data)) {
+          const ratesMap: Record<string, Record<string, number>> = {};
+          gamesRes.data.forEach((g: any) => {
+            if (g.code && g.payoutRates) {
+              ratesMap[g.code] = g.payoutRates;
+            }
+          });
+          setApiRates(ratesMap);
+        }
       } catch (error) {
-        console.error('Failed to fetch provinces', error);
+        console.error('Failed to fetch provinces or game rates', error);
       }
     };
-    fetchProvinces();
+    fetchProvincesAndRates();
   }, []);
 
   useEffect(() => {
@@ -333,24 +346,52 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
     }
   }, [region, allProvinces]);
 
+  const currentDataSet = useMemo(() => {
+    const base = region === 'mb' ? BET_DATA.mb : BET_DATA.mn_mt;
+    const regionCode = region === 'mb' ? 'MB' : (region === 'mt' ? 'MT' : 'MN');
+    const customRates = apiRates[regionCode];
+
+    if (!customRates || Object.keys(customRates).length === 0) {
+      return base;
+    }
+
+    const merged: any = {};
+    for (const cat of Object.keys(base) as MainCategory[]) {
+      merged[cat] = base[cat].map(sub => {
+        const customRate = customRates[sub.name];
+        if (customRate !== undefined && customRate !== null) {
+          return { ...sub, rate: Number(customRate) };
+        }
+        return sub;
+      });
+    }
+    return merged;
+  }, [region, apiRates]);
+
+  const currentSubOptions = currentDataSet[selectedCategory];
+
+  useEffect(() => {
+    const updated = currentSubOptions.find(s => s.name === selectedSub.name);
+    if (updated && updated.rate !== selectedSub.rate) {
+      setSelectedSub(updated);
+    }
+  }, [currentDataSet]);
+
   const currentParsed = useMemo(() => parseNumbers(inputNumbers, selectedSub), [inputNumbers, selectedSub]);
 
   const handleCategorySelect = (cat: MainCategory) => {
     setSelectedCategory(cat);
-    const dataSet = region === 'mb' ? BET_DATA.mb : BET_DATA.mn_mt;
+    const dataSet = currentDataSet;
     setSelectedSub(dataSet[cat][0]);
     setInputNumbers('');
   };
 
   const handleRegionSelect = (r: Region) => {
     setRegion(r);
-    const dataSet = r === 'mb' ? BET_DATA.mb : BET_DATA.mn_mt;
+    const dataSet = r === 'mb' ? (apiRates['MB'] ? currentDataSet : BET_DATA.mb) : (apiRates['MN'] ? currentDataSet : BET_DATA.mn_mt);
     setSelectedSub(dataSet[selectedCategory][0]);
     setInputNumbers('');
   };
-
-  const currentDataSet = region === 'mb' ? BET_DATA.mb : BET_DATA.mn_mt;
-  const currentSubOptions = currentDataSet[selectedCategory];
 
   const calculateTotal = () => {
     if (currentParsed.error || currentParsed.numbers.length === 0) return 0;
@@ -361,7 +402,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
   const calculateWinAmount = () => {
     if (currentParsed.error || currentParsed.numbers.length === 0 || !inputNumbers.trim()) return 0;
     const amountNum = parseInt(baseAmount) || 0;
-    return currentParsed.numbers.length * amountNum * selectedSub.rate;
+    return amountNum * selectedSub.rate;
   };
 
   const handleAddToCart = () => {
@@ -545,7 +586,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
                     style={[styles.textInput, { maxHeight: 200 }]}
                     value={inputNumbers}
                     onChangeText={setInputNumbers}
-                    placeholder={isXienCombo(selectedSub.name) ? getXienPlaceholder(selectedSub.name) : "Nhập số... (VD: 688,788)"}
+                    placeholder={isXienCombo(selectedSub.name) ? getXienPlaceholder(selectedSub.name) : "Nhập số..."}
                     placeholderTextColor={COLORS.textMuted}
                     keyboardType="numbers-and-punctuation"
                     multiline
@@ -611,7 +652,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
               <Text style={styles.footerTotal}>{calculateTotal().toLocaleString('vi-VN')} đ</Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
-              <Text style={styles.footerLabel}>Thắng tạm tính</Text>
+              <Text style={styles.footerLabel}>Thắng/1Con</Text>
               <Text style={styles.footerWin}>{calculateWinAmount().toLocaleString('vi-VN')} đ</Text>
             </View>
           </View>
