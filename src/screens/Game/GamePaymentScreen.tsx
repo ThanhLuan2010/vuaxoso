@@ -12,7 +12,8 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 type PaymentMethod = 'wallet' | 'momo' | 'viettel' | 'qr';
 
 export default function GamePaymentScreen({ route, navigation }: any) {
-  const { gameId, gameName, playType, boards, totalCost, drawIds, drawDate } = route.params;
+  const { gameId, gameName, playType, boards = [], drawIds, drawDate } = route.params || {};
+  const totalCost = route.params?.totalCost ?? route.params?.cost ?? 0;
   const insets = useSafeAreaInsets();
 
   // App store states & actions
@@ -49,7 +50,9 @@ export default function GamePaymentScreen({ route, navigation }: any) {
         id: board.id,
         numbers: board.isTC ? ['TC'] : (Array.isArray(board.numbers) ? board.numbers : [board.numbers]),
         cost: board.cost || 10000,
-        baseCost: board.baseCost,
+        baseCost: board.baseCost || board.unitAmount || board.multiplier || 10000,
+        unitAmount: board.unitAmount || board.multiplier || 10000,
+        multiplier: board.multiplier || board.unitAmount || 10000,
       }));
 
       // If drawIds is passed (Matrix/Keno games), create an order for each draw
@@ -195,22 +198,22 @@ export default function GamePaymentScreen({ route, navigation }: any) {
           <Text style={styles.warningTitle}>Thời gian chốt vé tự động của ngày:</Text>
           <Text style={styles.warningText}>1. Vé số Vietlott và Điện toán thủ đô: trước 17:20 ngày quay thưởng.</Text>
           <Text style={styles.warningText}>2. Sản phẩm Lotto 5/35 có 2 kỳ quay/ngày: trước 12h00 và 20h00 của kỳ quay thưởng.</Text>
-          <Text style={styles.warningText}>3. Xổ số kiến thiết Miền Nam: trước 15:40 ngày quay thưởng.</Text>
-          <Text style={styles.warningText}>4. Xổ số kiến thiết Miền Trung: trước 16:40 ngày quay thưởng.</Text>
-          <Text style={styles.warningText}>5. Xổ số kiến thiết Miền Bắc: trước 17:30 ngày quay thưởng.</Text>
+          <Text style={styles.warningText}>3. Xổ số kiến thiết Miền Nam: trước 16:10 ngày quay thưởng.</Text>
+          <Text style={styles.warningText}>4. Xổ số kiến thiết Miền Trung: trước 17:10 ngày quay thưởng.</Text>
+          <Text style={styles.warningText}>5. Xổ số kiến thiết Miền Bắc: trước 18:10 ngày quay thưởng.</Text>
           <Text style={[styles.warningText, { marginTop: 8, fontStyle: 'italic', fontWeight: 'bold' }]}>CSKH chỉ tiếp nhận và xử lý các báo lỗi được gửi trong thời gian trên.</Text>
           <Text style={[styles.warningText, { marginTop: 4, color: '#E51F27', fontWeight: 'bold' }]}>⚠️ Sau thời gian trên, thông tin trên vé vật lý và ảnh vé trong lịch sử mua vé được xem là chính xác và là căn cứ duy nhất để xác định kết quả trúng thưởng.</Text>
         </View>
       </ScrollView>
 
       {/* Sticky Bottom Footer */}
-      <View style={[styles.footerContainer, { paddingBottom: 16 + insets.bottom }]}>
+      <View style={[styles.footerContainer, { paddingBottom: Math.max(16, insets.bottom) + 16 }]}>
 
         <View style={styles.footerActionRow}>
           <View style={styles.footerInfo}>
             <Text style={styles.footerLabel}>Tổng tiền:</Text>
             <View style={styles.totalAmountValRow}>
-              <Text style={styles.footerValue}>{totalCost.toLocaleString('vi-VN')}đ</Text>
+              <Text style={styles.footerValue}>{(totalCost || 0).toLocaleString('vi-VN')}đ</Text>
               <ChevronDown size={16} color="#FF3B30" style={{ marginLeft: 4 }} />
             </View>
           </View>
