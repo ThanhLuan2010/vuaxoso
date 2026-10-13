@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image } from 'react-native';
 import Header from '../../components/Header';
 import BannerCarousel from '../../components/BannerCarousel';
 import GameCard from '../../components/GameCard';
@@ -20,16 +20,28 @@ export default function HomeScreen({ navigation }: any) {
     fetchKienThietSchedule();
   }, []);
 
-  const vietlottGames = games.filter(g => (g.type === 'vietlott' || g.code === 'bingo18') && g.code !== 'max_3d_pro' && g.code !== 'mua_chung');
+  const vietlottGames = games.filter(g => (g.type === 'vietlott' || g.code === 'bingo18') && g.code !== 'max_3d_pro' && g.code !== 'mua_chung' && g.code !== 'clln_keno');
   const dientoanGames = games.filter(g => g.type === 'dientoan' && g.code !== 'bingo18');
-  const lodeItem = {
+  const lodeFromApi = games.find(g => g.code === 'xoso_3mien');
+  const lodeItem = lodeFromApi ? {
+    _id: lodeFromApi._id || 'xoso_3mien',
+    code: 'xoso_3mien',
+    name: lodeFromApi.name || 'XỔ SỐ 3 MIỀN',
+    type: 'lode',
+    brandColor: lodeFromApi.brandColor || '#E51F27',
+    bgColor: lodeFromApi.bgColor || '#FCE8EA',
+    badge: lodeFromApi.badge || 'Đủ 3 Miền',
+    isActive: lodeFromApi.isActive ?? true,
+    subtext: lodeFromApi.subtext
+  } : {
     _id: 'xoso_3mien',
     code: 'xoso_3mien',
     name: 'XỔ SỐ 3 MIỀN',
     type: 'lode',
     brandColor: '#E51F27',
     bgColor: '#FCE8EA',
-    badge: 'Đủ 3 Miền'
+    badge: 'Đủ 3 Miền',
+    isActive: true
   };
   const getActiveDraw = (code: string) => {
     return activeDraws.find(d => d.game && d.game.code === code);
@@ -126,21 +138,29 @@ export default function HomeScreen({ navigation }: any) {
           </View>
         </View>
 
-        {/* SECTION 2.5: XỔ SỐ 3 MIỀN */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>XỔ SỐ 3 MIỀN</Text>
-          </View>
-          <View style={styles.grid}>
-            <View style={{ width: '100%', padding: 4 }}>
-              <GameCard 
-                item={lodeItem} 
-                onPress={() => handleGamePress(lodeItem.code)} 
-                isHorizontal={true}
+        {/* SECTION 2.5: LÔ ĐỀ 3 MIỀN */}
+        {lodeItem.isActive !== false && (
+          <View style={styles.section}>
+            <View style={[styles.sectionHeader, { flexDirection: 'row', alignItems: 'center' }]}>
+              <Image 
+                source={require('../../assets/images/ic_fire.png')} 
+                style={{ width: 22, height: 22, marginRight: 6, resizeMode: 'contain' }} 
               />
+              <Text style={[styles.sectionTitle, { color: '#0A3B7C', fontSize: 18, fontWeight: 'bold' }]}>
+                LÔ ĐỀ 3 MIỀN
+              </Text>
+            </View>
+            <View style={styles.grid}>
+              <View style={{ width: '100%', padding: 4 }}>
+                <GameCard 
+                  item={lodeItem} 
+                  onPress={() => handleGamePress(lodeItem.code)} 
+                  isHorizontal={true}
+                />
+              </View>
             </View>
           </View>
-        </View>
+        )}
 
         {/* SECTION 3: KIẾN THIẾT */}
         <View style={[styles.section, { marginBottom: SPACING.xxl }]}>
