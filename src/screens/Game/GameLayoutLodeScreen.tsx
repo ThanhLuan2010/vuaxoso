@@ -67,12 +67,16 @@ const BET_DATA: Record<'mn_mt' | 'mb', Record<MainCategory, BetOption[]>> = {
       { name: '3 Càng giải 1', multiplier: 1, rate: 980 },
       { name: '3 Càng đầu giải 1', multiplier: 1, rate: 980 },
       { name: '3 Càng đầu đuôi', multiplier: 2, rate: 980 },
-      { name: 'Xiên 3 càng ĐB', multiplier: 1, rate: 158 },
+      { name: 'Xiên 3 càng ĐB', multiplier: 1, rate: 3.2 },
+      { name: 'Xiên 3 càng giải 1', multiplier: 1, rate: 3.2 },
     ],
     '4 Càng': [
       { name: '4 Càng ĐB', multiplier: 1, rate: 9000 },
+      { name: '4 Càng đầu ĐB', multiplier: 1, rate: 9000 },
       { name: '4 Càng giải 1', multiplier: 1, rate: 9000 },
-      { name: 'Xiên 4 càng ĐB', multiplier: 1, rate: 388 },
+      { name: '4 Càng đầu giải 1', multiplier: 1, rate: 9000 },
+      { name: 'Xiên 4 càng ĐB', multiplier: 1, rate: 2.4 },
+      { name: 'Xiên 4 càng giải 1', multiplier: 1, rate: 2.4 },
     ],
     'Lô Trượt': [
       { name: 'Lô Trượt Xiên 4', multiplier: 1, rate: 1.8 },
@@ -115,12 +119,16 @@ const BET_DATA: Record<'mn_mt' | 'mb', Record<MainCategory, BetOption[]>> = {
       { name: '3 Càng giải 6', multiplier: 3, rate: 980 },
       { name: '3 Càng giải 1', multiplier: 1, rate: 980 },
       { name: '3 Càng đầu đuôi', multiplier: 4, rate: 980 },
-      { name: 'Xiên 3 càng ĐB', multiplier: 1, rate: 158 },
+      { name: 'Xiên 3 càng ĐB', multiplier: 1, rate: 3.2 },
+      { name: 'Xiên 3 càng giải 1', multiplier: 1, rate: 3.2 },
     ],
     '4 Càng': [
       { name: '4 Càng ĐB', multiplier: 1, rate: 9000 },
+      { name: '4 Càng đầu ĐB', multiplier: 1, rate: 9000 },
       { name: '4 Càng giải 1', multiplier: 1, rate: 9000 },
-      { name: 'Xiên 4 càng ĐB', multiplier: 1, rate: 388 },
+      { name: '4 Càng đầu giải 1', multiplier: 1, rate: 9000 },
+      { name: 'Xiên 4 càng ĐB', multiplier: 1, rate: 2.4 },
+      { name: 'Xiên 4 càng giải 1', multiplier: 1, rate: 2.4 },
     ],
     'Lô Trượt': [
       { name: 'Lô Trượt Xiên 4', multiplier: 1, rate: 2.3 },
@@ -135,7 +143,7 @@ const MAIN_CATEGORIES: MainCategory[] = ['Bao Lô', 'Đề', 'Xiên', '3 Càng',
 
 const getExpectedLength = (name: string) => {
   const n = name.toLowerCase();
-  if (n === 'đề đầu' || n === 'đề đuôi' || n === 'xiên đb' || n === 'xiên giải 1' || n === 'xiên 3 càng đb' || n === 'xiên 4 càng đb') return 1;
+  if (n === 'đề đầu' || n === 'đề đuôi' || n === 'xiên đb' || n === 'xiên giải 1' || n.includes('xiên 3 càng') || n.includes('xiên 4 càng')) return 1;
   if (n.includes('3 số') || n.includes('3 càng')) return 3;
   if (n.includes('4 số') || n.includes('4 càng')) return 4;
   return 2;
@@ -143,7 +151,7 @@ const getExpectedLength = (name: string) => {
 
 const isXienCombo = (name: string) => {
   const n = name.toLowerCase();
-  return (n.includes('xiên') || n.includes('trượt')) && n !== 'xiên đb' && n !== 'xiên giải 1' && !n.includes('đb');
+  return (n.includes('xiên') || n.includes('trượt')) && n !== 'xiên đb' && n !== 'xiên giải 1' && !n.includes('đb') && !n.includes('xiên 3 càng') && !n.includes('xiên 4 càng');
 };
 
 const parseNumbers = (input: string, selectedSub: BetOption) => {
@@ -254,7 +262,7 @@ const NumberPicker = ({ expectedLength, onNumbersGenerated, subName }: { expecte
 
   const renderRow = (label: string, type: 'thousands' | 'hundreds' | 'tens' | 'units', selectedArr: number[]) => {
     const isSingleDigitMode = expectedLength === 1;
-    const hideLabel = isSingleDigitMode && (subName.toLowerCase() === 'xiên đb' || subName.toLowerCase() === 'xiên giải 1' || subName.toLowerCase() === 'xiên 3 càng đb' || subName.toLowerCase() === 'xiên 4 càng đb');
+    const hideLabel = isSingleDigitMode && (subName.toLowerCase() === 'xiên đb' || subName.toLowerCase() === 'xiên giải 1' || subName.toLowerCase().includes('xiên 3 càng') || subName.toLowerCase().includes('xiên 4 càng'));
     return (
       <View style={styles.pickerRow}>
         {!hideLabel && <Text style={styles.pickerRowLabel}>{label}</Text>}
@@ -329,22 +337,86 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
     fetchProvincesAndRates();
   }, []);
 
+  const [tick, setTick] = useState(0);
+
   useEffect(() => {
-    const today = new Date().getDay();
+    const interval = setInterval(() => {
+      setTick(t => t + 1);
+    }, 15000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Tính ngày và đài quay thưởng dựa trên giờ chốt của từng miền (theo giờ Việt Nam UTC+7)
+  // MN: chốt 16:10, MT: chốt 17:10, MB: chốt 18:10
+  const getTargetDateInfo = (r: Region) => {
+    const now = new Date();
+    const vnTimeStr = now.toLocaleTimeString('en-US', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    const [hours, minutes] = vnTimeStr.split(':').map(Number);
+    const currentMinutes = (isNaN(hours) ? now.getHours() : hours) * 60 + (isNaN(minutes) ? now.getMinutes() : minutes);
+
+    let cutoffMinutes = 18 * 60 + 10; // MB: 18:10
+    if (r === 'mn') {
+      cutoffMinutes = 16 * 60 + 10; // MN: 16:10
+    } else if (r === 'mt') {
+      cutoffMinutes = 17 * 60 + 10; // MT: 17:10
+    }
+
+    const isPastCutoff = currentMinutes >= cutoffMinutes;
+
+    const vnDateStr = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
+    const [y, m, d] = vnDateStr.split('-').map(Number);
+    const targetDate = new Date(y, m - 1, d);
+
+    if (isPastCutoff) {
+      targetDate.setDate(targetDate.getDate() + 1);
+    }
+
+    const daysOfWeek = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+    const dayName = daysOfWeek[targetDate.getDay()];
+    const dayStr = String(targetDate.getDate()).padStart(2, '0');
+    const monthStr = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const yearStr = targetDate.getFullYear();
+    const formattedDate = `${dayStr}/${monthStr}/${yearStr}`;
+    const dateLabel = isPastCutoff 
+      ? `${dayName}, ${dayStr}/${monthStr} (Ngày mai)` 
+      : `${dayName}, ${dayStr}/${monthStr} (Hôm nay)`;
+
+    return {
+      targetDay: targetDate.getDay(),
+      isPastCutoff,
+      dateLabel,
+      formattedDate,
+      targetDate,
+    };
+  };
+
+  const targetDateInfo = useMemo(() => getTargetDateInfo(region), [region, tick]);
+
+  useEffect(() => {
+    const { targetDay } = targetDateInfo;
     const filtered = allProvinces.filter(p => {
       if (p.region.toLowerCase() !== region) return false;
       if (p.drawDays && Array.isArray(p.drawDays)) {
-        return p.drawDays.includes(today);
+        return p.drawDays.includes(targetDay);
       }
       return true;
     });
 
     const items = filtered.map(p => ({ label: p.name, value: p.provinceId }));
     setProvinceItems(items);
-    if (items.length > 0 && !items.find(i => i.value === provinceValue)) {
-      setProvinceValue(items[0].value);
+    if (items.length > 0) {
+      if (!items.find(i => i.value === provinceValue)) {
+        setProvinceValue(items[0].value);
+      }
+    } else {
+      setProvinceValue(null);
     }
-  }, [region, allProvinces]);
+  }, [region, allProvinces, targetDateInfo.targetDay]);
 
   const currentDataSet = useMemo(() => {
     const base = region === 'mb' ? BET_DATA.mb : BET_DATA.mn_mt;
@@ -371,7 +443,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
   const currentSubOptions = currentDataSet[selectedCategory];
 
   useEffect(() => {
-    const updated = currentSubOptions.find(s => s.name === selectedSub.name);
+    const updated = currentSubOptions.find((s: BetOption) => s.name === selectedSub.name);
     if (updated && updated.rate !== selectedSub.rate) {
       setSelectedSub(updated);
     }
@@ -416,15 +488,19 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
   };
 
   const confirmAddToCart = () => {
+    const selectedProv = provinceItems.find(p => p.value === provinceValue);
     addToCart({
       gameId,
       gameName: `XỔ SỐ 3 MIỀN - ${region.toUpperCase()}`,
+      playType: selectedSub.name,
       numbers: currentParsed.numbers,
       cost: calculateTotal(),
       baseCost: parseInt(baseAmount) || 0,
       winAmount: calculateWinAmount(),
       region,
       provinceId: provinceValue ?? undefined,
+      provinceName: selectedProv?.label || (region === 'mb' ? 'Miền Bắc' : undefined),
+      drawDate: targetDateInfo.formattedDate,
       category: selectedCategory,
       subCategory: selectedSub.name,
       multiplier: selectedSub.multiplier,
@@ -489,6 +565,14 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
           </View>
 
           <View style={{ zIndex: 10, marginHorizontal: SPACING.md, marginTop: SPACING.sm, marginBottom: SPACING.sm }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <Text style={{ fontSize: 13, fontWeight: '600', color: COLORS.textDark }}>
+                Chọn đài quay thưởng
+              </Text>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: targetDateInfo.isPastCutoff ? COLORS.primary : COLORS.gray500 }}>
+                Kỳ quay: {targetDateInfo.dateLabel}
+              </Text>
+            </View>
             <DropDownPicker
               open={provinceOpen}
               value={provinceValue}
@@ -522,7 +606,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
             </ScrollView>
 
             <View style={styles.subCatGrid}>
-              {currentSubOptions.map(sub => (
+              {currentSubOptions.map((sub: BetOption) => (
                 <TouchableOpacity
                   key={sub.name}
                   style={[styles.subCatBtn, selectedSub.name === sub.name && styles.subCatBtnActive]}

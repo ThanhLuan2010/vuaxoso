@@ -45,6 +45,8 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/RelWithDebInfo/305554i6/x86/AsyncStorageSpec_autolinked_build/cmake_install.cmake")
+  include("/Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/RelWithDebInfo/305554i6/x86/RNFBAppTurboModules_autolinked_build/cmake_install.cmake")
+  include("/Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/RelWithDebInfo/305554i6/x86/RNFBMessagingTurboModules_autolinked_build/cmake_install.cmake")
   include("/Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/RelWithDebInfo/305554i6/x86/RNImagePickerSpec_autolinked_build/cmake_install.cmake")
   include("/Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/RelWithDebInfo/305554i6/x86/safeareacontext_autolinked_build/cmake_install.cmake")
   include("/Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/RelWithDebInfo/305554i6/x86/rnscreens_autolinked_build/cmake_install.cmake")

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import api from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { registerFCMTokenWithBackend } from '../services/notificationService';
 
 export interface Wallet {
   network: 'BEP20' | 'TRC20';
@@ -19,6 +20,7 @@ export interface GameModel {
   badge?: string;
   subtext?: string;
   drawDurationMinutes?: number;
+  isActive?: boolean;
 }
 
 export interface DrawModel {
@@ -50,6 +52,7 @@ export interface CartItem {
   multiplier?: number;
   rate?: number;
   baseCost?: number;
+  unitAmount?: number;
   boards?: any[];
 }
 
@@ -113,11 +116,14 @@ interface AppState {
   requestWithdraw: (amount: number, withdrawPassword?: string, destinationInfo?: any) => Promise<{ success: boolean; message?: string }>;
 
   // Cart
-  addToCart: (item: Omit<CartItem, 'id'>) => void;
-  removeFromCart: (itemId: string) => void;
-  clearCart: () => void;
+  fetchCart: () => Promise<void>;
+  addToCart: (item: Omit<CartItem, 'id'>) => Promise<void> | void;
+  removeFromCart: (itemId: string) => Promise<void> | void;
+  clearCart: () => Promise<void> | void;
   checkout: () => Promise<{ success: boolean; message: string }>;
   clearNotifications: () => void;
+  fetchUnreadNotificationsCount: () => Promise<void>;
+  markAllNotificationsAsRead: () => Promise<void>;
   addPurchaseHistory: (records: Omit<PurchaseRecord, 'id' | 'date' | 'status'>[]) => void;
 }
 
@@ -184,7 +190,14 @@ export const useAppStore = create<AppState>()(
         try {
           const { data } = await api.post('/auth/login', { phone, password });
           api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-          set({ user: { name: data.name, balance: data.balance, phone: data.phone, emailVerified: data.emailVerified }, token: data.token });
+          set({ 
+            user: { name: data.name, balance: data.balance, phone: data.phone, emailVerified: data.emailVerified }, 
+            token: data.token,
+            cart: []
+          });
+          registerFCMTokenWithBackend();
+          get().fetchUnreadNotificationsCount();
+          await get().fetchCart();
           return { success: true };
         } catch (error: any) {
           return { 
@@ -199,7 +212,14 @@ export const useAppStore = create<AppState>()(
         try {
           const { data } = await api.post('/auth/register', { phone, name, password });
           api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-          set({ user: { name: data.name, balance: data.balance, phone: data.phone, emailVerified: data.emailVerified }, token: data.token });
+          set({ 
+            user: { name: data.name, balance: data.balance, phone: data.phone, emailVerified: data.emailVerified }, 
+            token: data.token,
+            cart: []
+          });
+          registerFCMTokenWithBackend();
+          get().fetchUnreadNotificationsCount();
+          await get().fetchCart();
           return { success: true };
         } catch (error: any) {
           return { success: false, message: error.response?.data?.message || 'Lỗi kết nối' };
@@ -209,7 +229,7 @@ export const useAppStore = create<AppState>()(
       logout: async () => {
         // Remove token from headers instead of AsyncStorage
         delete api.defaults.headers.common['Authorization'];
-        set({ user: null, token: null });
+        set({ user: null, token: null, cart: [], unreadNotifications: 0 });
       },
 
       fetchProfile: async () => {
@@ -231,6 +251,8 @@ export const useAppStore = create<AppState>()(
               wallets: data.wallets
             }
           });
+          get().fetchUnreadNotificationsCount();
+          get().fetchCart();
         } catch (error) {
           console.log('Failed to fetch profile', error);
           get().logout();
@@ -264,7 +286,7 @@ export const useAppStore = create<AppState>()(
 
       restoreSession: async () => {
         // Session is no longer restored from AsyncStorage for security
-        set({ token: null, user: null });
+        set({ token: null, user: null, cart: [] });
       },
 
       requestDeposit: async (amount: number = 0, receiptImage?: string, txId?: string, paymentMethod?: string, destinationInfo?: any) => {
@@ -310,16 +332,69 @@ export const useAppStore = create<AppState>()(
         }
       },
 
-      addToCart: (newItem) => set((state) => {
+      fetchCart: async () => {
+        try {
+          const token = get().token;
+          if (!token) return;
+          const { data } = await api.get('/cart');
+          if (data && Array.isArray(data.items)) {
+            set({ cart: data.items });
+          }
+        } catch (e) {
+          console.log('fetchCart error', e);
+        }
+      },
+
+      addToCart: async (newItem) => {
         const id = Math.random().toString(36).substring(2, 9);
-        return { cart: [...state.cart, { ...newItem, id }] };
-      }),
+        const itemWithId: CartItem = { ...newItem, id };
+        // Optimistic UI update
+        set((state) => ({ cart: [...state.cart, itemWithId] }));
 
-      removeFromCart: (itemId) => set((state) => ({
-        cart: state.cart.filter(item => item.id !== itemId)
-      })),
+        const token = get().token;
+        if (token) {
+          try {
+            const { data } = await api.post('/cart/add', itemWithId);
+            if (data && Array.isArray(data.items)) {
+              set({ cart: data.items });
+            }
+          } catch (e) {
+            console.log('addToCart api error', e);
+          }
+        }
+      },
 
-      clearCart: () => set({ cart: [] }),
+      removeFromCart: async (itemId) => {
+        // Optimistic UI update
+        set((state) => ({
+          cart: state.cart.filter((item) => item.id !== itemId),
+        }));
+
+        const token = get().token;
+        if (token) {
+          try {
+            const { data } = await api.delete(`/cart/item/${itemId}`);
+            if (data && Array.isArray(data.items)) {
+              set({ cart: data.items });
+            }
+          } catch (e) {
+            console.log('removeFromCart api error', e);
+          }
+        }
+      },
+
+      clearCart: async () => {
+        set({ cart: [] });
+
+        const token = get().token;
+        if (token) {
+          try {
+            await api.delete('/cart/clear');
+          } catch (e) {
+            console.log('clearCart api error', e);
+          }
+        }
+      },
 
       checkout: async () => {
         const { cart, user } = get();
@@ -329,48 +404,85 @@ export const useAppStore = create<AppState>()(
         if (!user || user.balance < totalCost) return { success: false, message: 'Số dư không đủ! Vui lòng nạp thêm tiền.' };
 
         try {
-          const itemsPayload: any[] = [];
-          cart.forEach(item => {
+          // Chuẩn bị toàn bộ danh sách vé trong giỏ hàng để gửi 1 lần (Batch Checkout)
+          const ordersPayload = cart.map((item) => {
+            let itemBoards: any[] = [];
+            const itemPlayType = item.playType || item.subCategory || item.category || 'Cơ bản';
+
             if (item.boards && item.boards.length > 0) {
-              item.boards.forEach((b: any) => {
-                itemsPayload.push({
-                  playType: item.playType || item.subCategory || item.category,
-                  numbers: b.numbers,
-                  specialNumbers: b.specialNumbers,
-                  cost: b.cost * item.quantity,
-                  baseCost: b.cost,
-                });
-              });
+              itemBoards = item.boards.map((b: any, bIdx: number) => ({
+                id: b.id || String.fromCharCode(65 + bIdx),
+                playType: itemPlayType,
+                numbers: Array.isArray(b.numbers) ? b.numbers : [b.numbers],
+                specialNumbers: b.specialNumbers,
+                cost: (b.cost || 10000) * (item.quantity || 1),
+                baseCost: b.baseCost || b.cost || 10000,
+                unitAmount: b.unitAmount || b.cost || 10000,
+                multiplier: b.multiplier || 10000,
+              }));
             } else {
-              itemsPayload.push({
-                playType: item.playType || item.subCategory || item.category,
-                numbers: item.numbers,
-                cost: item.cost * item.quantity,
-                baseCost: item.baseCost || item.cost,
-              });
+              itemBoards = [{
+                id: 'A',
+                playType: itemPlayType,
+                numbers: Array.isArray(item.numbers) ? item.numbers : [item.numbers],
+                cost: (item.cost || 10000) * (item.quantity || 1),
+                baseCost: item.baseCost || item.cost || 10000,
+                unitAmount: item.unitAmount || item.baseCost || item.cost || 10000,
+                multiplier: item.multiplier || 10000,
+              }];
             }
+
+            const targetGameType = item.gameId === 'xoso_3mien' 
+              ? (item.region ? item.region.toUpperCase() : 'MB')
+              : item.gameId;
+
+            return {
+              gameType: targetGameType,
+              playType: itemPlayType,
+              drawId: 'DUMMY_DRAW_ID',
+              provinceName: item.provinceName,
+              drawDate: item.drawDate,
+              items: itemBoards
+            };
           });
 
-          // Gọi API mua vé
-          await api.post('/orders', {
-            gameType: cart[0].gameId === 'xoso_3mien' ? cart[0].region?.toUpperCase() || 'MB' : cart[0].gameId,
-            playType: cart[0].playType || cart[0].subCategory || cart[0].category,
-            drawId: 'DUMMY_DRAW_ID', // Thực tế sẽ lấy từ API /active
-            items: itemsPayload
-          });
+          // Gửi toàn bộ 200+ vé trong 1 request duy nhất cực nhanh
+          const res = await api.post('/orders/checkout', { orders: ordersPayload });
 
           // Cập nhật lại số dư và làm trống giỏ hàng
           await get().fetchProfile();
+          await get().clearCart();
 
-          set((state) => ({
-            cart: []
-          }));
-
-          return { success: true, message: 'Thanh toán thành công! Vé của bạn đã được ghi nhận.' };
+          const successMsg = res.data?.message || `Thanh toán thành công ${ordersPayload.length} vé!`;
+          return { success: true, message: successMsg };
         } catch (error: any) {
           console.log('Checkout API Error:', error, error.response?.data);
           const errMsg = error.response?.data?.message || error.message || 'Lỗi thanh toán.';
           return { success: false, message: errMsg };
+        }
+      },
+
+      fetchUnreadNotificationsCount: async () => {
+        try {
+          const token = get().token;
+          if (!token) return;
+          const { data } = await api.get('/notifications/unread-count');
+          if (data && typeof data.unreadCount === 'number') {
+            set({ unreadNotifications: data.unreadCount });
+          }
+        } catch (e) {
+          // Silent error
+        }
+      },
+
+      markAllNotificationsAsRead: async () => {
+        try {
+          set({ unreadNotifications: 0 });
+          const token = get().token;
+          if (!token) return;
+          await api.post('/notifications/read-all');
+        } catch (e) {
+          console.log('markAllNotificationsAsRead error', e);
         }
       },
 
@@ -398,12 +510,9 @@ export const useAppStore = create<AppState>()(
       name: 'app-storage', // name of the item in the storage (must be unique)
       storage: createJSONStorage(() => AsyncStorage), // (optional) by default, 'localStorage' is used
       partialize: (state) => ({
-        cart: state.cart,
-        user: state.user,
-        token: state.token,
         purchaseHistory: state.purchaseHistory,
         forcePasswordChange: state.forcePasswordChange
-      }), // Only persist these fields
+      }), // Only persist these fields - cart is stored per user account in database!
     }
   )
 );

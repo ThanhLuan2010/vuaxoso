@@ -14,33 +14,63 @@ export default function TransactionHistoryScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'all' | 'deposit' | 'withdraw'>(route.params?.initialTab || 'all');
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchHistory();
-    }, [])
-  );
-
-  const fetchHistory = async (isRefresh = false) => {
+  const fetchHistory = useCallback(async (pageNum: number, isRefresh = false) => {
     try {
       if (isRefresh) {
         setRefreshing(true);
-      } else {
+      } else if (pageNum === 1) {
         setLoading(true);
+      } else {
+        setLoadingMore(true);
       }
-      const res = await api.get('/wallet/history');
-      setTransactions(res.data || []);
+
+      const params: any = {
+        page: pageNum,
+        limit: 10,
+      };
+      if (activeTab !== 'all') {
+        params.type = activeTab;
+      }
+
+      const res = await api.get('/wallet/history', { params });
+      const newItems = Array.isArray(res.data) ? res.data : [];
+
+      if (pageNum === 1) {
+        setTransactions(newItems);
+      } else {
+        setTransactions((prev) => [...prev, ...newItems]);
+      }
+
+      setHasMore(newItems.length === 10);
+      setPage(pageNum);
     } catch (err) {
       console.log('Fetch history error', err);
     } finally {
       setLoading(false);
       setRefreshing(false);
+      setLoadingMore(false);
     }
-  };
+  }, [activeTab]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchHistory(1);
+    }, [fetchHistory])
+  );
 
   const onRefresh = useCallback(() => {
-    fetchHistory(true);
-  }, []);
+    fetchHistory(1, true);
+  }, [fetchHistory]);
+
+  const handleLoadMore = () => {
+    if (!loading && !loadingMore && !refreshing && hasMore) {
+      fetchHistory(page + 1);
+    }
+  };
 
   const formatVND = (num: number) => {
     return num.toLocaleString('vi-VN') + 'đ';
@@ -64,10 +94,7 @@ export default function TransactionHistoryScreen() {
     }
   };
 
-  const filteredTransactions = transactions.filter(t => {
-    if (activeTab === 'all') return true;
-    return t.type === activeTab;
-  }).slice(0, 10);
+  const filteredTransactions = transactions;
 
   const renderItem = ({ item }: { item: any }) => {
     const isDeposit = item.type === 'deposit';
@@ -119,26 +146,47 @@ export default function TransactionHistoryScreen() {
       <View style={styles.tabsContainer}>
         <TouchableOpacity 
           style={[styles.tab, activeTab === 'all' && styles.activeTab]}
-          onPress={() => setActiveTab('all')}
+          onPress={() => {
+            if (activeTab !== 'all') {
+              setActiveTab('all');
+              setPage(1);
+              setTransactions([]);
+              setHasMore(true);
+            }
+          }}
         >
           <Text style={[styles.tabText, activeTab === 'all' && styles.activeTabText]}>Tất cả</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.tab, activeTab === 'deposit' && styles.activeTab]}
-          onPress={() => setActiveTab('deposit')}
+          onPress={() => {
+            if (activeTab !== 'deposit') {
+              setActiveTab('deposit');
+              setPage(1);
+              setTransactions([]);
+              setHasMore(true);
+            }
+          }}
         >
           <Text style={[styles.tabText, activeTab === 'deposit' && styles.activeTabText]}>Nạp tiền</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.tab, activeTab === 'withdraw' && styles.activeTab]}
-          onPress={() => setActiveTab('withdraw')}
+          onPress={() => {
+            if (activeTab !== 'withdraw') {
+              setActiveTab('withdraw');
+              setPage(1);
+              setTransactions([]);
+              setHasMore(true);
+            }
+          }}
         >
           <Text style={[styles.tabText, activeTab === 'withdraw' && styles.activeTabText]}>Rút tiền</Text>
         </TouchableOpacity>
       </View>
 
       {/* List */}
-      {loading ? (
+      {loading && !refreshing ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
@@ -149,9 +197,22 @@ export default function TransactionHistoryScreen() {
       ) : (
         <FlatList
           data={filteredTransactions}
-          keyExtractor={(item) => item._id}
+          keyExtractor={(item, index) => item._id || `${index}`}
           renderItem={renderItem}
           contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(insets.bottom, 24) }]}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.3}
+          ListFooterComponent={
+            loadingMore ? (
+              <View style={{ paddingVertical: 12, alignItems: 'center' }}>
+                <ActivityIndicator size="small" color={COLORS.primary} />
+              </View>
+            ) : !hasMore && filteredTransactions.length > 0 ? (
+              <View style={{ paddingVertical: 12, alignItems: 'center' }}>
+                <Text style={{ color: COLORS.gray400, fontSize: 12 }}>Đã hiển thị tất cả giao dịch</Text>
+              </View>
+            ) : null
+          }
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
           }

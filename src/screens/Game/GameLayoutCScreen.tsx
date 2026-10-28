@@ -8,8 +8,12 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
-, Modal, Image } from 'react-native';
+  View,
+  Modal,
+  Image,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import api from '../../services/api';
 import { useAppStore } from '../../store/useAppStore';
@@ -173,28 +177,65 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
 
   const [apiTickets, setApiTickets] = useState<PaperTicket[]>([]);
   const [loadingTickets, setLoadingTickets] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
+  const fetchTickets = async (pageNum = 1, isRefresh = false) => {
+    try {
+      if (isRefresh) {
+        setRefreshing(true);
+      } else if (pageNum === 1) {
+        setLoadingTickets(true);
+      } else {
+        setLoadingMore(true);
+      }
+
+      const res = await api.get('/tickets', {
+        params: {
+          provinceId: selectedProvinceId,
+          drawDate: drawDate,
+          page: pageNum,
+          limit: 10,
+        }
+      });
+      const mapped = (res.data || []).map((t: any) => ({
+        ...t,
+        id: t._id,
+        sold: t.isSold,
+      }));
+
+      if (pageNum === 1) {
+        setApiTickets(mapped);
+      } else {
+        setApiTickets((prev) => [...prev, ...mapped]);
+      }
+      setHasMore(mapped.length === 10);
+      setPage(pageNum);
+    } catch (error) {
+      console.error('Lỗi lấy vé:', error);
+    } finally {
+      setLoadingTickets(false);
+      setRefreshing(false);
+      setLoadingMore(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchTickets = async () => {
-      try {
-        setLoadingTickets(true);
-        const res = await api.get('/tickets', {
-          params: { provinceId: selectedProvinceId, drawDate: drawDate }
-        });
-        const mapped = res.data.map((t: any) => ({
-          ...t,
-          id: t._id,
-          sold: t.isSold,
-        }));
-        setApiTickets(mapped);
-      } catch (error) {
-        console.error('Lỗi lấy vé:', error);
-      } finally {
-        setLoadingTickets(false);
-      }
-    };
-    fetchTickets();
+    setPage(1);
+    fetchTickets(1);
   }, [selectedProvinceId, drawDate]);
+
+  const onRefresh = () => {
+    fetchTickets(1, true);
+  };
+
+  const handleLoadMore = () => {
+    if (!loadingTickets && !loadingMore && !refreshing && hasMore) {
+      fetchTickets(page + 1);
+    }
+  };
 
   const tickets = apiTickets;
 
@@ -367,6 +408,17 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
       <ScrollView
         contentContainerStyle={[styles.scrollContent, { paddingBottom: 160 + insets.bottom }]}
         showsVerticalScrollIndicator={false}
+        scrollEventThrottle={400}
+        onScroll={({ nativeEvent }) => {
+          const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+          const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 150;
+          if (isCloseToBottom && !loadingTickets && !loadingMore && !refreshing && hasMore) {
+            handleLoadMore();
+          }
+        }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#E51F27']} />
+        }
       >
         {/* ── SEARCH BAR ── */}
         <View style={styles.searchBar}>
@@ -432,8 +484,25 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
 
         {loadingTickets && (
           <View style={styles.empty}>
+            <ActivityIndicator size="small" color="#E51F27" style={{ marginBottom: 8 }} />
             <Text style={styles.emptyText}>Đang tải vé...</Text>
           </View>
+        )}
+
+        {loadingMore && (
+          <View style={{ paddingVertical: 14, alignItems: 'center' }}>
+            <ActivityIndicator size="small" color="#E51F27" />
+            <Text style={{ fontSize: 12, color: '#666', marginTop: 4 }}>Đang tải thêm vé...</Text>
+          </View>
+        )}
+
+        {!loadingMore && hasMore && (normalTickets.length > 0 || specialTickets.length > 0) && (
+          <TouchableOpacity 
+            style={{ padding: 12, alignItems: 'center', marginVertical: 10, backgroundColor: '#FFF', borderRadius: 8, borderWidth: 1, borderColor: '#E2E8F0' }}
+            onPress={handleLoadMore}
+          >
+            <Text style={{ color: '#0084FA', fontWeight: 'bold' }}>Tải thêm vé (Trang {page + 1})</Text>
+          </TouchableOpacity>
         )}
       </ScrollView>
 

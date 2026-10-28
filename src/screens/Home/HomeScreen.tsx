@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import Header from '../../components/Header';
 import BannerCarousel from '../../components/BannerCarousel';
 import GameCard from '../../components/GameCard';
@@ -9,7 +10,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { ShoppingCart } from 'lucide-react-native';
 
 export default function HomeScreen({ navigation }: any) {
-  const { cart, games, activeDraws, fetchGames, fetchActiveDraws, fetchDrawResults, fetchBanners, fetchKienThietSchedule } = useAppStore();
+  const { cart, games, activeDraws, fetchGames, fetchActiveDraws, fetchDrawResults, fetchBanners, fetchKienThietSchedule, fetchUnreadNotificationsCount, fetchCart } = useAppStore();
   const cartCount = cart.length;
 
   useEffect(() => {
@@ -19,6 +20,13 @@ export default function HomeScreen({ navigation }: any) {
     fetchBanners();
     fetchKienThietSchedule();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchUnreadNotificationsCount();
+      fetchCart();
+    }, [fetchUnreadNotificationsCount, fetchCart])
+  );
 
   const vietlottGames = games.filter(g => (g.type === 'vietlott' || g.code === 'bingo18') && g.code !== 'max_3d_pro' && g.code !== 'mua_chung' && g.code !== 'clln_keno');
   const dientoanGames = games.filter(g => g.type === 'dientoan' && g.code !== 'bingo18');

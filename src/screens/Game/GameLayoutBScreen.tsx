@@ -175,6 +175,13 @@ export default function GameLayoutBScreen({ route, navigation }: any) {
 
       const totalCost = payload.boards.reduce((sum: number, b: any) => sum + (b.cost || 0), 0);
 
+      const curDraw = (drawCycles && drawCycles.length > 0)
+        ? (drawCycles.find((d: any) => (payload.drawIds || selectedDraws)?.includes(d.id)) || drawCycles[0])
+        : null;
+      const drawDateStr = curDraw 
+        ? `${curDraw.drawCode ? `Kỳ #${curDraw.drawCode} - ` : ''}${curDraw.dateStr || curDraw.date || ''}` 
+        : (payload.drawDate || undefined);
+
       addToCart({
         gameId: payload.gameId,
         gameName: payload.gameName,
@@ -185,13 +192,26 @@ export default function GameLayoutBScreen({ route, navigation }: any) {
         unitAmount: payload.unitAmount || payload.boards[0]?.unitAmount,
         multiplier: payload.multiplier || payload.boards[0]?.multiplier,
         quantity: payload.drawIds ? payload.drawIds.length : 1,
+        drawDate: payload.drawDate || drawDateStr,
+        provinceName: payload.provinceName || route.params?.provinceName,
         boards: payload.boards,
       });
 
       Toast.show({ type: 'success', text1: 'Thành công', text2: 'Đã thêm vé vào giỏ hàng' });
       isAddingToCart.current = false;
     } else {
-      navigation.navigate('GamePayment', payload);
+      const curDraw = (drawCycles && drawCycles.length > 0)
+        ? (drawCycles.find((d: any) => (payload.drawIds || selectedDraws)?.includes(d.id)) || drawCycles[0])
+        : null;
+      const drawDateStr = curDraw 
+        ? `${curDraw.drawCode ? `Kỳ #${curDraw.drawCode} - ` : ''}${curDraw.dateStr || curDraw.date || ''}` 
+        : (payload.drawDate || undefined);
+
+      navigation.navigate('GamePayment', {
+        ...payload,
+        drawDate: payload.drawDate || drawDateStr,
+        provinceName: payload.provinceName || route.params?.provinceName,
+      });
     }
   };
 

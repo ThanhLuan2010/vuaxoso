@@ -1,6 +1,8 @@
 {
   "buildFiles": [
     "/Users/luannguyen/Documents/git/vuaxoso/node_modules/@react-native-async-storage/async-storage/android/build/generated/source/codegen/jni/CMakeLists.txt",
+    "/Users/luannguyen/Documents/git/vuaxoso/node_modules/@react-native-firebase/app/android/src/reactnative/java/io/invertase/firebase/app/generated/jni/CMakeLists.txt",
+    "/Users/luannguyen/Documents/git/vuaxoso/node_modules/@react-native-firebase/messaging/android/src/main/java/io/invertase/firebase/messaging/generated/jni/CMakeLists.txt",
     "/Users/luannguyen/Documents/git/vuaxoso/node_modules/react-native-image-picker/android/build/generated/source/codegen/jni/CMakeLists.txt",
     "/Users/luannguyen/Documents/git/vuaxoso/node_modules/react-native-safe-area-context/android/src/main/jni/CMakeLists.txt",
     "/Users/luannguyen/Documents/git/vuaxoso/node_modules/react-native-screens/android/src/main/jni/CMakeLists.txt",
@@ -22,15 +24,25 @@
     "{LIST_OF_TARGETS_TO_BUILD}"
   ],
   "libraries": {
+    "react_codegen_RNFBMessagingTurboModules::@23361e4831c0e3136ef6": {
+      "artifactName": "react_codegen_RNFBMessagingTurboModules",
+      "abi": "x86_64",
+      "runtimeFiles": []
+    },
     "react_codegen_safeareacontext::@7984cd80db47aa7b952a": {
       "artifactName": "react_codegen_safeareacontext",
       "abi": "x86_64",
       "output": "/Users/luannguyen/Documents/git/vuaxoso/android/app/build/intermediates/cxx/Debug/1p731f2q/obj/x86_64/libreact_codegen_safeareacontext.so",
       "runtimeFiles": [
-        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/3c01aea05d2737e987399f1309ae090e/transformed/fbjni-0.7.0/prefab/modules/fbjni/libs/android.x86_64/libfbjni.so",
-        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/2b7c23aa4547eb79508e5d3aa3f2bc7a/transformed/react-android-0.86.0-debug/prefab/modules/jsi/libs/android.x86_64/libjsi.so",
-        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/2b7c23aa4547eb79508e5d3aa3f2bc7a/transformed/react-android-0.86.0-debug/prefab/modules/reactnative/libs/android.x86_64/libreactnative.so"
+        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/320e0b46f31b684057f113001bd4bb00/transformed/fbjni-0.7.0/prefab/modules/fbjni/libs/android.x86_64/libfbjni.so",
+        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/6a10fef6cd8472b44c3da6bb0d167d42/transformed/react-android-0.86.0-debug/prefab/modules/jsi/libs/android.x86_64/libjsi.so",
+        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/6a10fef6cd8472b44c3da6bb0d167d42/transformed/react-android-0.86.0-debug/prefab/modules/reactnative/libs/android.x86_64/libreactnative.so"
       ]
+    },
+    "react_codegen_RNFBAppTurboModules::@a0d44c1163aba7af3ea1": {
+      "artifactName": "react_codegen_RNFBAppTurboModules",
+      "abi": "x86_64",
+      "runtimeFiles": []
     },
     "react_codegen_RNImagePickerSpec::@f66ee9a2efecfb28bee4": {
       "artifactName": "react_codegen_RNImagePickerSpec",
@@ -42,9 +54,9 @@
       "abi": "x86_64",
       "output": "/Users/luannguyen/Documents/git/vuaxoso/android/app/build/intermediates/cxx/Debug/1p731f2q/obj/x86_64/libreact_codegen_rnscreens.so",
       "runtimeFiles": [
-        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/2b7c23aa4547eb79508e5d3aa3f2bc7a/transformed/react-android-0.86.0-debug/prefab/modules/reactnative/libs/android.x86_64/libreactnative.so",
-        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/2b7c23aa4547eb79508e5d3aa3f2bc7a/transformed/react-android-0.86.0-debug/prefab/modules/jsi/libs/android.x86_64/libjsi.so",
-        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/3c01aea05d2737e987399f1309ae090e/transformed/fbjni-0.7.0/prefab/modules/fbjni/libs/android.x86_64/libfbjni.so"
+        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/6a10fef6cd8472b44c3da6bb0d167d42/transformed/react-android-0.86.0-debug/prefab/modules/reactnative/libs/android.x86_64/libreactnative.so",
+        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/6a10fef6cd8472b44c3da6bb0d167d42/transformed/react-android-0.86.0-debug/prefab/modules/jsi/libs/android.x86_64/libjsi.so",
+        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/320e0b46f31b684057f113001bd4bb00/transformed/fbjni-0.7.0/prefab/modules/fbjni/libs/android.x86_64/libfbjni.so"
       ]
     },
     "appmodules::@6890427a1f51a3e7e1df": {
@@ -55,9 +67,9 @@
         "/Users/luannguyen/Documents/git/vuaxoso/android/app/build/intermediates/cxx/Debug/1p731f2q/obj/x86_64/libreact_codegen_safeareacontext.so",
         "/Users/luannguyen/Documents/git/vuaxoso/android/app/build/intermediates/cxx/Debug/1p731f2q/obj/x86_64/libreact_codegen_rnscreens.so",
         "/Users/luannguyen/Documents/git/vuaxoso/android/app/build/intermediates/cxx/Debug/1p731f2q/obj/x86_64/libreact_codegen_rnsvg.so",
-        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/3c01aea05d2737e987399f1309ae090e/transformed/fbjni-0.7.0/prefab/modules/fbjni/libs/android.x86_64/libfbjni.so",
-        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/2b7c23aa4547eb79508e5d3aa3f2bc7a/transformed/react-android-0.86.0-debug/prefab/modules/jsi/libs/android.x86_64/libjsi.so",
-        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/2b7c23aa4547eb79508e5d3aa3f2bc7a/transformed/react-android-0.86.0-debug/prefab/modules/reactnative/libs/android.x86_64/libreactnative.so"
+        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/320e0b46f31b684057f113001bd4bb00/transformed/fbjni-0.7.0/prefab/modules/fbjni/libs/android.x86_64/libfbjni.so",
+        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/6a10fef6cd8472b44c3da6bb0d167d42/transformed/react-android-0.86.0-debug/prefab/modules/jsi/libs/android.x86_64/libjsi.so",
+        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/6a10fef6cd8472b44c3da6bb0d167d42/transformed/react-android-0.86.0-debug/prefab/modules/reactnative/libs/android.x86_64/libreactnative.so"
       ]
     },
     "react_codegen_rnsvg::@4f40eb209d0c0b4a3b65": {
@@ -65,9 +77,9 @@
       "abi": "x86_64",
       "output": "/Users/luannguyen/Documents/git/vuaxoso/android/app/build/intermediates/cxx/Debug/1p731f2q/obj/x86_64/libreact_codegen_rnsvg.so",
       "runtimeFiles": [
-        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/2b7c23aa4547eb79508e5d3aa3f2bc7a/transformed/react-android-0.86.0-debug/prefab/modules/reactnative/libs/android.x86_64/libreactnative.so",
-        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/2b7c23aa4547eb79508e5d3aa3f2bc7a/transformed/react-android-0.86.0-debug/prefab/modules/jsi/libs/android.x86_64/libjsi.so",
-        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/3c01aea05d2737e987399f1309ae090e/transformed/fbjni-0.7.0/prefab/modules/fbjni/libs/android.x86_64/libfbjni.so"
+        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/6a10fef6cd8472b44c3da6bb0d167d42/transformed/react-android-0.86.0-debug/prefab/modules/reactnative/libs/android.x86_64/libreactnative.so",
+        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/6a10fef6cd8472b44c3da6bb0d167d42/transformed/react-android-0.86.0-debug/prefab/modules/jsi/libs/android.x86_64/libjsi.so",
+        "/Users/luannguyen/.gradle/caches/9.3.1/transforms/320e0b46f31b684057f113001bd4bb00/transformed/fbjni-0.7.0/prefab/modules/fbjni/libs/android.x86_64/libfbjni.so"
       ]
     },
     "react_codegen_AsyncStorageSpec::@15af80695a6281ecf900": {

@@ -52,7 +52,13 @@ const getDaysData = (): DaySchedule[] => {
   dayAfter.setDate(today.getDate() + 2);
 
   const getMBForDay = (date: Date): ProvinceItem[] => {
-    return [{ id: 'MB', name: 'Miền Bắc', code: 'XSMB', region: 'MB' }];
+    const day = date.getDay();
+    if (day === 1 || day === 4) return [{ id: 'HN', name: 'Hà Nội', code: 'H.Nội', region: 'MB' }];
+    if (day === 2) return [{ id: 'QN_MB', name: 'Quảng Ninh', code: 'Q.Ninh', region: 'MB' }];
+    if (day === 3) return [{ id: 'BN', name: 'Bắc Ninh', code: 'B.Ninh', region: 'MB' }];
+    if (day === 5) return [{ id: 'HP', name: 'Hải Phòng', code: 'H.Phòng', region: 'MB' }];
+    if (day === 6) return [{ id: 'ND', name: 'Nam Định', code: 'N.Định', region: 'MB' }];
+    return [{ id: 'TB', name: 'Thái Bình', code: 'T.Bình', region: 'MB' }];
   };
 
   const getMTForDay = (date: Date): ProvinceItem[] => {
@@ -61,7 +67,7 @@ const getDaysData = (): DaySchedule[] => {
     else if (day === 4) return [{ id: 'BD', name: 'Bình Định', code: 'B.Định', region: 'MT' }, { id: 'QT', name: 'Quảng Trị', code: 'Q.Trị', region: 'MT' }, { id: 'QB', name: 'Quảng Bình', code: 'Q.Bình', region: 'MT' }];
     else if (day === 5) return [{ id: 'GL', name: 'Gia Lai', code: 'G.Lai', region: 'MT' }, { id: 'NT', name: 'Ninh Thuận', code: 'N.Thuận', region: 'MT' }];
     else if (day === 6) return [{ id: 'DNG', name: 'Đà Nẵng', code: 'Đ.Nẵng', region: 'MT' }, { id: 'QNG', name: 'Quảng Ngãi', code: 'Q.Ngãi', region: 'MT' }, { id: 'DNO', name: 'Đắk Nông', code: 'Đ.Nông', region: 'MT' }];
-    else if (day === 0) return [{ id: 'KT', name: 'Kon Tum', code: 'K.Tum', region: 'MT' }, { id: 'KH2', name: 'Khánh Hòa', code: 'K.Hòa', region: 'MT' }];
+    else if (day === 0) return [{ id: 'TTH', name: 'Thừa Thiên Huế', code: 'T.T.Huế', region: 'MT' }, { id: 'KT', name: 'Kon Tum', code: 'K.Tum', region: 'MT' }, { id: 'KH2', name: 'Khánh Hòa', code: 'K.Hòa', region: 'MT' }];
     else if (day === 1) return [{ id: 'TTH', name: 'Thừa Thiên Huế', code: 'T.T.Huế', region: 'MT' }, { id: 'PY', name: 'Phú Yên', code: 'P.Yên', region: 'MT' }];
     else return [{ id: 'DL', name: 'Đắk Lắk', code: 'Đ.Lắk', region: 'MT' }, { id: 'QN', name: 'Quảng Nam', code: 'Q.Nam', region: 'MT' }];
   };

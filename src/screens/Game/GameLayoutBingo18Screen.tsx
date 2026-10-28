@@ -1,7 +1,10 @@
 import { ArrowLeft } from 'iconsax-react-native';
+import { BarChart2, Check, X } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -9,9 +12,13 @@ import {
   View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
+import api from '../../services/api';
+import { useAppStore } from '../../store/useAppStore';
 
 export default function GameLayoutBingo18Screen({ route, navigation }: any) {
   const insets = useSafeAreaInsets();
+  const { addToCart } = useAppStore();
 
   const isAddingToCart = React.useRef(false);
 
@@ -21,21 +28,21 @@ export default function GameLayoutBingo18Screen({ route, navigation }: any) {
         Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Không có vé nào để thêm.' });
         return;
       }
-      
-      // Gộp tất cả các dãy số (boards) thành 1 record trong giỏ hàng
+
       const allNumbers = payload.boards.reduce((acc: string[], b: any) => {
         if (b.numbers) {
-          // Xử lý nối chuỗi các dãy số cho dễ nhìn (ví dụ: Lotto có thêm specialNumbers)
-          const numStr = b.specialNumbers 
+          const numStr = b.specialNumbers
             ? `${b.numbers.join(' ')} | ${b.specialNumbers.join(' ')}`
             : b.numbers.join(' ');
           acc.push(`Dãy ${b.id}: ${numStr}`);
         }
         return acc;
       }, []);
-      
+
       const totalCost = payload.boards.reduce((sum: number, b: any) => sum + (b.cost || 0), 0);
-      
+
+      const drawDateStr = payload.drawDate || (activeDraw ? `${activeDraw.drawCode} - ${activeDraw.dateStr}` : undefined);
+
       addToCart({
         gameId: payload.gameId,
         gameName: payload.gameName,
@@ -44,13 +51,18 @@ export default function GameLayoutBingo18Screen({ route, navigation }: any) {
         cost: totalCost,
         baseCost: payload.boards[0]?.cost || 10000,
         quantity: payload.drawIds ? payload.drawIds.length : 1,
-        boards: payload.boards, // Quan trọng: lưu lại danh sách boards gốc để checkout bóc tách lại
+        drawDate: drawDateStr,
+        boards: payload.boards,
       });
-      
+
       Toast.show({ type: 'success', text1: 'Thành công', text2: 'Đã thêm vé vào giỏ hàng' });
       isAddingToCart.current = false;
     } else {
-      navigation.navigate('GamePayment', payload);
+      const drawDateStr = payload.drawDate || (activeDraw ? `${activeDraw.drawCode} - ${activeDraw.dateStr}` : undefined);
+      navigation.navigate('GamePayment', {
+        ...payload,
+        drawDate: drawDateStr,
+      });
     }
   };
 
@@ -63,6 +75,153 @@ export default function GameLayoutBingo18Screen({ route, navigation }: any) {
   const [selections, setSelections] = useState<string[]>([]);
   const [multiplier, setMultiplier] = useState(1);
   const baseCost = 10000;
+
+  // Draw cycles state
+  const [drawCycles, setDrawCycles] = useState<any[]>([]);
+  const [selectedDrawIndex, setSelectedDrawIndex] = useState(0);
+  const [tempSelectedDrawIndex, setTempSelectedDrawIndex] = useState(0);
+  const [isDrawPickerVisible, setIsDrawPickerVisible] = useState(false);
+  const [isDrawLoading, setIsDrawLoading] = useState(false);
+  const [countdown, setCountdown] = useState<number>(0);
+
+  const generateBingo18Draws = (drawsFromApi?: any[]) => {
+    const now = new Date();
+    const nowMs = now.getTime();
+
+    if (drawsFromApi && Array.isArray(drawsFromApi)) {
+      const activeForBingo = drawsFromApi
+        .filter((d: any) => {
+          if (!d.game || (d.game.code !== 'bingo18' && d.game.code !== 'bingo_18')) return false;
+          if (new Date(d.closeTime).getTime() <= nowMs) return false;
+          if (typeof d.drawCode === 'string' && d.drawCode.match(/^#10\d{2}/)) return false;
+          return true;
+        })
+        .slice(0, 10);
+
+      if (activeForBingo.length > 0) {
+        return activeForBingo.map((d: any) => {
+          const closeTime = new Date(d.closeTime);
+          const day = String(closeTime.getDate()).padStart(2, '0');
+          const month = String(closeTime.getMonth() + 1).padStart(2, '0');
+          const year = closeTime.getFullYear();
+          const hrs = String(closeTime.getHours()).padStart(2, '0');
+          const mins = String(closeTime.getMinutes()).padStart(2, '0');
+          const dateFormatted = `${day}/${month}/${year} ${hrs}:${mins}`;
+
+          return {
+            id: d._id,
+            drawCode: d.drawCode,
+            label: `${d.drawCode} - ${dateFormatted}`,
+            dateStr: dateFormatted,
+            closeTime: closeTime.toISOString()
+          };
+        });
+      }
+    }
+
+    // Generator for 10 upcoming 8-minute slots between 06:00 and 22:00
+    const result: any[] = [];
+    let currentSlot = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 6, 0, 0);
+
+    while (currentSlot.getTime() <= nowMs) {
+      currentSlot = new Date(currentSlot.getTime() + 8 * 60 * 1000);
+    }
+
+    for (let i = 0; i < 10; i++) {
+      const cutoffOfDay = new Date(currentSlot.getFullYear(), currentSlot.getMonth(), currentSlot.getDate(), 21, 56, 0);
+      if (currentSlot.getTime() > cutoffOfDay.getTime()) {
+        currentSlot = new Date(currentSlot.getFullYear(), currentSlot.getMonth(), currentSlot.getDate() + 1, 6, 0, 0);
+      }
+
+      const day = String(currentSlot.getDate()).padStart(2, '0');
+      const month = String(currentSlot.getMonth() + 1).padStart(2, '0');
+      const year = currentSlot.getFullYear();
+      const hrs = String(currentSlot.getHours()).padStart(2, '0');
+      const mins = String(currentSlot.getMinutes()).padStart(2, '0');
+
+      const sixAmToday = new Date(currentSlot.getFullYear(), currentSlot.getMonth(), currentSlot.getDate(), 6, 0, 0);
+      const minutesFromSixAm = Math.floor((currentSlot.getTime() - sixAmToday.getTime()) / 60000);
+      const drawNumberInDay = Math.floor(minutesFromSixAm / 8) + 1;
+      const drawCode = `#${String(drawNumberInDay).padStart(5, '0')}`;
+      const dateFormatted = `${day}/${month}/${year} ${hrs}:${mins}`;
+
+      result.push({
+        id: `bingo18_${currentSlot.getFullYear()}${month}${day}_${hrs}${mins}`,
+        drawCode,
+        label: `${drawCode} - ${dateFormatted}`,
+        dateStr: dateFormatted,
+        closeTime: currentSlot.toISOString()
+      });
+
+      currentSlot = new Date(currentSlot.getTime() + 8 * 60 * 1000);
+    }
+
+    return result;
+  };
+
+  const fetchBingo18Draws = async () => {
+    setIsDrawLoading(true);
+    try {
+      let apiDraws: any[] = [];
+      try {
+        const res = await api.get('/draws/active');
+        apiDraws = res.data;
+      } catch (e) { }
+
+      const generated = generateBingo18Draws(apiDraws);
+      setDrawCycles(generated);
+      if (generated.length > 0) {
+        setSelectedDrawIndex(0);
+        setTempSelectedDrawIndex(0);
+      }
+    } catch (err) {
+      console.error('Lỗi lấy kỳ quay Bingo18:', err);
+    } finally {
+      setIsDrawLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBingo18Draws();
+  }, []);
+
+  const activeDraw = drawCycles[selectedDrawIndex];
+
+  useEffect(() => {
+    if (activeDraw && activeDraw.closeTime) {
+      const closeTimeMs = new Date(activeDraw.closeTime).getTime();
+      const diffSecs = Math.max(0, Math.floor((closeTimeMs - Date.now()) / 1000));
+      setCountdown(diffSecs);
+    }
+  }, [activeDraw]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (countdown === 0 && drawCycles.length > 0) {
+      fetchBingo18Draws();
+    }
+  }, [countdown]);
+
+  const formatTime = (secs: number) => {
+    const hrs = Math.floor(secs / 3600);
+    const mins = Math.floor((secs % 3600) / 60);
+    const s = secs % 60;
+
+    if (hrs > 0) {
+      return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+    return `${String(mins).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  };
+
+  const handleStatsPress = () => {
+    navigation.navigate('StatsKeno', { gameId: 'bingo18' });
+  };
 
   useEffect(() => {
     // Clear selections on tab change
@@ -95,32 +254,14 @@ export default function GameLayoutBingo18Screen({ route, navigation }: any) {
       gameId: 'bingo18',
       gameName,
       playType,
-      drawIds: [],
+      drawIds: activeDraw ? [activeDraw.id] : [],
       boards,
       totalCost: boards.length * baseCost * multiplier
     });
   };
 
-  const getEstimatedWinInfo = () => {
-    if (selections.length === 0) return null;
-    const totalCost = selections.length * baseCost * multiplier;
-
-    let estimatedWin = 0;
-    if (playType === 'Cơ bản') {
-      // Max win in Cơ bản is 3-so-trung (x120)
-      estimatedWin = 1200000 * multiplier;
-    } else if (playType === 'Cộng tổng') {
-      estimatedWin = 1200000 * multiplier; // max x120
-    } else if (playType === 'Tài Xỉu Hoà') {
-      estimatedWin = 200000 * multiplier; // max x20 for Hoa
-    }
-    return { multiplier, totalCost, estimatedWin };
-  };
-
-  const winInfo = getEstimatedWinInfo();
-
   return (
-    <View style={[styles.container, { paddingBottom: insets.bottom }]}>
+    <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top, height: 56 + insets.top }]}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <ArrowLeft size={24} color="#0F2942" />
@@ -144,10 +285,34 @@ export default function GameLayoutBingo18Screen({ route, navigation }: any) {
         ))}
       </View>
 
+      {/* Period/Draw Selection Row (Synchronized layout matching GameLayoutA) */}
+      <View style={styles.periodRowContainer}>
+        <TouchableOpacity
+          style={styles.periodBox}
+          onPress={() => {
+            setTempSelectedDrawIndex(selectedDrawIndex);
+            setIsDrawPickerVisible(true);
+          }}
+        >
+          <Text style={styles.periodLabel}>Kỳ quay:</Text>
+          <Text style={styles.periodValueRed}>
+            {isDrawLoading || !activeDraw
+              ? 'Đang tải...'
+              : `${activeDraw.drawCode} - ${activeDraw.dateStr}`}
+          </Text>
+          <Text style={styles.periodTime}>
+            {`${formatTime(countdown)} ▼`}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.chartBtn} onPress={handleStatsPress}>
+          <BarChart2 size={18} color="#00A859" />
+        </TouchableOpacity>
+      </View>
+
       <ScrollView style={styles.content}>
         {playType === 'Cơ bản' && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Một số (x10 - x50 - x120)</Text>
+            <Text style={styles.sectionTitle}>Một số</Text>
             <View style={styles.grid}>
               {['1', '2', '3', '4', '5', '6'].map(num => (
                 <TouchableOpacity
@@ -160,7 +325,7 @@ export default function GameLayoutBingo18Screen({ route, navigation }: any) {
               ))}
             </View>
 
-            <Text style={styles.sectionTitle}>Hai số trùng (x50)</Text>
+            <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Hai số trùng</Text>
             <View style={styles.grid}>
               {['11', '22', '33', '44', '55', '66'].map(num => (
                 <TouchableOpacity
@@ -173,7 +338,7 @@ export default function GameLayoutBingo18Screen({ route, navigation }: any) {
               ))}
             </View>
 
-            <Text style={styles.sectionTitle}>Ba số trùng (x120)</Text>
+            <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Ba số trùng</Text>
             <View style={styles.grid}>
               {['111', '222', '333', '444', '555', '666'].map(num => (
                 <TouchableOpacity
@@ -190,7 +355,7 @@ export default function GameLayoutBingo18Screen({ route, navigation }: any) {
 
         {playType === 'Cộng tổng' && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Chọn Tổng của 3 con số (x5 - x120)</Text>
+            <Text style={styles.sectionTitle}>Chọn Tổng của 3 con số</Text>
             <View style={styles.grid}>
               {Array.from({ length: 16 }, (_, i) => String(i + 3)).map(sum => (
                 <TouchableOpacity
@@ -211,7 +376,7 @@ export default function GameLayoutBingo18Screen({ route, navigation }: any) {
             <View style={styles.grid}>
               {[
                 { id: 'Tài', label: 'Tài (12-18)', rate: 'x2' },
-                { id: 'Hoà', label: 'Hoà (10-11)', rate: 'x20' },
+                { id: 'Hoà', label: 'Hoà (10-11)', rate: 'x3' },
                 { id: 'Xỉu', label: 'Xỉu (3-9)', rate: 'x2' }
               ].map(item => (
                 <TouchableOpacity
@@ -243,25 +408,83 @@ export default function GameLayoutBingo18Screen({ route, navigation }: any) {
           </View>
         </View>
 
-        <View style={{ height: 120 }} />
+        <View style={{ height: 120 + Math.max(16, insets.bottom) }} />
       </ScrollView>
 
       {/* Footer */}
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: Math.max(16, insets.bottom) + 16 }]}>
         <View style={styles.footerInfo}>
-          {winInfo ? (
-            <>
-              <Text style={styles.footerTotalLabel}>Thanh toán: <Text style={styles.footerTotalValue}>{winInfo.totalCost.toLocaleString('vi-VN')} đ</Text></Text>
-              <Text style={styles.footerWinLabel}>Thắng tạm tính (Max): <Text style={styles.footerWinValue}>{winInfo.estimatedWin.toLocaleString('vi-VN')} đ</Text></Text>
-            </>
+          {selections.length > 0 ? (
+            <Text style={styles.footerTotalLabel}>
+              Thanh toán: <Text style={styles.footerTotalValue}>{(selections.length * baseCost * multiplier).toLocaleString('vi-VN')} đ</Text>
+            </Text>
           ) : (
             <Text style={styles.footerTotalLabel}>Vui lòng chọn số</Text>
           )}
+          <Text style={styles.footerMaxPrizeText}>🏆️ Giải thưởng 79.000.000 VNĐ</Text>
         </View>
         <TouchableOpacity style={[styles.checkoutBtn, selections.length === 0 && { opacity: 0.5 }]} onPress={handleCheckout}>
           <Text style={styles.checkoutBtnText}>Xác nhận</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Draw Picker Modal */}
+      <Modal
+        visible={isDrawPickerVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsDrawPickerVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalHeaderTitle}>Chọn kỳ quay (6 phút / kỳ)</Text>
+              <TouchableOpacity style={styles.modalCloseBtn} onPress={() => setIsDrawPickerVisible(false)}>
+                <X size={20} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.drawModalScrollList} showsVerticalScrollIndicator={false}>
+              {isDrawLoading || drawCycles.length === 0 ? (
+                <View style={{ paddingVertical: 40, alignItems: 'center', justifyContent: 'center' }}>
+                  <ActivityIndicator size="small" color="#0055A5" />
+                  <Text style={{ marginTop: 10, color: '#7F8E9C', fontSize: 14 }}>Đang tải danh sách kỳ quay...</Text>
+                </View>
+              ) : (
+                drawCycles.map((cycle, idx) => {
+                  const isSelected = tempSelectedDrawIndex === idx;
+                  return (
+                    <TouchableOpacity
+                      key={cycle.id}
+                      style={styles.drawModalItem}
+                      onPress={() => setTempSelectedDrawIndex(idx)}
+                    >
+                      <View style={styles.drawModalLeftGroup}>
+                        <View style={[styles.drawCheckbox, isSelected && styles.drawCheckboxChecked]}>
+                          {isSelected && <Check size={14} color="#E51F27" strokeWidth={3} />}
+                        </View>
+                        <Text style={styles.drawModalItemText}>{cycle.label}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })
+              )}
+            </ScrollView>
+
+            <View style={[styles.drawModalFooter, { paddingBottom: Math.max(16, insets.bottom + 12) }]}>
+              <TouchableOpacity
+                style={styles.drawConfirmBtn}
+                onPress={() => {
+                  setSelectedDrawIndex(tempSelectedDrawIndex);
+                  setIsDrawPickerVisible(false);
+                }}
+              >
+                <Text style={styles.drawConfirmBtnText}>Xác nhận</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -280,15 +503,6 @@ const styles = StyleSheet.create({
   backButton: { padding: 4 },
   headerTitleContainer: { flex: 1, alignItems: 'center' },
   headerTitle: { color: '#0F2942', fontSize: 18, fontWeight: '700' },
-  cartButton: { padding: 4 },
-  cartBadge: {
-    position: 'absolute', top: 0, right: 0,
-    backgroundColor: '#E51F27',
-    borderRadius: 10,
-    width: 16, height: 16,
-    justifyContent: 'center', alignItems: 'center'
-  },
-  cartBadgeText: { color: '#FFF', fontSize: 10, fontWeight: 'bold' },
 
   tabContainer: {
     flexDirection: 'row',
@@ -306,6 +520,55 @@ const styles = StyleSheet.create({
   tabBtnActive: { borderColor: '#0055A5' },
   tabBtnText: { fontSize: 14, color: '#8F9BB3', fontWeight: '600' },
   tabBtnTextActive: { color: '#0055A5', fontWeight: 'bold' },
+
+  // Synchronized Period Row styles matching GameLayoutA
+  periodRowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#EBF0F3',
+  },
+  periodBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#EBF0F3',
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    height: 38,
+    gap: 6,
+    flex: 1,
+    marginRight: 10,
+  },
+  periodLabel: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#0F2942',
+  },
+  periodValueRed: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#FF3B30',
+  },
+  periodTime: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#0F2942',
+    marginLeft: 'auto',
+  },
+  chartBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#EBF0F3',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 
   content: { flex: 1, padding: 16 },
   section: { marginBottom: 24 },
@@ -401,8 +664,9 @@ const styles = StyleSheet.create({
     bottom: 0, left: 0, right: 0,
     backgroundColor: '#FFF',
     flexDirection: 'row',
-    padding: 16,
-    paddingBottom: 32,
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 12,
     borderTopWidth: 1,
     borderColor: '#EEE',
     alignItems: 'center'
@@ -410,13 +674,95 @@ const styles = StyleSheet.create({
   footerInfo: { flex: 1 },
   footerTotalLabel: { fontSize: 14, color: '#666' },
   footerTotalValue: { fontSize: 16, fontWeight: 'bold', color: '#E51F27' },
-  footerWinLabel: { fontSize: 12, color: '#999', marginTop: 4 },
-  footerWinValue: { fontSize: 12, fontWeight: 'bold', color: '#0055A5' },
+  footerMaxPrizeText: { fontSize: 13, fontWeight: '700', color: '#D0021B', marginTop: 4 },
   checkoutBtn: {
     backgroundColor: '#E51F27',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8
   },
-  checkoutBtnText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' }
+  checkoutBtnText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
+
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    maxHeight: '70%',
+  },
+  modalHeader: {
+    backgroundColor: '#0055A5',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  modalHeaderTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  modalCloseBtn: {
+    padding: 4,
+  },
+  drawModalScrollList: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  drawModalItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F3F6',
+  },
+  drawModalLeftGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  drawCheckbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    borderColor: '#BDC5D1',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  drawCheckboxChecked: {
+    borderColor: '#E51F27',
+    backgroundColor: '#FFF0F0',
+  },
+  drawModalItemText: {
+    fontSize: 14,
+    color: '#0F2942',
+    fontWeight: '500',
+  },
+  drawModalFooter: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F3F6',
+  },
+  drawConfirmBtn: {
+    backgroundColor: '#E51F27',
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  drawConfirmBtnText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });

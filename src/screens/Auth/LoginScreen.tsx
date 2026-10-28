@@ -5,8 +5,10 @@ import Toast from 'react-native-toast-message';
 import { useAppStore } from '../../store/useAppStore';
 import { COLORS, TYPOGRAPHY, SPACING, BORDER_RADIUS } from '../../theme/theme';
 import { Headset } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function LoginScreen() {
+  const insets = useSafeAreaInsets();
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
   const [expiredModalVisible, setExpiredModalVisible] = useState(false);
@@ -178,7 +180,7 @@ export default function LoginScreen() {
       )}
 
       <TouchableOpacity 
-        style={styles.cskhBtn} 
+        style={[styles.cskhBtn, { bottom: Math.max((insets.bottom || 0) + 30, 60) }]} 
         onPress={() => Linking.openURL('https://t.me/mobileappp')}
       >
         <Text style={styles.cskhText}>CSKH</Text>

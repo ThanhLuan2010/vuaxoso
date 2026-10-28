@@ -7,6 +7,8 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BORDER_RADIUS, COLORS, SPACING, TYPOGRAPHY } from '../../theme/theme';
@@ -83,22 +85,58 @@ export default function LiveScreen() {
   const [kenoDraws, setKenoDraws] = useState<any[]>([]);
 
   const latestResult = kenoDraws.length > 0 ? kenoDraws[0] : null;
-  const previousResults = kenoDraws.slice(1, 10);
+  const previousResults = kenoDraws.slice(1);
 
   const [countdown, setCountdown] = useState(0);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const isFetchingRef = React.useRef(false);
 
-  const fetchKenoDraws = async () => {
+  const fetchKenoDraws = async (pageNum = 1, isRefresh = false) => {
     try {
-      const res = await api.get('/draws/results?code=keno&limit=10');
-      setKenoDraws(res.data);
+      if (isRefresh) {
+        setRefreshing(true);
+      } else if (pageNum > 1) {
+        setLoadingMore(true);
+      }
+      const res = await api.get('/draws/results', {
+        params: { code: 'keno', page: pageNum, limit: 10 }
+      });
+      const data = Array.isArray(res.data) ? res.data : [];
+      if (pageNum === 1) {
+        setKenoDraws(data);
+      } else {
+        setKenoDraws((prev) => [...prev, ...data]);
+      }
+      setHasMore(data.length === 10);
+      setPage(pageNum);
     } catch (err) {
       console.log('Error fetching keno draws in LiveScreen', err);
+    } finally {
+      setRefreshing(false);
+      setLoadingMore(false);
+    }
+  };
+
+  const onRefresh = async () => {
+    try {
+      await useAppStore.getState().fetchActiveDraws();
+      await fetchKenoDraws(1, true);
+    } catch (e) {
+      console.log('LiveScreen refresh error', e);
+    }
+  };
+
+  const handleLoadMore = () => {
+    if (!loadingMore && !refreshing && hasMore) {
+      fetchKenoDraws(page + 1);
     }
   };
 
   React.useEffect(() => {
-    fetchKenoDraws();
+    fetchKenoDraws(1);
   }, []);
 
   React.useEffect(() => {
@@ -165,7 +203,21 @@ export default function LiveScreen() {
         <View style={styles.subHeaderUnderline} />
       </View>
 
-      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={{ flex: 1 }} 
+        showsVerticalScrollIndicator={false}
+        scrollEventThrottle={400}
+        onScroll={({ nativeEvent }) => {
+          const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+          const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 150;
+          if (isCloseToBottom && !loadingMore && !refreshing && hasMore) {
+            handleLoadMore();
+          }
+        }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[ORANGE]} />
+        }
+      >
 
         {/* Current Draw Section */}
         {latestResult && (
@@ -226,6 +278,22 @@ export default function LiveScreen() {
                 </View>
               );
             })}
+
+            {loadingMore && (
+              <View style={{ paddingVertical: 14, alignItems: 'center' }}>
+                <ActivityIndicator size="small" color={ORANGE} />
+                <Text style={{ fontSize: 12, color: COLORS.gray500, marginTop: 4 }}>Đang tải thêm kết quả...</Text>
+              </View>
+            )}
+
+            {!loadingMore && hasMore && previousResults.length > 0 && (
+              <TouchableOpacity
+                style={{ padding: 12, alignItems: 'center', marginVertical: 12, backgroundColor: '#FFF', borderRadius: 8, borderWidth: 1, borderColor: '#E2E8F0' }}
+                onPress={handleLoadMore}
+              >
+                <Text style={{ color: TABLE_BLUE, fontWeight: 'bold' }}>Tải thêm kỳ quay trước (Trang {page + 1})</Text>
+              </TouchableOpacity>
+            )}
 
             <View style={{ height: 24 }} />
           </View>

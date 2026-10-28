@@ -48,11 +48,16 @@ export default function Header() {
         <TouchableOpacity 
           style={styles.bellBtn}
           onPress={() => navigation.navigate('Notifications')}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           <Bell size={24} color="#0F2942" />
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{unreadNotifications}</Text>
-          </View>
+          {unreadNotifications > 0 ? (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>
+                {unreadNotifications > 99 ? '99+' : unreadNotifications}
+              </Text>
+            </View>
+          ) : null}
         </TouchableOpacity>
       </View>
     </View>

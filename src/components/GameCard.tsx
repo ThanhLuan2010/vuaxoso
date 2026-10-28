@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 import { GameModel, DrawModel } from '../store/useAppStore';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../theme/theme';
 import { Users } from 'lucide-react-native';
@@ -95,6 +95,8 @@ export default function GameCard({ item, activeDraw, onPress, isHorizontal = fal
     if (isKeno) return '2.000.000.000đ';
     if (isMax3d) return '30.000.000.000đ';
     if (isLotto) return isLotto570 ? '10.000.000.000đ' : '6.387.047.500đ';
+    if (isDienToan636) return '500.000.000đ';
+    if (isThanTai4) return '179.000.000đ';
     return '';
   };
 
@@ -106,20 +108,29 @@ export default function GameCard({ item, activeDraw, onPress, isHorizontal = fal
 
   if (isHorizontal && isXoSo3Mien) {
     return (
-      <TouchableOpacity style={styles.horizontalCard} onPress={onPress}>
-        <View style={styles.horizontalLeft}>
-          <Text style={[styles.lottoGreenSmall, { color: '#E51F27' }]}>XỔ SỐ</Text>
-          <Text style={[styles.lottoGreenBig, { color: '#1A4B7A', fontSize: 20 }]}>3 MIỀN</Text>
+      <TouchableOpacity style={[styles.horizontalCard, { overflow: 'visible', paddingRight: 85, position: 'relative' }]} onPress={onPress}>
+        <View style={{ alignItems: 'center', justifyContent: 'center', minWidth: 85 }}>
+          <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#1A4B7A' }}>Tỉ lệ</Text>
+          <Text style={{ fontSize: 34, fontWeight: '900', color: '#D0021B', lineHeight: 38 }}>99.9</Text>
         </View>
 
-        <View style={styles.horizontalCenter}>
-          <Text style={styles.horizontalTitleLabel}>ĐÁNH LÔ ĐỀ</Text>
-          <Text style={[styles.horizontalPrize, { color: '#D0021B', fontSize: 13, marginTop: 4 }]}>Bao Lô, Đánh Đề, Xiên</Text>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#00A859', marginBottom: 2 }}>ĐÁNH LÔ ĐỀ</Text>
+          <Text style={{ fontSize: 14, fontWeight: '900', color: '#D0021B' }}>USDT/BANK/VISA</Text>
         </View>
 
-        <View style={styles.horizontalRight}>
-          <RedPouchIcon />
-        </View>
+        <Image 
+          source={require('../assets/images/ic_thantai.png')} 
+          style={{
+            position: 'absolute',
+            right: 2,
+            bottom: -6,
+            width: 95,
+            height: 105,
+            resizeMode: 'contain',
+            zIndex: 10
+          }} 
+        />
       </TouchableOpacity>
     );
   }
@@ -161,20 +172,28 @@ export default function GameCard({ item, activeDraw, onPress, isHorizontal = fal
         ) : <View />}
 
         {/* Right Green Pills */}
-        {isKeno && (
+        {item.badge ? (
           <View style={styles.badgeGreen}>
-            <Text style={styles.badgeGreenText}>8p-1 kỳ</Text>
+            <Text style={styles.badgeGreenText}>{item.badge}</Text>
           </View>
-        )}
-        {isMax3d && (
-          <View style={styles.badgeGreen}>
-            <Text style={styles.badgeGreenText}>Hôm nay xổ</Text>
-          </View>
-        )}
-        {isDienToan636 && (
-          <View style={[styles.badgeGreen, { backgroundColor: '#00A859' }]}>
-            <Text style={styles.badgeGreenText}>T4 & T7</Text>
-          </View>
+        ) : (
+          <>
+            {isKeno && (
+              <View style={styles.badgeGreen}>
+                <Text style={styles.badgeGreenText}>8p-1 kỳ</Text>
+              </View>
+            )}
+            {isMax3d && (
+              <View style={styles.badgeGreen}>
+                <Text style={styles.badgeGreenText}>Hôm nay xổ</Text>
+              </View>
+            )}
+            {isDienToan636 && (
+              <View style={[styles.badgeGreen, { backgroundColor: '#00A859' }]}>
+                <Text style={styles.badgeGreenText}>T4 & T7</Text>
+              </View>
+            )}
+          </>
         )}
       </View>
 
@@ -305,7 +324,7 @@ export default function GameCard({ item, activeDraw, onPress, isHorizontal = fal
             {isDienToan636 && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.goldRateText}>🏆 6 Tỷ Đồng</Text>}
             {isTruotLoto && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.orangeRateText}>🏆 x12 lần</Text>}
             {isThanTai4 && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.orangeRateText}>🏆 x1220 lần</Text>}
-            {isBingo18 && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.orangeRateText}>10 phút - 1 kỳ</Text>}
+            {isBingo18 && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.orangeRateText}>6 phút - 1 kỳ</Text>}
             {isBao636 && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.orangeRateText}>Chọn nhanh - Trúng lớn</Text>}
             {isBaoLoto2 && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.orangeRateText}>Chọn nhanh - Trúng lớn</Text>}
           </>

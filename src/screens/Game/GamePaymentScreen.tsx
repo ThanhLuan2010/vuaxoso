@@ -59,14 +59,16 @@ export default function GamePaymentScreen({ route, navigation }: any) {
       // If drawDate is passed (KienThiet games), just pass drawId as drawDate for now, or fetch active draw
       const targetDrawIds = drawIds && drawIds.length > 0 ? drawIds : [drawDate || 'DUMMY_DRAW_ID'];
 
-      for (const drawId of targetDrawIds) {
-        await api.post('/orders', {
-          gameType: gameId,
-          playType: playType,
-          drawId: drawId,
-          items: itemsPayload
-        });
-      }
+      const ordersPayload = targetDrawIds.map((drawId: string) => ({
+        gameType: gameId,
+        playType: playType,
+        drawId: drawId,
+        provinceName: route.params?.provinceName,
+        drawDate: drawDate,
+        items: itemsPayload
+      }));
+
+      await api.post('/orders/checkout', { orders: ordersPayload });
 
       await fetchProfile();
 
@@ -169,17 +171,33 @@ export default function GamePaymentScreen({ route, navigation }: any) {
               {boards.slice(0, 10).map((board: any, idx: number) => (
                 <View key={board.id} style={styles.boardDetailRow}>
                   <Text style={styles.boardDetailId}>Dãy {board.id}:</Text>
-                  <Text style={styles.boardDetailNumbers}>
-                    {board.isTC
-                      ? 'Tự chọn (TC)'
-                      : gameId === 'lotto_535'
+                  {board.isTC ? (
+                    <Text style={styles.boardDetailNumbers}>Tự chọn (TC)</Text>
+                  ) : board.numbers && board.numbers.length > 10 ? (
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.boardDetailNumbers}>
+                        {board.numbers.slice(0, 10).join(', ')}
+                      </Text>
+                      <TouchableOpacity
+                        onPress={() => setAllBoardsModalVisible(true)}
+                        style={{ marginTop: 2 }}
+                      >
+                        <Text style={{ color: '#0084FA', fontWeight: 'bold', fontSize: 12 }}>
+                          +{board.numbers.length - 10} số khác (Xem thêm)
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <Text style={styles.boardDetailNumbers}>
+                      {gameId === 'lotto_535'
                         ? `${board.numbers.join(' ')} | ${board.specialNumbers ? board.specialNumbers.join(' ') : ''}`
                         : ((gameId === 'loto_235' && playType.includes('Bao 2 số')) || (gameId === 'dientoan_636' && playType.includes('Bao')))
                           ? `Danh sách bộ số: ${board.numbers.join(', ')}`
                           : (gameId === 'max_3d' && board.numbers.length === 6)
                             ? `${board.numbers.slice(0, 3).join(' ')} | ${board.numbers.slice(3, 6).join(' ')}`
                             : board.numbers.join(' ')}
-                  </Text>
+                    </Text>
+                  )}
                 </View>
               ))}
               {boards.length > 10 && (

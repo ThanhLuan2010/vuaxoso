@@ -6,6 +6,7 @@ import AppNavigator from './src/navigation/AppNavigator';
 import Toast from 'react-native-toast-message';
 
 import { useAppStore } from './src/store/useAppStore';
+import { initPushNotification } from './src/services/notificationService';
 
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
@@ -13,6 +14,17 @@ function App(): React.JSX.Element {
 
   React.useEffect(() => {
     restoreSession();
+
+    let unsubscribe: (() => void) | undefined;
+    initPushNotification().then(cleanup => {
+      unsubscribe = cleanup;
+    });
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, [restoreSession]);
 
   return (

@@ -17,7 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ChevronLeft, PlusCircle, Trash2, CreditCard, Wallet } from 'lucide-react-native';
 import { COLORS, TYPOGRAPHY, SPACING, BORDER_RADIUS } from '../../theme/theme';
 import { useAppStore } from '../../store/useAppStore';
-import api from '../../services/api';
+import api, { DOMAIN_URL } from '../../services/api';
 import { launchImageLibrary } from 'react-native-image-picker';
 import DropDownPicker from 'react-native-dropdown-picker';
 
@@ -87,7 +87,7 @@ export default function PaymentMethodsScreen() {
     setIsSaving(true);
     try {
       const res = await updateProfile({ banks: updatedBanks, wallets: updatedWallets } as any);
-      
+
       if (res.success) {
         // the store will update the user, so we should sync local state
         const updatedUser = useAppStore.getState().user;
@@ -127,9 +127,9 @@ export default function PaymentMethodsScreen() {
   const handleSelectImage = async () => {
     const result = await launchImageLibrary({ mediaType: 'photo', quality: 0.8 });
     if (result.didCancel || !result.assets?.[0]) return;
-    
+
     const asset = result.assets[0];
-    
+
     setIsUploading(true);
     try {
       const formData = new FormData();
@@ -150,9 +150,9 @@ export default function PaymentMethodsScreen() {
       // Assuming api-vuaxoso.vipmarts.com is the backend, it serves /uploads
       let fullUrl = res.data.url;
       if (fullUrl && fullUrl.startsWith('/')) {
-        fullUrl = api.defaults.baseURL?.replace('/api', '') + fullUrl;
+        fullUrl = DOMAIN_URL + fullUrl;
       }
-      
+
       setNewWallet({ ...newWallet, qrCode: fullUrl });
     } catch (err: any) {
       Alert.alert('Lỗi', err.response?.data?.message || 'Lỗi tải ảnh lên');
@@ -164,9 +164,9 @@ export default function PaymentMethodsScreen() {
   const handleSelectBankQr = async () => {
     const result = await launchImageLibrary({ mediaType: 'photo', quality: 0.8 });
     if (result.didCancel || !result.assets?.[0]) return;
-    
+
     const asset = result.assets[0];
-    
+
     setIsUploadingBankQr(true);
     try {
       const formData = new FormData();
@@ -184,9 +184,9 @@ export default function PaymentMethodsScreen() {
 
       let fullUrl = res.data.url;
       if (fullUrl && fullUrl.startsWith('/')) {
-        fullUrl = api.defaults.baseURL?.replace('/api', '') + fullUrl;
+        fullUrl = DOMAIN_URL + fullUrl;
       }
-      
+
       setNewBank({ ...newBank, qrCode: fullUrl });
     } catch (err: any) {
       Alert.alert('Lỗi', err.response?.data?.message || 'Lỗi tải ảnh lên');
@@ -194,17 +194,18 @@ export default function PaymentMethodsScreen() {
       setIsUploadingBankQr(false);
     }
   };
+  console.log("===newBank===", newBank)
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      
+
       {/* Header */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
           <ChevronLeft size={28} color="#FFF" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Phương thức nhận tiền</Text>
+        <Text style={styles.headerTitle}>Phương thức nhận tiềns</Text>
       </View>
 
       <ScrollView style={styles.content} contentContainerStyle={[styles.contentContainer, { paddingBottom: insets.bottom + 40 }]} showsVerticalScrollIndicator={false}>
@@ -214,7 +215,7 @@ export default function PaymentMethodsScreen() {
             <CreditCard size={20} color={COLORS.primary} />
             <Text style={styles.sectionTitle}>Tài khoản Ngân Hàng ({banks.length}/2)</Text>
           </View>
-          
+
           {banks.map((bank: any, index: number) => (
             <View key={`bank-${index}`} style={styles.card}>
               <View style={styles.cardInfo}>
@@ -223,7 +224,7 @@ export default function PaymentMethodsScreen() {
                 <Text style={styles.cardDesc}>{bank.accountName}</Text>
               </View>
               {bank.qrCode && (
-                <Image source={{ uri: bank.qrCode.startsWith('/') ? `${api.defaults.baseURL?.replace('/api', '')}${bank.qrCode}` : bank.qrCode }} style={{ width: 40, height: 40, borderRadius: 4 }} />
+                <Image source={{ uri: bank.qrCode.startsWith('/') ? `${DOMAIN_URL}${bank.qrCode}` : bank.qrCode }} style={{ width: 40, height: 40, borderRadius: 4 }} />
               )}
             </View>
           ))}
@@ -244,7 +245,7 @@ export default function PaymentMethodsScreen() {
                 setOpen={setBankDropdownOpen}
                 setValue={(callback) => {
                   const val = typeof callback === 'function' ? callback(newBank.bankName) : callback;
-                  setNewBank({...newBank, bankName: val as string});
+                  setNewBank({ ...newBank, bankName: val as string });
                 }}
                 placeholder="Chọn Ngân Hàng"
                 style={{ borderColor: '#E2E8F0', borderWidth: 1, marginBottom: 12, height: 48, borderRadius: 8, backgroundColor: '#F8FAFC' }}
@@ -258,14 +259,14 @@ export default function PaymentMethodsScreen() {
                 placeholder="Số Tài Khoản"
                 keyboardType="numeric"
                 value={newBank.accountNumber}
-                onChangeText={t => setNewBank({...newBank, accountNumber: t})}
+                onChangeText={t => setNewBank({ ...newBank, accountNumber: t })}
               />
               <TextInput
                 style={styles.input}
                 placeholder="Tên Chủ Thẻ"
                 autoCapitalize="words"
                 value={newBank.accountName}
-                onChangeText={t => setNewBank({...newBank, accountName: t})}
+                onChangeText={t => setNewBank({ ...newBank, accountName: t })}
               />
               <TouchableOpacity style={styles.qrUploadBtn} onPress={handleSelectBankQr}>
                 {newBank.qrCode ? (
@@ -297,7 +298,7 @@ export default function PaymentMethodsScreen() {
             <Wallet size={20} color="#52c41a" />
             <Text style={styles.sectionTitle}>Ví USDT / Binance ({wallets.length}/2)</Text>
           </View>
-          
+
           {wallets.map((wallet: any, index: number) => (
             <View key={`wallet-${index}`} style={styles.card}>
               <View style={styles.cardInfo}>
@@ -305,7 +306,7 @@ export default function PaymentMethodsScreen() {
                 <Text style={styles.cardDesc}>{wallet.address}</Text>
               </View>
               {wallet.qrCode && (
-                <Image source={{ uri: wallet.qrCode.startsWith('/') ? `${api.defaults.baseURL?.replace('/api', '')}${wallet.qrCode}` : wallet.qrCode }} style={{ width: 40, height: 40, borderRadius: 4 }} />
+                <Image source={{ uri: wallet.qrCode.startsWith('/') ? `${DOMAIN_URL}${wallet.qrCode}` : wallet.qrCode }} style={{ width: 40, height: 40, borderRadius: 4 }} />
               )}
             </View>
           ))}
@@ -320,21 +321,21 @@ export default function PaymentMethodsScreen() {
           {addingWallet && (
             <View style={styles.formContainer}>
               <View style={styles.networkSelect}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.networkBtn, newWallet.network === 'BEP20' && styles.networkBtnActive]}
-                  onPress={() => setNewWallet({...newWallet, network: 'BEP20'})}
+                  onPress={() => setNewWallet({ ...newWallet, network: 'BEP20' })}
                 >
                   <Text style={[styles.networkText, newWallet.network === 'BEP20' && styles.networkTextActive]}>BEP20</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.networkBtn, newWallet.network === 'TRC20' && styles.networkBtnActive]}
-                  onPress={() => setNewWallet({...newWallet, network: 'TRC20'})}
+                  onPress={() => setNewWallet({ ...newWallet, network: 'TRC20' })}
                 >
                   <Text style={[styles.networkText, newWallet.network === 'TRC20' && styles.networkTextActive]}>TRC20</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.networkBtn, newWallet.network === 'Binance Pay' && styles.networkBtnActive]}
-                  onPress={() => setNewWallet({...newWallet, network: 'Binance Pay'})}
+                  onPress={() => setNewWallet({ ...newWallet, network: 'Binance Pay' })}
                 >
                   <Text style={[styles.networkText, newWallet.network === 'Binance Pay' && styles.networkTextActive]}>Binance Pay</Text>
                 </TouchableOpacity>
@@ -343,9 +344,9 @@ export default function PaymentMethodsScreen() {
                 style={styles.input}
                 placeholder={newWallet.network === 'Binance Pay' ? 'Binance Pay ID / Email / SĐT' : 'Địa chỉ ví USDT'}
                 value={newWallet.address}
-                onChangeText={t => setNewWallet({...newWallet, address: t})}
+                onChangeText={t => setNewWallet({ ...newWallet, address: t })}
               />
-              
+
               <TouchableOpacity style={styles.qrUploadBtn} onPress={handleSelectImage}>
                 {newWallet.qrCode ? (
                   <Image source={{ uri: newWallet.qrCode }} style={{ width: 80, height: 80, borderRadius: 8 }} />

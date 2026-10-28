@@ -4,6 +4,12 @@
 /Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/Debug/1p731f2q/x86_64/AsyncStorageSpec_autolinked_build/CMakeFiles/react_codegen_AsyncStorageSpec.dir
 /Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/Debug/1p731f2q/x86_64/AsyncStorageSpec_autolinked_build/CMakeFiles/edit_cache.dir
 /Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/Debug/1p731f2q/x86_64/AsyncStorageSpec_autolinked_build/CMakeFiles/rebuild_cache.dir
+/Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/Debug/1p731f2q/x86_64/RNFBAppTurboModules_autolinked_build/CMakeFiles/react_codegen_RNFBAppTurboModules.dir
+/Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/Debug/1p731f2q/x86_64/RNFBAppTurboModules_autolinked_build/CMakeFiles/edit_cache.dir
+/Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/Debug/1p731f2q/x86_64/RNFBAppTurboModules_autolinked_build/CMakeFiles/rebuild_cache.dir
+/Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/Debug/1p731f2q/x86_64/RNFBMessagingTurboModules_autolinked_build/CMakeFiles/react_codegen_RNFBMessagingTurboModules.dir
+/Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/Debug/1p731f2q/x86_64/RNFBMessagingTurboModules_autolinked_build/CMakeFiles/edit_cache.dir
+/Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/Debug/1p731f2q/x86_64/RNFBMessagingTurboModules_autolinked_build/CMakeFiles/rebuild_cache.dir
 /Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/Debug/1p731f2q/x86_64/RNImagePickerSpec_autolinked_build/CMakeFiles/react_codegen_RNImagePickerSpec.dir
 /Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/Debug/1p731f2q/x86_64/RNImagePickerSpec_autolinked_build/CMakeFiles/edit_cache.dir
 /Users/luannguyen/Documents/git/vuaxoso/android/app/.cxx/Debug/1p731f2q/x86_64/RNImagePickerSpec_autolinked_build/CMakeFiles/rebuild_cache.dir

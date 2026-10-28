@@ -23,6 +23,7 @@ interface NotificationItem {
   time: string;
   type: 'order' | 'win' | 'deposit' | 'promo';
   orderId?: string; // Used for order redirection
+  isRead?: boolean;
 }
 
 interface NotificationSection {
@@ -33,28 +34,53 @@ interface NotificationSection {
 export default function NotificationsScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
-  const { clearNotifications } = useAppStore();
+  const { markAllNotificationsAsRead, clearNotifications } = useAppStore();
   const [notificationData, setNotificationData] = useState<NotificationSection[]>([]);
+  const [allNotifications, setAllNotifications] = useState<any[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      fetchNotifications();
-      clearNotifications();
-    }, [clearNotifications])
-  );
+  const groupNotifications = (list: any[]) => {
+    const groups: Record<string, NotificationItem[]> = {};
 
-  const onRefresh = React.useCallback(() => {
-    fetchNotifications(true);
-    clearNotifications();
-  }, [clearNotifications]);
+    list.forEach((n: any) => {
+      const dateObj = new Date(n.createdAt);
+      const dateStr = `${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${dateObj.getFullYear()}`;
+      const timeStr = `${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}:${String(dateObj.getSeconds()).padStart(2, '0')}`;
+      
+      const item: NotificationItem = {
+        id: n._id || n.id,
+        title: n.title,
+        body: n.body,
+        time: timeStr,
+        type: n.type,
+        orderId: n.orderId,
+        isRead: n.isRead,
+      };
 
-  const fetchNotifications = async (isRefresh = false) => {
+      if (!groups[dateStr]) groups[dateStr] = [];
+      groups[dateStr].push(item);
+    });
+
+    return Object.keys(groups).map((k) => ({ title: k, data: groups[k] }));
+  };
+
+  const fetchNotifications = async (pageNum = 1, isRefresh = false) => {
     try {
-      if (isRefresh) setRefreshing(true);
-      else setLoading(true);
-      const res = await api.get('/notifications/my-notifications');
+      if (isRefresh) {
+        setRefreshing(true);
+      } else if (pageNum === 1) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+
+      const res = await api.get('/notifications/my-notifications', {
+        params: { page: pageNum, limit: 10 }
+      });
       let notifications = res.data;
       
       // Handle potential wrapped response or non-array
@@ -64,35 +90,41 @@ export default function NotificationsScreen() {
         notifications = [];
       }
 
-      // Group by date string
-      const groups: Record<string, NotificationItem[]> = {};
+      let combined: any[] = [];
+      if (pageNum === 1) {
+        combined = notifications;
+      } else {
+        combined = [...allNotifications, ...notifications];
+      }
 
-      notifications.forEach((n: any) => {
-        const dateObj = new Date(n.createdAt);
-        const dateStr = `${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${dateObj.getFullYear()}`;
-        const timeStr = `${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}:${String(dateObj.getSeconds()).padStart(2, '0')}`;
-        
-        const item: NotificationItem = {
-          id: n._id,
-          title: n.title,
-          body: n.body,
-          time: timeStr,
-          type: n.type,
-          orderId: n.orderId
-        };
-
-        if (!groups[dateStr]) groups[dateStr] = [];
-        groups[dateStr].push(item);
-      });
-
-      const sections = Object.keys(groups).map(k => ({ title: k, data: groups[k] }));
-
-      setNotificationData(sections);
+      setAllNotifications(combined);
+      setNotificationData(groupNotifications(combined));
+      setHasMore(notifications.length === 10);
+      setPage(pageNum);
     } catch (error) {
       console.error('Error fetching notifications:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
+      setLoadingMore(false);
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchNotifications(1);
+      markAllNotificationsAsRead();
+    }, [markAllNotificationsAsRead])
+  );
+
+  const onRefresh = React.useCallback(() => {
+    fetchNotifications(1, true);
+    markAllNotificationsAsRead();
+  }, [markAllNotificationsAsRead]);
+
+  const handleLoadMore = () => {
+    if (!loading && !loadingMore && !refreshing && hasMore) {
+      fetchNotifications(page + 1);
     }
   };
 
@@ -184,11 +216,26 @@ export default function NotificationsScreen() {
       ) : (
         <SectionList
           sections={notificationData}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item, index) => item.id || `${index}`}
           renderItem={renderItem}
           renderSectionHeader={renderSectionHeader}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.3}
+          ListFooterComponent={
+            loadingMore ? (
+              <View style={{ paddingVertical: 14, alignItems: 'center' }}>
+                <ActivityIndicator size="small" color="#0A3B7C" />
+              </View>
+            ) : !hasMore && notificationData.length > 0 ? (
+              <View style={{ paddingVertical: 14, alignItems: 'center' }}>
+                <Text style={{ color: COLORS.gray400, fontSize: 12, textAlign: 'center' }}>
+                  Đã tải hết thông báo
+                </Text>
+              </View>
+            ) : null
+          }
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
           }

@@ -1,8 +1,8 @@
 if(NOT TARGET hermes-engine::hermesvm)
 add_library(hermes-engine::hermesvm SHARED IMPORTED)
 set_target_properties(hermes-engine::hermesvm PROPERTIES
-    IMPORTED_LOCATION "/Users/luannguyen/.gradle/caches/9.3.1/transforms/09e67ac42fe00929cdf7c316b1464038/transformed/hermes-android-250829098.0.14-debug/prefab/modules/hermesvm/libs/android.x86/libhermesvm.so"
-    INTERFACE_INCLUDE_DIRECTORIES "/Users/luannguyen/.gradle/caches/9.3.1/transforms/09e67ac42fe00929cdf7c316b1464038/transformed/hermes-android-250829098.0.14-debug/prefab/modules/hermesvm/include"
+    IMPORTED_LOCATION "/Users/luannguyen/.gradle/caches/9.3.1/transforms/b16a7e2c2d86db5d4425023797a396d6/transformed/hermes-android-250829098.0.14-debug/prefab/modules/hermesvm/libs/android.x86/libhermesvm.so"
+    INTERFACE_INCLUDE_DIRECTORIES "/Users/luannguyen/.gradle/caches/9.3.1/transforms/b16a7e2c2d86db5d4425023797a396d6/transformed/hermes-android-250829098.0.14-debug/prefab/modules/hermesvm/include"
     INTERFACE_LINK_LIBRARIES ""
 )
 endif()

@@ -9,6 +9,7 @@ import {
   ScrollView,
   StatusBar,
   Dimensions,
+  RefreshControl,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -90,13 +91,18 @@ export default function VietlottDetailScreen() {
   const [pastDraws, setPastDraws] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
-  const fetchDraws = async (pageNum: number) => {
+  const fetchDraws = async (pageNum: number, isRefresh = false) => {
     // Nếu không có code thì không thể fetch
-    if (!code || loading || (!hasMore && pageNum > 1)) return;
+    if (!code || loading || (!hasMore && pageNum > 1 && !isRefresh)) return;
     try {
-      setLoading(true);
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
       const res = await api.get(`/draws/results?code=${code}&page=${pageNum}&limit=10`);
       const data = res.data;
       if (pageNum === 1) {
@@ -110,6 +116,7 @@ export default function VietlottDetailScreen() {
       console.log('Error fetching draws', err);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -117,8 +124,14 @@ export default function VietlottDetailScreen() {
     fetchDraws(1);
   }, [code]);
 
+  const onRefresh = () => {
+    fetchDraws(1, true);
+  };
+
   const handleLoadMore = () => {
-    fetchDraws(page + 1);
+    if (!loading && !refreshing && hasMore) {
+      fetchDraws(page + 1);
+    }
   };
 
   const renderHeader = () => (
@@ -440,7 +453,21 @@ export default function VietlottDetailScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={COLORS.cardBackground} />
       {renderHeader()}
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        contentContainerStyle={styles.content} 
+        showsVerticalScrollIndicator={false}
+        scrollEventThrottle={400}
+        onScroll={({ nativeEvent }) => {
+          const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+          const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 150;
+          if (isCloseToBottom && !loading && !refreshing && hasMore) {
+            handleLoadMore();
+          }
+        }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+        }
+      >
         {isKeno ? renderKeno() : (isMax3D ? renderMax3D() : renderStandardLotto())}
       </ScrollView>
     </View>

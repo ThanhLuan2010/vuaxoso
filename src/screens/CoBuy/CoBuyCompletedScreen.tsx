@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Dimensions, ActivityIndicator, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeft, HelpCircle } from 'lucide-react-native';
 import { COLORS, TYPOGRAPHY, SHADOWS } from '../../theme/theme';
+import api from '../../services/api';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export interface CompletedRoom {
+  _id?: string;
   id: string;
   gameType: 'mega' | 'power';
   roomNum: string;
@@ -85,8 +87,126 @@ export const MOCK_COMPLETED_ROOMS: CompletedRoom[] = [
 export default function CoBuyCompletedScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<'mega' | 'power'>('mega');
+  const [rooms, setRooms] = useState<CompletedRoom[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const rooms = MOCK_COMPLETED_ROOMS.filter(r => r.gameType === activeTab);
+  const fetchRooms = useCallback(async (pageNum = 1, isRefresh = false) => {
+    try {
+      if (isRefresh) {
+        setRefreshing(true);
+      } else if (pageNum === 1) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+
+      const res = await api.get('/cobuy/rooms', {
+        params: {
+          gameType: activeTab,
+          status: 'closed',
+          page: pageNum,
+          limit: 10,
+        }
+      });
+
+      let loaded: CompletedRoom[] = Array.isArray(res.data) ? res.data : [];
+      if (loaded.length === 0 && pageNum === 1) {
+        // Fallback to mock completed rooms if backend has none yet
+        loaded = MOCK_COMPLETED_ROOMS.filter(r => r.gameType === activeTab);
+      }
+
+      if (pageNum === 1) {
+        setRooms(loaded);
+      } else {
+        setRooms(prev => [...prev, ...loaded]);
+      }
+
+      setHasMore(loaded.length === 10);
+      setPage(pageNum);
+    } catch (error) {
+      console.log('Error fetching completed rooms:', error);
+      if (pageNum === 1) {
+        setRooms(MOCK_COMPLETED_ROOMS.filter(r => r.gameType === activeTab));
+      }
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+      setLoadingMore(false);
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    fetchRooms(1);
+  }, [fetchRooms]);
+
+  const onRefresh = useCallback(() => {
+    fetchRooms(1, true);
+  }, [fetchRooms]);
+
+  const handleLoadMore = () => {
+    if (!loading && !loadingMore && !refreshing && hasMore) {
+      fetchRooms(page + 1);
+    }
+  };
+
+  const renderRoomItem = ({ item: room }: { item: CompletedRoom }) => (
+    <TouchableOpacity
+      key={room.id || room._id}
+      style={styles.roomCard}
+      activeOpacity={0.8}
+      onPress={() => navigation.navigate('CoBuyDetail', {
+        roomId: room.id || room._id,
+        roomNum: room.roomNum,
+        baoType: room.baoType,
+        totalCost: room.totalCost,
+        progress: room.progress,
+        minGop: room.minGop,
+        isCompleted: true,
+        gameType: room.gameType
+      })}
+    >
+      {/* Left Col */}
+      <View style={styles.leftCol}>
+        <Text style={styles.gameCode}>{room.gameType === 'mega' ? 'ĐT 6/45' : 'ĐT 6/55'}</Text>
+        <Text style={styles.baoLabel}>Bao {room.baoType}</Text>
+        <Text style={styles.myShareLabel}>Bạn đã góp</Text>
+        <Text style={styles.myShareVal}>0%</Text>
+      </View>
+
+      {/* Divider line */}
+      <View style={styles.cardDivider} />
+
+      {/* Center Col */}
+      <View style={styles.centerCol}>
+        <Text style={styles.detailRow}>
+          <Text style={styles.detailLabel}>Nhóm: </Text>
+          <Text style={styles.detailValBold}>{room.roomNum}</Text>
+        </Text>
+        <Text style={styles.detailRow}>
+          <Text style={styles.detailLabel}>Góp tối thiểu: </Text>
+          <Text style={styles.detailValRed}>{room.minGop.toLocaleString('vi-VN')}đ</Text>
+        </Text>
+        <Text style={styles.detailRow}>
+          <Text style={styles.detailLabel}>Kỳ quay: </Text>
+          <Text style={styles.detailVal}>{room.drawNum} - {room.drawDate}</Text>
+        </Text>
+        <Text style={styles.detailRow}>
+          <Text style={styles.detailLabel}>Thời gian đóng: </Text>
+          <Text style={styles.detailVal}>{room.closeTime} - {room.drawDate}</Text>
+        </Text>
+      </View>
+
+      {/* Progress Badge */}
+      <View style={styles.badgeRibbon}>
+        <Text style={styles.badgeTextSmall}>Hoàn thành</Text>
+        <Text style={styles.badgeTextLarge}>{room.progress}%</Text>
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
@@ -106,14 +226,28 @@ export default function CoBuyCompletedScreen({ navigation }: any) {
       <View style={styles.tabBar}>
         <TouchableOpacity
           style={[styles.tabItem, activeTab === 'mega' && styles.tabItemActive]}
-          onPress={() => setActiveTab('mega')}
+          onPress={() => {
+            if (activeTab !== 'mega') {
+              setActiveTab('mega');
+              setPage(1);
+              setRooms([]);
+              setHasMore(true);
+            }
+          }}
         >
           <Text style={[styles.tabLabel, { color: '#E51F27' }]}>MEGA</Text>
           <Text style={[styles.tabValue, { color: '#E51F27' }, activeTab === 'mega' && styles.tabTextActive]}>6/45</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tabItem, activeTab === 'power' && styles.tabItemActive]}
-          onPress={() => setActiveTab('power')}
+          onPress={() => {
+            if (activeTab !== 'power') {
+              setActiveTab('power');
+              setPage(1);
+              setRooms([]);
+              setHasMore(true);
+            }
+          }}
         >
           <Text style={[styles.tabLabel, { color: '#D87A00' }]}>POWER</Text>
           <Text style={[styles.tabValue, { color: '#D87A00' }, activeTab === 'power' && styles.tabTextActive]}>6/55</Text>
@@ -121,61 +255,39 @@ export default function CoBuyCompletedScreen({ navigation }: any) {
       </View>
 
       {/* Rooms List */}
-      <ScrollView contentContainerStyle={styles.scrollList} showsVerticalScrollIndicator={false}>
-        {rooms.map((room) => (
-          <TouchableOpacity
-            key={room.id}
-            style={styles.roomCard}
-            onPress={() => navigation.navigate('CoBuyDetail', {
-              roomId: room.id,
-              roomNum: room.roomNum,
-              baoType: room.baoType,
-              totalCost: room.totalCost,
-              progress: room.progress,
-              minGop: room.minGop,
-              isCompleted: true,
-              gameType: room.gameType
-            })}
-          >
-            {/* Left Col */}
-            <View style={styles.leftCol}>
-              <Text style={styles.gameCode}>{room.gameType === 'mega' ? 'ĐT 6/45' : 'ĐT 6/55'}</Text>
-              <Text style={styles.baoLabel}>Bao {room.baoType}</Text>
-              <Text style={styles.myShareLabel}>Bạn đã góp</Text>
-              <Text style={styles.myShareVal}>0%</Text>
-            </View>
-
-            {/* Divider line */}
-            <View style={styles.cardDivider} />
-
-            {/* Center Col */}
-            <View style={styles.centerCol}>
-              <Text style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Nhóm: </Text>
-                <Text style={styles.detailValBold}>{room.roomNum}</Text>
-              </Text>
-              <Text style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Góp tối thiểu: </Text>
-                <Text style={styles.detailValRed}>{room.minGop.toLocaleString('vi-VN')}đ</Text>
-              </Text>
-              <Text style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Kỳ quay: </Text>
-                <Text style={styles.detailVal}>{room.drawNum} - {room.drawDate}</Text>
-              </Text>
-              <Text style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Thời gian đóng: </Text>
-                <Text style={styles.detailVal}>{room.closeTime} - {room.drawDate}</Text>
-              </Text>
-            </View>
-
-            {/* Progress Badge */}
-            <View style={styles.badgeRibbon}>
-              <Text style={styles.badgeTextSmall}>Hoàn thành</Text>
-              <Text style={styles.badgeTextLarge}>{room.progress}%</Text>
-            </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      {loading && !refreshing ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
+      ) : rooms.length === 0 ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ color: COLORS.gray500, fontSize: 14 }}>Không có nhóm hoàn thành</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={rooms}
+          keyExtractor={(item, index) => item.id || item._id || `${index}`}
+          renderItem={renderRoomItem}
+          contentContainerStyle={styles.scrollList}
+          showsVerticalScrollIndicator={false}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.3}
+          ListFooterComponent={
+            loadingMore ? (
+              <View style={{ paddingVertical: 14, alignItems: 'center' }}>
+                <ActivityIndicator size="small" color={COLORS.primary} />
+              </View>
+            ) : !hasMore && rooms.length > 0 ? (
+              <View style={{ paddingVertical: 14, alignItems: 'center' }}>
+                <Text style={{ color: COLORS.gray400, fontSize: 12 }}>Đã hiển thị tất cả các phòng</Text>
+              </View>
+            ) : null
+          }
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+          }
+        />
+      )}
     </View>
   );
 }

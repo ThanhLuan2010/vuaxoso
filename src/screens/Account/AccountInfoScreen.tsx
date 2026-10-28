@@ -20,14 +20,14 @@ import { ChevronLeft, UserCircle2, Info, Camera, CheckCircle2 } from 'lucide-rea
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import { COLORS, TYPOGRAPHY, SPACING, BORDER_RADIUS } from '../../theme/theme';
 import { useAppStore } from '../../store/useAppStore';
-import api from '../../services/api';
+import api, { DOMAIN_URL } from '../../services/api';
 
 export default function AccountInfoScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
 
   const { user, updateProfile, sendEmailOtp, verifyEmailOtp } = useAppStore();
-
+  console.log("===user===", user)
   const [name, setName] = useState(user?.name || '');
   const [idCard, setIdCard] = useState(user?.cccdNumber || '');
   const [address, setAddress] = useState(user?.address || '');
@@ -69,7 +69,7 @@ export default function AccountInfoScreen() {
                 console.warn(err);
               }
             }
-            
+
             const result = await launchCamera({
               mediaType: 'photo',
               quality: 0.8,
@@ -96,7 +96,7 @@ export default function AccountInfoScreen() {
                 console.warn(err);
               }
             }
-            
+
             const result = await launchImageLibrary({
               mediaType: 'photo',
               quality: 0.8,
@@ -145,7 +145,7 @@ export default function AccountInfoScreen() {
       Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ Họ và tên, CMND/CCCD, Địa chỉ, Email và tải lên Ảnh mặt trước CCCD.');
       return;
     }
-    
+
     setIsSaving(true);
     const res = await updateProfile({
       name,
@@ -154,7 +154,7 @@ export default function AccountInfoScreen() {
       email,
       cccdImage,
     });
-    
+
     setIsSaving(false);
     if (res.success) {
       Alert.alert('Thành công', 'Cập nhật thông tin tài khoản thành công', [
@@ -170,11 +170,11 @@ export default function AccountInfoScreen() {
       Alert.alert('Lỗi', 'Vui lòng nhập email trước khi xác thực');
       return;
     }
-    
+
     setIsSendingOtp(true);
     const res = await sendEmailOtp(email);
     setIsSendingOtp(false);
-    
+
     if (res.success) {
       setShowOtpModal(true);
       Alert.alert('Thành công', res.message || 'Đã gửi mã OTP đến email của bạn');
@@ -188,11 +188,11 @@ export default function AccountInfoScreen() {
       Alert.alert('Lỗi', 'Vui lòng nhập mã OTP');
       return;
     }
-    
+
     setIsVerifyingOtp(true);
     const res = await verifyEmailOtp(otp);
     setIsVerifyingOtp(false);
-    
+
     if (res.success) {
       setShowOtpModal(false);
       setOtp('');
@@ -215,16 +215,15 @@ export default function AccountInfoScreen() {
   const getImageUrl = (path: string) => {
     if (!path) return '';
     if (path.startsWith('http')) return path;
-    const baseURL = api.defaults.baseURL as string;
-    const host = baseURL.replace('/api', '');
-    return `${host}${path}`;
+    return `${DOMAIN_URL}${path}`;
   };
+
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#F5F5F5" />
       {renderHeader()}
-      
+
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 80 }]} showsVerticalScrollIndicator={false}>
         <View style={styles.avatarWrapper}>
           <UserCircle2 size={80} color="#0A3B7C" strokeWidth={1} />
@@ -232,7 +231,7 @@ export default function AccountInfoScreen() {
 
         <View style={styles.inputGroup}>
           <Text style={styles.inputLabel}>Họ và tên <Text style={styles.asterisk}>*</Text></Text>
-          <TextInput 
+          <TextInput
             style={styles.input}
             value={name}
             onChangeText={setName}
@@ -244,7 +243,7 @@ export default function AccountInfoScreen() {
 
         <View style={styles.inputGroup}>
           <Text style={styles.inputLabel}>CMND/CCCD <Text style={styles.asterisk}>*</Text></Text>
-          <TextInput 
+          <TextInput
             style={styles.input}
             value={idCard}
             onChangeText={setIdCard}
@@ -257,7 +256,7 @@ export default function AccountInfoScreen() {
 
         <View style={styles.inputGroup}>
           <Text style={styles.inputLabel}>Địa chỉ <Text style={styles.asterisk}>*</Text></Text>
-          <TextInput 
+          <TextInput
             style={styles.input}
             value={address}
             onChangeText={setAddress}
@@ -270,7 +269,7 @@ export default function AccountInfoScreen() {
         <View style={styles.inputGroup}>
           <Text style={styles.inputLabel}>Email</Text>
           <View style={styles.emailRow}>
-            <TextInput 
+            <TextInput
               style={[styles.input, { flex: 1 }]}
               value={email}
               onChangeText={setEmail}
@@ -285,8 +284,8 @@ export default function AccountInfoScreen() {
                 <Text style={styles.verifiedText}>Đã xác thực</Text>
               </View>
             ) : (
-              <TouchableOpacity 
-                style={styles.verifyBtn} 
+              <TouchableOpacity
+                style={styles.verifyBtn}
                 onPress={handleSendOtp}
                 disabled={isSendingOtp || !email.trim()}
               >
@@ -302,8 +301,8 @@ export default function AccountInfoScreen() {
 
         <View style={styles.inputGroup}>
           <Text style={styles.inputLabel}>Ảnh CMND/CCCD (Mặt trước)</Text>
-          <TouchableOpacity 
-            style={styles.imageUploadBtn} 
+          <TouchableOpacity
+            style={styles.imageUploadBtn}
             onPress={handleSelectImage}
             disabled={isUploading || isInfoUpdated}
           >
@@ -331,8 +330,8 @@ export default function AccountInfoScreen() {
 
       {!isInfoUpdated && (
         <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-          <TouchableOpacity 
-            style={[styles.submitBtn, isSaving && { opacity: 0.7 }]} 
+          <TouchableOpacity
+            style={[styles.submitBtn, isSaving && { opacity: 0.7 }]}
             onPress={handleSave}
             disabled={isSaving}
           >
@@ -351,7 +350,7 @@ export default function AccountInfoScreen() {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Xác thực Email</Text>
             <Text style={styles.modalSubtitle}>Nhập mã OTP gồm 6 chữ số được gửi đến {email}</Text>
-            
+
             <TextInput
               style={styles.otpInput}
               value={otp}
@@ -360,16 +359,16 @@ export default function AccountInfoScreen() {
               maxLength={6}
               placeholder="Nhập mã OTP"
             />
-            
+
             <View style={styles.modalActions}>
-              <TouchableOpacity 
-                style={[styles.modalBtn, styles.modalBtnCancel]} 
+              <TouchableOpacity
+                style={[styles.modalBtn, styles.modalBtnCancel]}
                 onPress={() => setShowOtpModal(false)}
               >
                 <Text style={styles.modalBtnCancelText}>Huỷ</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
-                style={[styles.modalBtn, styles.modalBtnSubmit]} 
+              <TouchableOpacity
+                style={[styles.modalBtn, styles.modalBtnSubmit]}
                 onPress={handleVerifyOtp}
                 disabled={isVerifyingOtp || otp.length < 6}
               >
@@ -547,7 +546,7 @@ const styles = StyleSheet.create({
   uploadedImage: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
+    resizeMode: 'contain',
   },
   modalOverlay: {
     flex: 1,

@@ -10,8 +10,9 @@ import {
   ActivityIndicator,
   Modal,
   FlatList,
+  RefreshControl,
 } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, Trophy, X } from 'lucide-react-native';
@@ -26,27 +27,36 @@ export default function HistoryDetailScreen() {
   
   const [ticket, setTicket] = useState<any>(initialTicket);
   const [loading, setLoading] = useState(!initialTicket);
+  const [refreshing, setRefreshing] = useState(false);
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
   const [selectedNumbers, setSelectedNumbers] = useState<string[]>([]);
   const [allNumbersModalVisible, setAllNumbersModalVisible] = useState(false);
   const [allItemsModalVisible, setAllItemsModalVisible] = useState(false);
 
+  const fetchOrderDetail = useCallback(async (isRefresh = false) => {
+    const idToFetch = orderId || ticket?._id || ticket?.id;
+    if (!idToFetch) return;
+    try {
+      if (isRefresh) setRefreshing(true);
+      const res = await api.get(`/orders/${idToFetch}`);
+      setTicket(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [orderId, ticket?._id, ticket?.id]);
+
   useEffect(() => {
     if (!initialTicket && orderId) {
-      // Find the object id based on the order ID.
-      // Wait, in Notification screen, it passes item.orderId which might be the DB _id or the display string 'ORD_...'.
-      // If it's the MongoDB _id, the API /api/orders/:id expects the MongoDB _id.
-      api.get(`/orders/${orderId}`)
-        .then(res => {
-          setTicket(res.data);
-          setLoading(false);
-        })
-        .catch(err => {
-          console.error(err);
-          setLoading(false);
-        });
+      fetchOrderDetail();
     }
-  }, [initialTicket, orderId]);
+  }, [initialTicket, orderId, fetchOrderDetail]);
+
+  const onRefresh = useCallback(() => {
+    fetchOrderDetail(true);
+  }, [fetchOrderDetail]);
 
   if (loading || !ticket) {
     return (
@@ -91,7 +101,13 @@ export default function HistoryDetailScreen() {
       <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
       {renderHeader()}
       
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        contentContainerStyle={styles.content} 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+        }
+      >
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Text style={styles.logoText}>{ticketTypeStr}</Text>
@@ -125,7 +141,7 @@ export default function HistoryDetailScreen() {
                         setSelectedNumbers(item.numbers);
                         setAllNumbersModalVisible(true);
                       }}>
-                        <Text style={[styles.ticketNumText, { color: '#0084FA', fontWeight: 'bold' }]}>+{item.numbers.length - 10}</Text>
+                        <Text style={[styles.ticketNumText, { color: '#0084FA', fontWeight: 'bold' }]}>+{item.numbers.length - 10} Xem thêm</Text>
                       </TouchableOpacity>
                     )}
                   </View>
@@ -142,7 +158,7 @@ export default function HistoryDetailScreen() {
             <View style={styles.ticketRow}>
               <Text style={styles.ticketLabel}>A</Text>
               <View style={styles.ticketNumbers}>
-                {ticket.numbers?.map((n: string, i: number) => {
+                {ticket.numbers?.slice(0, 10).map((n: string, i: number) => {
                     const isWinningNumber = ticket.winningNumbers && ticket.winningNumbers.includes(n);
                     return (
                       <Text 
@@ -156,9 +172,17 @@ export default function HistoryDetailScreen() {
                       </Text>
                     );
                   })}
-                </View>
-                <Text style={styles.ticketPrice}>{formattedPrice}</Text>
+                {ticket.numbers?.length > 10 && (
+                  <TouchableOpacity onPress={() => {
+                    setSelectedNumbers(ticket.numbers);
+                    setAllNumbersModalVisible(true);
+                  }}>
+                    <Text style={[styles.ticketNumText, { color: '#0084FA', fontWeight: 'bold' }]}>+{ticket.numbers.length - 10} Xem thêm</Text>
+                  </TouchableOpacity>
+                )}
               </View>
+              <Text style={styles.ticketPrice}>{formattedPrice}</Text>
+            </View>
           )}
 
           <View style={styles.timeRow}>

@@ -50,7 +50,7 @@ export default function TermsScreen() {
                 • <Text style={{fontWeight: 'bold'}}>Thời gian nhận đơn:</Text> Hệ thống dừng nhận đơn trước giờ quay số 02 phút. {'\n'}
                 • <Text style={{fontWeight: 'bold'}}>Trường hợp không kịp xử lý:</Text> Nếu hệ thống chưa hoàn tất mua hộ và cập nhật ảnh vé trước giờ quay, đơn hàng sẽ bị hủy và hoàn tiền 100%. {'\n'}
                 • <Text style={{fontWeight: 'bold'}}>Trách nhiệm:</Text> Quý khách cam kết không khiếu nại, đòi bồi thường hoặc quy đổi giá trị giải thưởng đối với các đơn hàng bị hủy nêu trên. {'\n'}
-                • <Text style={{fontWeight: 'bold'}}>Giới hạn số:</Text> Max 60 số / 1 khách / 1 ngày. {'\n'}
+                • <Text style={{fontWeight: 'bold'}}>Số lượng vé:</Text> Không giới hạn số lượng vé / số đặt trong 1 kỳ quay. {'\n'}
                 • <Text style={{fontWeight: 'bold'}}>IP/Device:</Text> Giải thưởng kỳ quay được xem như huỷ nếu IP/thiết bị device trùng với bất kỳ tài khoản khác hoặc chơi đối nghịch với các tài khoản khác hoặc với bất kỳ hành vi gian lận mà hệ thống phát hiện. {'\n'}
                 • <Text style={{fontWeight: 'bold'}}>Giới hạn trả thưởng:</Text> Tối đa trả thưởng 1 kỳ quay là 10.000.000.000 VNĐ. Nếu có nhiều vé cùng trúng 10 số trong 1 kỳ quay thì 10 tỷ chia đều các vé. {'\n'}
                 • <Text style={{fontWeight: 'bold'}}>Thuế:</Text> Tiền thưởng nhận được sẽ tự động trừ -10% thuế thu nhập cá nhân theo quy định pháp luật VN.

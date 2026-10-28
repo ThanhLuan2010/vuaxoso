@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert, StatusBar, ActivityIndicator, Modal } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert, StatusBar, ActivityIndicator, Modal, RefreshControl } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useAppStore, CartItem } from '../../store/useAppStore';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
@@ -7,15 +7,35 @@ import { ShoppingCart, Trash2, ArrowRight, ChevronLeft, X } from 'lucide-react-n
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function CartScreen({ navigation }: any) {
-  const { cart, user, removeFromCart, checkout } = useAppStore();
+  const { cart, user, removeFromCart, checkout, fetchCart } = useAppStore();
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [displayPage, setDisplayPage] = useState(1);
   const insets = useSafeAreaInsets();
+
+  React.useEffect(() => {
+    fetchCart();
+  }, []);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchCart();
+    setDisplayPage(1);
+    setRefreshing(false);
+  };
+
+  const displayedCart = cart.slice(0, displayPage * 10);
+  const handleLoadMore = () => {
+    if (displayedCart.length < cart.length) {
+      setDisplayPage((p) => p + 1);
+    }
+  };
+
   const formatVND = (num: number) => {
     return num.toLocaleString('vi-VN') + ' đ';
   };
 
   const totalCost = cart.reduce((acc, item) => acc + (item.cost * item.quantity), 0);
-
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedNumbers, setSelectedNumbers] = useState<string[]>([]);
@@ -39,9 +59,14 @@ export default function CartScreen({ navigation }: any) {
       <View style={styles.cardHeader}>
         <View style={styles.gameInfo}>
           <Text style={styles.gameName}>{item.gameName}</Text>
-          {item.provinceName && (
-            <Text style={styles.provinceName}>{item.provinceName}</Text>
-          )}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 2 }}>
+            {item.provinceName ? (
+              <Text style={styles.provinceName}>{item.provinceName}</Text>
+            ) : null}
+            {item.drawDate ? (
+              <Text style={[styles.provinceName, { color: '#666' }]}>• {item.drawDate}</Text>
+            ) : null}
+          </View>
         </View>
         <TouchableOpacity onPress={() => removeFromCart(item.id)}>
           <Trash2 size={20} color={COLORS.danger} />
@@ -56,20 +81,20 @@ export default function CartScreen({ navigation }: any) {
         ))}
         {item.numbers.length > 10 && (
           <TouchableOpacity
-            style={[styles.numberBall, { backgroundColor: '#E8F3FF', borderColor: '#0084FA' }]}
+            style={[styles.numberBall, { backgroundColor: '#E8F3FF', borderColor: '#0084FA', minWidth: 40, paddingHorizontal: 6, width: 'auto' }]}
             onPress={() => {
               setSelectedNumbers(item.numbers);
               setModalVisible(true);
             }}
           >
-            <Text style={[styles.numberBallText, { color: '#0084FA' }]}>+{item.numbers.length - 10}</Text>
+            <Text style={[styles.numberBallText, { color: '#0084FA' }]}>+{item.numbers.length - 10} Xem thêm</Text>
           </TouchableOpacity>
         )}
       </View>
 
       <View style={styles.cardFooter}>
         <Text style={styles.typeText}>
-          {item.playType ? `Loại: ${item.playType}` : 'Vé tiêu chuẩn'}
+          Loại: {item.playType || item.subCategory || item.category || 'Vé tiêu chuẩn'}
         </Text>
         <Text style={styles.costText}>
           {formatVND(item.cost * item.quantity)}
@@ -108,10 +133,15 @@ export default function CartScreen({ navigation }: any) {
       ) : (
         <>
           <FlatList
-            data={cart}
+            data={displayedCart}
             keyExtractor={(item) => item.id}
             renderItem={renderItem}
             contentContainerStyle={styles.listContent}
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.3}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+            }
           />
 
           <View style={[styles.checkoutFooter, { paddingBottom: Math.max(insets.bottom, SPACING.lg) }]}>

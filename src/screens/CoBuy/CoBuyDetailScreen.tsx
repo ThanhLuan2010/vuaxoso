@@ -4,6 +4,7 @@ import { Alert, Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacit
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppStore } from '../../store/useAppStore';
 import { SHADOWS } from '../../theme/theme';
+import ExpandableTicketNumbers from '../../components/ExpandableTicketNumbers';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -114,13 +115,13 @@ export default function CoBuyDetailScreen({ route, navigation }: any) {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.ballsRow}>
-            {ticketNumbers.map((num, idx) => (
-              <View key={idx} style={styles.ballCircle}>
-                <Text style={styles.ballText}>{num}</Text>
-              </View>
-            ))}
-          </View>
+          <ExpandableTicketNumbers
+            numbers={ticketNumbers}
+            maxVisible={10}
+            ballStyle={styles.ballCircle}
+            ballTextStyle={styles.ballText}
+            modalTitle="Bộ số dự kiến in"
+          />
 
           <View style={styles.ticketFooter}>
             <Text style={styles.ticketFooterLabel}>$ Giá vé: {totalCost.toLocaleString('vi-VN')}đ</Text>

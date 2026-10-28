@@ -8,6 +8,7 @@ import {
   StatusBar,
   RefreshControl,
   ActivityIndicator,
+  FlatList,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -27,32 +28,56 @@ export default function GuideScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
   const [guides, setGuides] = React.useState<GuideItem[]>([]);
+  const [page, setPage] = React.useState(1);
+  const [hasMore, setHasMore] = React.useState(true);
   const [loading, setLoading] = React.useState(true);
+  const [loadingMore, setLoadingMore] = React.useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
 
-  const fetchGuides = async (isRefresh = false) => {
+  const fetchGuides = async (pageNum = 1, isRefresh = false) => {
     try {
-      if (isRefresh) setRefreshing(true);
-      else setLoading(true);
-      const { data } = await api.get('/guides');
-      setGuides(data);
+      if (isRefresh) {
+        setRefreshing(true);
+      } else if (pageNum === 1) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+      const { data } = await api.get('/guides', {
+        params: { page: pageNum, limit: 10 }
+      });
+      const list = Array.isArray(data) ? data : [];
+      if (pageNum === 1) {
+        setGuides(list);
+      } else {
+        setGuides((prev) => [...prev, ...list]);
+      }
+      setHasMore(list.length === 10);
+      setPage(pageNum);
     } catch (error) {
       console.error('Error fetching guides:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
+      setLoadingMore(false);
     }
   };
 
   useFocusEffect(
     React.useCallback(() => {
-      fetchGuides();
+      fetchGuides(1);
     }, [])
   );
 
   const onRefresh = React.useCallback(() => {
-    fetchGuides(true);
+    fetchGuides(1, true);
   }, []);
+
+  const handleLoadMore = () => {
+    if (!loading && !loadingMore && !refreshing && hasMore) {
+      fetchGuides(page + 1);
+    }
+  };
 
   const renderHeader = () => (
     <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) }]}>
@@ -144,21 +169,27 @@ export default function GuideScreen() {
       <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
       {renderHeader()}
       
-      <ScrollView 
-        contentContainerStyle={styles.content} 
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
-        }
-      >
-        {loading && !refreshing ? (
-          <ActivityIndicator style={{ marginTop: 20 }} color={COLORS.primary} />
-        ) : guides.length === 0 ? (
-          <Text style={{ textAlign: 'center', marginTop: 20, color: COLORS.gray500 }}>Không có hướng dẫn nào</Text>
-        ) : (
-          guides.map((item) => (
+      {loading && !refreshing ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
+      ) : guides.length === 0 ? (
+        <ScrollView
+          contentContainerStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />}
+        >
+          <Text style={{ color: COLORS.gray500, fontSize: 14 }}>Không có hướng dẫn nào</Text>
+        </ScrollView>
+      ) : (
+        <FlatList
+          data={guides}
+          keyExtractor={(item) => item._id}
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.3}
+          renderItem={({ item }) => (
             <TouchableOpacity 
-              key={item._id} 
               style={styles.itemCard}
               onPress={() => navigation.navigate('GuideDetail', { title: item.title, content: item.content })}
             >
@@ -173,10 +204,23 @@ export default function GuideScreen() {
               </View>
               <ChevronRight size={20} color={COLORS.gray400} />
             </TouchableOpacity>
-          ))
-        )}
-        <View style={{ height: 24 }} />
-      </ScrollView>
+          )}
+          ListFooterComponent={
+            loadingMore ? (
+              <View style={{ paddingVertical: 14, alignItems: 'center' }}>
+                <ActivityIndicator size="small" color={COLORS.primary} />
+              </View>
+            ) : !hasMore && guides.length > 0 ? (
+              <View style={{ paddingVertical: 14, alignItems: 'center' }}>
+                <Text style={{ color: COLORS.gray400, fontSize: 12 }}>Đã hiển thị tất cả hướng dẫn</Text>
+              </View>
+            ) : null
+          }
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+          }
+        />
+      )}
     </View>
   );
 }
