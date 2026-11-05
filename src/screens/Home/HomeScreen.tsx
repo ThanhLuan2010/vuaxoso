@@ -7,11 +7,17 @@ import GameCard from '../../components/GameCard';
 import KienThietMatrix from '../../components/KienThietMatrix';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
 import { useAppStore } from '../../store/useAppStore';
+import { useGamesQuery, useActiveDrawsQuery } from '../../hooks/queries';
 import { ShoppingCart } from 'lucide-react-native';
 
 export default function HomeScreen({ navigation }: any) {
-  const { cart, games, activeDraws, fetchGames, fetchActiveDraws, fetchDrawResults, fetchBanners, fetchKienThietSchedule, fetchUnreadNotificationsCount, fetchCart } = useAppStore();
+  const { cart, games: storeGames, activeDraws: storeActiveDraws, fetchGames, fetchActiveDraws, fetchDrawResults, fetchBanners, fetchKienThietSchedule, fetchUnreadNotificationsCount, fetchCart } = useAppStore();
   const cartCount = cart.length;
+
+  const { data: queryGames } = useGamesQuery();
+  const { data: queryActiveDraws } = useActiveDrawsQuery();
+  const games = (queryGames && queryGames.length > 0) ? queryGames : storeGames;
+  const activeDraws = (queryActiveDraws && queryActiveDraws.length > 0) ? queryActiveDraws : storeActiveDraws;
 
   useEffect(() => {
     fetchGames();

@@ -79,9 +79,24 @@ export const TYPOGRAPHY = {
     bold: '700' as const,
     extraBold: '800' as const,
   },
+  h1: { fontSize: 28, fontWeight: '700' as const },
+  h2: { fontSize: 22, fontWeight: '700' as const },
+  h3: { fontSize: 18, fontWeight: '600' as const },
+  h4: { fontSize: 16, fontWeight: '600' as const },
+  body1: { fontSize: 14, fontWeight: '400' as const },
+  body2: { fontSize: 12, fontWeight: '400' as const },
+  subtitle1: { fontSize: 16, fontWeight: '500' as const },
+  subtitle2: { fontSize: 14, fontWeight: '500' as const },
 };
 
 export const SHADOWS = {
+  small: {
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
   light: {
     shadowColor: COLORS.shadow,
     shadowOffset: { width: 0, height: 4 },

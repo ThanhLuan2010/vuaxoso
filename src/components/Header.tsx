@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { useAppStore } from '../store/useAppStore';
+import { useUnreadNotificationsCountQuery } from '../hooks/queries';
 import { COLORS, TYPOGRAPHY, SPACING, BORDER_RADIUS } from '../theme/theme';
 import { Menu, Bell } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -12,6 +13,8 @@ import DrawerMenu from './DrawerMenu';
 export default function Header() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { user, unreadNotifications } = useAppStore();
+  const { data: queryUnread } = useUnreadNotificationsCountQuery();
+  const unreadCount = typeof queryUnread === 'number' ? queryUnread : unreadNotifications;
   const insets = useSafeAreaInsets();
   const [isDrawerVisible, setIsDrawerVisible] = React.useState(false);
 
@@ -51,10 +54,10 @@ export default function Header() {
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           <Bell size={24} color="#0F2942" />
-          {unreadNotifications > 0 ? (
+          {unreadCount > 0 ? (
             <View style={styles.badge}>
               <Text style={styles.badgeText}>
-                {unreadNotifications > 99 ? '99+' : unreadNotifications}
+                {unreadCount > 99 ? '99+' : unreadCount}
               </Text>
             </View>
           ) : null}

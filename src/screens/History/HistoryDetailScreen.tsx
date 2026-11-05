@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, Trophy, X, Award } from 'lucide-react-native';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
 import api from '../../services/api';
+import { useOrderDetailQuery } from '../../hooks/queries';
 
 export default function HistoryDetailScreen() {
   const insets = useSafeAreaInsets();

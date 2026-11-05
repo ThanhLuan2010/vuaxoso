@@ -61,7 +61,7 @@ function StatTable({
   );
 }
 
-function BoSoTab({ kenoData, selectedNumber, onSelect, refreshControl }: { kenoData: any; selectedNumber: string | null; onSelect: (n: string) => void; refreshControl?: React.ReactElement }) {
+function BoSoTab({ kenoData, selectedNumber, onSelect, refreshControl }: { kenoData: any; selectedNumber: string | null; onSelect: (n: string) => void; refreshControl?: React.ReactElement<any> }) {
   return (
     <ScrollView style={{ flex: 1 }} refreshControl={refreshControl}>
       <View style={styles.twoColGrid}>
@@ -109,7 +109,7 @@ function BoSoTab({ kenoData, selectedNumber, onSelect, refreshControl }: { kenoD
   );
 }
 
-function DauDuoiTab({ kenoData, selectedNumber, onSelect, refreshControl }: { kenoData: any; selectedNumber: string | null; onSelect: (n: string) => void; refreshControl?: React.ReactElement }) {
+function DauDuoiTab({ kenoData, selectedNumber, onSelect, refreshControl }: { kenoData: any; selectedNumber: string | null; onSelect: (n: string) => void; refreshControl?: React.ReactElement<any> }) {
   return (
     <ScrollView style={{ flex: 1 }} refreshControl={refreshControl}>
       <View style={styles.twoColGrid}>
@@ -137,7 +137,7 @@ function DauDuoiTab({ kenoData, selectedNumber, onSelect, refreshControl }: { ke
   );
 }
 
-function ChanLeTab({ kenoData, selectedNumber, onSelect, refreshControl }: { kenoData: any; selectedNumber: string | null; onSelect: (n: string) => void; refreshControl?: React.ReactElement }) {
+function ChanLeTab({ kenoData, selectedNumber, onSelect, refreshControl }: { kenoData: any; selectedNumber: string | null; onSelect: (n: string) => void; refreshControl?: React.ReactElement<any> }) {
   const { columns, kyRa, buoc, chuaVe } = kenoData.chanLe;
   const rows = [
     { label: 'Kỳ ra', values: kyRa },
@@ -182,7 +182,7 @@ function ChanLeTab({ kenoData, selectedNumber, onSelect, refreshControl }: { ken
 }
 
 // Power 6/55 và Mega 6/45: hiển thị top balls + progress bar
-function VietlottStatTab({ data, color, selectedNumber, onSelect, refreshControl }: { data: any; color: string; selectedNumber: string | null; onSelect: (n: string) => void; refreshControl?: React.ReactElement }) {
+function VietlottStatTab({ data, color, selectedNumber, onSelect, refreshControl }: { data: any; color: string; selectedNumber: string | null; onSelect: (n: string) => void; refreshControl?: React.ReactElement<any> }) {
   // Using dummy date strings for UI consistency, real app would use a DatePicker
   const [sortOption, setSortOption] = useState('Xuất hiện giảm dần');
   const [showSortPicker, setShowSortPicker] = useState(false);
@@ -864,5 +864,15 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.fontSize.md,
     color: TABLE_BLUE,
     fontWeight: TYPOGRAPHY.fontWeight.medium,
+  },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyText: {
+    fontSize: 14,
+    color: COLORS.gray500,
   },
 });

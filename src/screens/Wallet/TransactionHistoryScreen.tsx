@@ -4,71 +4,56 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import { ChevronLeft } from 'lucide-react-native';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
-import api from '../../services/api';
+import { useWalletHistoryQuery } from '../../hooks/queries';
 
 export default function TransactionHistoryScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const route = useRoute<any>();
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [transactions, setTransactions] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'all' | 'deposit' | 'withdraw'>(route.params?.initialTab || 'all');
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [transactions, setTransactions] = useState<any[]>([]);
 
-  const fetchHistory = useCallback(async (pageNum: number, isRefresh = false) => {
-    try {
-      if (isRefresh) {
-        setRefreshing(true);
-      } else if (pageNum === 1) {
-        setLoading(true);
-      } else {
-        setLoadingMore(true);
-      }
+  const {
+    data: newItems = [],
+    isLoading,
+    isFetching,
+    refetch,
+  } = useWalletHistoryQuery({
+    type: activeTab,
+    page,
+    limit: 10,
+  });
 
-      const params: any = {
-        page: pageNum,
-        limit: 10,
-      };
-      if (activeTab !== 'all') {
-        params.type = activeTab;
-      }
-
-      const res = await api.get('/wallet/history', { params });
-      const newItems = Array.isArray(res.data) ? res.data : [];
-
-      if (pageNum === 1) {
-        setTransactions(newItems);
-      } else {
-        setTransactions((prev) => [...prev, ...newItems]);
-      }
-
-      setHasMore(newItems.length === 10);
-      setPage(pageNum);
-    } catch (err) {
-      console.log('Fetch history error', err);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-      setLoadingMore(false);
+  React.useEffect(() => {
+    if (page === 1) {
+      setTransactions(Array.isArray(newItems) ? newItems : []);
+    } else if (Array.isArray(newItems) && newItems.length > 0) {
+      setTransactions((prev) => {
+        const existingIds = new Set(prev.map((t) => t._id));
+        const filtered = newItems.filter((t) => !existingIds.has(t._id));
+        return [...prev, ...filtered];
+      });
     }
-  }, [activeTab]);
+  }, [newItems, page]);
 
   useFocusEffect(
     useCallback(() => {
-      fetchHistory(1);
-    }, [fetchHistory])
+      setPage(1);
+      refetch();
+    }, [activeTab, refetch])
   );
 
   const onRefresh = useCallback(() => {
-    fetchHistory(1, true);
-  }, [fetchHistory]);
+    setPage(1);
+    refetch();
+  }, [refetch]);
+
+  const hasMore = Array.isArray(newItems) && newItems.length === 10;
 
   const handleLoadMore = () => {
-    if (!loading && !loadingMore && !refreshing && hasMore) {
-      fetchHistory(page + 1);
+    if (!isFetching && hasMore) {
+      setPage((prev) => prev + 1);
     }
   };
 
@@ -151,7 +136,6 @@ export default function TransactionHistoryScreen() {
               setActiveTab('all');
               setPage(1);
               setTransactions([]);
-              setHasMore(true);
             }
           }}
         >
@@ -164,7 +148,6 @@ export default function TransactionHistoryScreen() {
               setActiveTab('deposit');
               setPage(1);
               setTransactions([]);
-              setHasMore(true);
             }
           }}
         >
@@ -177,7 +160,6 @@ export default function TransactionHistoryScreen() {
               setActiveTab('withdraw');
               setPage(1);
               setTransactions([]);
-              setHasMore(true);
             }
           }}
         >
@@ -186,7 +168,7 @@ export default function TransactionHistoryScreen() {
       </View>
 
       {/* List */}
-      {loading && !refreshing ? (
+      {isLoading && page === 1 ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
@@ -203,7 +185,7 @@ export default function TransactionHistoryScreen() {
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.3}
           ListFooterComponent={
-            loadingMore ? (
+            isFetching && page > 1 ? (
               <View style={{ paddingVertical: 12, alignItems: 'center' }}>
                 <ActivityIndicator size="small" color={COLORS.primary} />
               </View>
@@ -214,7 +196,7 @@ export default function TransactionHistoryScreen() {
             ) : null
           }
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+            <RefreshControl refreshing={isFetching && page === 1} onRefresh={onRefresh} colors={[COLORS.primary]} />
           }
         />
       )}
