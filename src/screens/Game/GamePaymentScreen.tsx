@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert, Dimensions, ActivityIndicator, Modal, FlatList } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import { ArrowLeft, ChevronDown, ChevronUp, Info, Check, X } from 'lucide-react-native';
 import { COLORS, TYPOGRAPHY, SHADOWS } from '../../theme/theme';
 import { useAppStore } from '../../store/useAppStore';
@@ -12,12 +13,17 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 type PaymentMethod = 'wallet' | 'momo' | 'viettel' | 'qr';
 
 export default function GamePaymentScreen({ route, navigation }: any) {
+  const isCartCheckout = !!route.params?.isCartCheckout;
   const { gameId, gameName, playType, boards = [], drawIds, drawDate } = route.params || {};
-  const totalCost = route.params?.totalCost ?? route.params?.cost ?? 0;
   const insets = useSafeAreaInsets();
 
   // App store states & actions
-  const { user, fetchProfile } = useAppStore();
+  const { user, fetchProfile, cart, checkout } = useAppStore();
+
+  const cartTotal = cart.reduce((acc, item) => acc + (item.cost * (item.quantity || 1)), 0);
+  const totalCost = isCartCheckout ? cartTotal : (route.params?.totalCost ?? route.params?.cost ?? 0);
+  const displayGameName = isCartCheckout ? 'GIỎ HÀNG' : (gameName || '');
+  const displayPlayType = isCartCheckout ? `${cart.length} vé` : (playType || '');
 
   // Selected payment method
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('wallet');
@@ -26,8 +32,6 @@ export default function GamePaymentScreen({ route, navigation }: any) {
   const [isCustomerInfoExpanded, setIsCustomerInfoExpanded] = useState(true);
   const [isProductInfoExpanded, setIsProductInfoExpanded] = useState(true);
   const [allBoardsModalVisible, setAllBoardsModalVisible] = useState(false);
-
-
 
   // Loading state when placing ticket
   const [isLoading, setIsLoading] = useState(false);
@@ -46,6 +50,25 @@ export default function GamePaymentScreen({ route, navigation }: any) {
     setIsLoading(true);
 
     try {
+      if (isCartCheckout) {
+        const res = await checkout();
+        setIsLoading(false);
+        if (res.success) {
+          Toast.show({
+            type: 'success',
+            text1: 'Thành công',
+            text2: res.message || 'Đặt vé thành công!',
+          });
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'MainTabs' }],
+          });
+        } else {
+          Alert.alert('Thất bại', res.message || 'Có lỗi xảy ra, vui lòng thử lại.');
+        }
+        return;
+      }
+
       const itemsPayload = boards.map((board: any) => ({
         id: board.id,
         numbers: board.isTC ? ['TC'] : (Array.isArray(board.numbers) ? board.numbers : [board.numbers]),
@@ -73,9 +96,15 @@ export default function GamePaymentScreen({ route, navigation }: any) {
       await fetchProfile();
 
       setIsLoading(false);
-      Alert.alert('Thành công', 'Đặt vé thành công!', [
-        { text: 'Đóng', onPress: () => navigation.popToTop() }
-      ]);
+      Toast.show({
+        type: 'success',
+        text1: 'Thành công',
+        text2: 'Đặt vé thành công!',
+      });
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'MainTabs' }],
+      });
     } catch (error: any) {
       setIsLoading(false);
       Alert.alert('Thất bại', error.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại.');
@@ -134,16 +163,16 @@ export default function GamePaymentScreen({ route, navigation }: any) {
         {isCustomerInfoExpanded && (
           <View style={styles.customerInfoCard}>
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Luan</Text>
-              <Text style={styles.infoValue}>0899955742</Text>
+              <Text style={styles.infoLabel}>{user?.name || 'Khách hàng'}</Text>
+              <Text style={styles.infoValue}>{user?.phone || '0899955742'}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>CCCD:</Text>
-              <Text style={styles.infoValue}>070200112465</Text>
+              <Text style={styles.infoValue}>{user?.cccdNumber || '070200112465'}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Email:</Text>
-              <Text style={styles.infoValue}>--</Text>
+              <Text style={styles.infoValue}>{user?.email || '--'}</Text>
             </View>
           </View>
         )}
@@ -163,49 +192,73 @@ export default function GamePaymentScreen({ route, navigation }: any) {
         {isProductInfoExpanded && (
           <View style={styles.productInfoCard}>
             <Text style={styles.productText}>
-              {gameName}-{playType}
+              {displayGameName}{displayPlayType ? ` - ${displayPlayType}` : ''}
             </Text>
 
             {/* Show board numbers breakdown */}
             <View style={styles.boardsBreakdown}>
-              {boards.slice(0, 10).map((board: any, idx: number) => (
-                <View key={board.id} style={styles.boardDetailRow}>
-                  <Text style={styles.boardDetailId}>Dãy {board.id}:</Text>
-                  {board.isTC ? (
-                    <Text style={styles.boardDetailNumbers}>Tự chọn (TC)</Text>
-                  ) : board.numbers && board.numbers.length > 10 ? (
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.boardDetailNumbers}>
-                        {board.numbers.slice(0, 10).join(', ')}
+              {isCartCheckout ? (
+                cart.map((item: any, idx: number) => (
+                  <View key={item.id || idx} style={[styles.boardDetailRow, { flexDirection: 'column', alignItems: 'flex-start', borderBottomWidth: idx < cart.length - 1 ? 1 : 0, borderBottomColor: '#F0F0F0', paddingBottom: 8, marginBottom: 8 }]}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
+                      <Text style={[styles.boardDetailId, { fontWeight: '700', color: '#0F2942' }]}>
+                        #{idx + 1}. {item.gameName}
                       </Text>
-                      <TouchableOpacity
-                        onPress={() => setAllBoardsModalVisible(true)}
-                        style={{ marginTop: 2 }}
-                      >
-                        <Text style={{ color: '#0084FA', fontWeight: 'bold', fontSize: 12 }}>
-                          +{board.numbers.length - 10} số khác (Xem thêm)
-                        </Text>
-                      </TouchableOpacity>
+                      <Text style={{ fontSize: 13, fontWeight: '700', color: COLORS.primary }}>
+                        {(item.cost * (item.quantity || 1)).toLocaleString('vi-VN')}đ
+                      </Text>
                     </View>
-                  ) : (
-                    <Text style={styles.boardDetailNumbers}>
-                      {gameId === 'lotto_535'
-                        ? `${board.numbers.join(' ')} | ${board.specialNumbers ? board.specialNumbers.join(' ') : ''}`
-                        : ((gameId === 'loto_235' && playType.includes('Bao 2 số')) || (gameId === 'dientoan_636' && playType.includes('Bao')))
-                          ? `Danh sách bộ số: ${board.numbers.join(', ')}`
-                          : (gameId === 'max_3d' && board.numbers.length === 6)
-                            ? `${board.numbers.slice(0, 3).join(' ')} | ${board.numbers.slice(3, 6).join(' ')}`
-                            : board.numbers.join(' ')}
+                    <Text style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
+                      Loại: {item.playType || item.subCategory || item.category || 'Cơ bản'} {item.provinceName ? `• ${item.provinceName}` : ''}
                     </Text>
+                    <Text style={[styles.boardDetailNumbers, { marginTop: 4 }]}>
+                      {Array.isArray(item.numbers) ? item.numbers.slice(0, 10).join(', ') : item.numbers}
+                      {Array.isArray(item.numbers) && item.numbers.length > 10 ? ` (+${item.numbers.length - 10} số khác)` : ''}
+                    </Text>
+                  </View>
+                ))
+              ) : (
+                <>
+                  {boards.slice(0, 10).map((board: any, idx: number) => (
+                    <View key={board.id} style={styles.boardDetailRow}>
+                      <Text style={styles.boardDetailId}>Dãy {board.id}:</Text>
+                      {board.isTC ? (
+                        <Text style={styles.boardDetailNumbers}>Tự chọn (TC)</Text>
+                      ) : board.numbers && board.numbers.length > 10 ? (
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.boardDetailNumbers}>
+                            {board.numbers.slice(0, 10).join(', ')}
+                          </Text>
+                          <TouchableOpacity
+                            onPress={() => setAllBoardsModalVisible(true)}
+                            style={{ marginTop: 2 }}
+                          >
+                            <Text style={{ color: '#0084FA', fontWeight: 'bold', fontSize: 12 }}>
+                              +{board.numbers.length - 10} số khác (Xem thêm)
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      ) : (
+                        <Text style={styles.boardDetailNumbers}>
+                          {gameId === 'lotto_535'
+                            ? `${board.numbers.join(' ')} | ${board.specialNumbers ? board.specialNumbers.join(' ') : ''}`
+                            : ((gameId === 'loto_235' && playType?.includes('Bao 2 số')) || (gameId === 'dientoan_636' && playType?.includes('Bao')))
+                              ? `Danh sách bộ số: ${board.numbers.join(', ')}`
+                              : (gameId === 'max_3d' && board.numbers.length === 6)
+                                ? `${board.numbers.slice(0, 3).join(' ')} | ${board.numbers.slice(3, 6).join(' ')}`
+                                : (Array.isArray(board.numbers) ? board.numbers.join(', ') : board.numbers)}
+                        </Text>
+                      )}
+                    </View>
+                  ))}
+                  {boards.length > 10 && (
+                    <TouchableOpacity onPress={() => setAllBoardsModalVisible(true)} style={{ marginTop: 8 }}>
+                      <Text style={{ color: '#0084FA', fontWeight: 'bold', fontStyle: 'italic' }}>
+                        + {boards.length - 10} dãy số khác (Xem thêm)
+                      </Text>
+                    </TouchableOpacity>
                   )}
-                </View>
-              ))}
-              {boards.length > 10 && (
-                <TouchableOpacity onPress={() => setAllBoardsModalVisible(true)} style={{ marginTop: 8 }}>
-                  <Text style={{ color: '#0084FA', fontWeight: 'bold', fontStyle: 'italic' }}>
-                    + {boards.length - 10} dãy số khác (Xem thêm)
-                  </Text>
-                </TouchableOpacity>
+                </>
               )}
             </View>
           </View>

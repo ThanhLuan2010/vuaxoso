@@ -674,6 +674,33 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
 
   const confirmAddToCart = () => {
     const selectedProv = provinceItems.find(p => p.value === provinceValue);
+    const resolvedDrawId = targetDateInfo.drawCode || targetDateInfo.drawId || targetDateInfo.id;
+    const resolvedDrawDate = targetDateInfo.formattedDate;
+    const resolvedProvinceName = selectedProv?.label || (region === 'mb' ? 'Miền Bắc' : undefined);
+
+    if (isBuyNow) {
+      setConfirmModalVisible(false);
+      navigation.navigate('GamePayment', {
+        gameId,
+        gameName: `XỔ SỐ 3 MIỀN - ${region.toUpperCase()}`,
+        playType: selectedSub.name,
+        boards: [{
+          id: 'A',
+          numbers: currentParsed.numbers,
+          cost: calculateTotal(),
+          baseCost: parseInt(baseAmount) || 0,
+          unitAmount: parseInt(baseAmount) || 0,
+          multiplier: selectedSub.multiplier,
+        }],
+        totalCost: calculateTotal(),
+        cost: calculateTotal(),
+        drawIds: [resolvedDrawId],
+        drawDate: resolvedDrawDate,
+        provinceName: resolvedProvinceName,
+      });
+      return;
+    }
+
     addToCart({
       gameId,
       gameName: `XỔ SỐ 3 MIỀN - ${region.toUpperCase()}`,
@@ -684,9 +711,9 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
       winAmount: calculateWinAmount(),
       region,
       provinceId: provinceValue ?? undefined,
-      provinceName: selectedProv?.label || (region === 'mb' ? 'Miền Bắc' : undefined),
-      drawId: targetDateInfo.drawCode || targetDateInfo.drawId || targetDateInfo.id,
-      drawDate: targetDateInfo.formattedDate,
+      provinceName: resolvedProvinceName,
+      drawId: resolvedDrawId,
+      drawDate: resolvedDrawDate,
       category: selectedCategory,
       subCategory: selectedSub.name,
       multiplier: selectedSub.multiplier,
@@ -694,11 +721,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
       quantity: 1,
     });
     setConfirmModalVisible(false);
-    if (isBuyNow) {
-      navigation.navigate('Cart');
-    } else {
-      Toast.show({ type: 'success', text1: 'Thành công', text2: 'Đã thêm vào giỏ hàng' });
-    }
+    Toast.show({ type: 'success', text1: 'Thành công', text2: 'Đã thêm vào giỏ hàng' });
   };
   // Các loại cược này BẮT BUỘC dùng NumberPicker (Không cho nhập tay)
   const isManualDisabled = ['đề đầu', 'đề đuôi', 'xiên đb', 'xiên giải 1', 'xiên 3 càng đb', 'xiên 4 càng đb'].includes(selectedSub.name.toLowerCase());
@@ -1056,7 +1079,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Xác Nhận Đặt Cược</Text>
+            <Text style={styles.modalTitle}>{isBuyNow ? 'Xác Nhận Mua Ngay' : 'Xác Nhận Đặt Cược'}</Text>
             <View style={styles.modalRow}>
               <Text style={styles.modalLabel}>Kỳ quay:</Text>
               <Text style={styles.modalValue}>
@@ -1098,7 +1121,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
                 <Text style={styles.modalCancelText}>Hủy</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.modalConfirmBtn} onPress={confirmAddToCart}>
-                <Text style={styles.modalConfirmText}>Xác Nhận</Text>
+                <Text style={styles.modalConfirmText}>{isBuyNow ? 'Mua Ngay' : 'Xác Nhận'}</Text>
               </TouchableOpacity>
             </View>
           </View>
