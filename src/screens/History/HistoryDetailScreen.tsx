@@ -12,10 +12,10 @@ import {
   FlatList,
   RefreshControl,
 } from 'react-native';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChevronLeft, Trophy, X } from 'lucide-react-native';
+import { ChevronLeft, Trophy, X, Award } from 'lucide-react-native';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
 import api from '../../services/api';
 
@@ -32,6 +32,7 @@ export default function HistoryDetailScreen() {
   const [selectedNumbers, setSelectedNumbers] = useState<string[]>([]);
   const [allNumbersModalVisible, setAllNumbersModalVisible] = useState(false);
   const [allItemsModalVisible, setAllItemsModalVisible] = useState(false);
+  const [drawInfo, setDrawInfo] = useState<any>(null);
 
   const fetchOrderDetail = useCallback(async (isRefresh = false) => {
     const idToFetch = orderId || ticket?._id || ticket?.id;
@@ -39,7 +40,7 @@ export default function HistoryDetailScreen() {
     try {
       if (isRefresh) setRefreshing(true);
       const res = await api.get(`/orders/${idToFetch}`);
-      setTicket(res.data);
+      setTicket(res.data?.data || res.data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -49,16 +50,45 @@ export default function HistoryDetailScreen() {
   }, [orderId, ticket?._id, ticket?.id]);
 
   useEffect(() => {
-    if (!initialTicket && orderId) {
+    if (orderId && (!ticket || (ticket.orderId !== orderId && ticket._id !== orderId))) {
       fetchOrderDetail();
     }
-  }, [initialTicket, orderId, fetchOrderDetail]);
+  }, [orderId, fetchOrderDetail]);
+
+  // Đồng bộ kết quả chi tiết của kỳ quay từ backend nếu cần
+  useEffect(() => {
+    const fetchDrawResult = async () => {
+      try {
+        let code = ticket?.gameType;
+        if (code === 'xoso_3mien' && ticket?.region) {
+          code = ticket.region.toUpperCase();
+        }
+        if (!code) return;
+        const res = await api.get('/draws/results', { params: { code, limit: 30 } }).catch(() => null);
+        if (res?.data && Array.isArray(res.data)) {
+          const cleanDrawId = (ticket.drawId || '').replace(/^#/, '').trim();
+          const found = res.data.find((d: any) => {
+            const dCode = (d.drawCode || '').replace(/^#/, '').trim();
+            return (cleanDrawId && dCode === cleanDrawId) || d._id === ticket.drawId;
+          });
+          if (found) {
+            setDrawInfo(found);
+          }
+        }
+      } catch (e) {
+        console.log('Error fetching draw result in HistoryDetail:', e);
+      }
+    };
+    if (ticket) {
+      fetchDrawResult();
+    }
+  }, [ticket?.gameType, ticket?.drawId, ticket?.region]);
 
   const onRefresh = useCallback(() => {
     fetchOrderDetail(true);
   }, [fetchOrderDetail]);
 
-  if (loading || !ticket) {
+  if (loading) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
         <ActivityIndicator size="large" color={COLORS.primary} />
@@ -66,9 +96,39 @@ export default function HistoryDetailScreen() {
     );
   }
 
+  if (!ticket) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', padding: 20 }]}>
+        <Text style={{ fontSize: 16, color: COLORS.textDark, marginBottom: 12 }}>Không tìm thấy thông tin đơn vé</Text>
+        <TouchableOpacity style={{ paddingHorizontal: 16, paddingVertical: 8, backgroundColor: COLORS.primary, borderRadius: 8 }} onPress={() => navigation.goBack()}>
+          <Text style={{ color: '#FFF', fontWeight: 'bold' }}>Quay lại</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   const isKienThiet = ticket?.gameType?.startsWith('kienthiet');
-  const ticketTypeStr = isKienThiet ? 'KIẾN THIẾT' : (ticket?.gameType ? ticket.gameType.toUpperCase() : 'GAME');
-  const statusStr = ticket?.status === 'pending' ? 'Chờ in' : (ticket?.status === 'completed' ? 'Hoàn thành' : 'Đã huỷ');
+  const isLode = ['xoso_3mien', 'lode', 'MB', 'MT', 'MN', 'mb', 'mt', 'mn', 'lode_3mien'].includes(ticket?.gameType);
+  let ticketTypeStr = 'GAME';
+  if (isKienThiet) {
+    const parts = ticket.gameType.split('_');
+    ticketTypeStr = parts[1] ? `KIẾN THIẾT ${parts[1].toUpperCase()}` : 'KIẾN THIẾT';
+  } else if (isLode) {
+    if (['MB', 'mb'].includes(ticket.gameType)) {
+      ticketTypeStr = 'LÔ ĐỀ MIỀN BẮC';
+    } else if (['MT', 'mt'].includes(ticket.gameType)) {
+      ticketTypeStr = 'LÔ ĐỀ MIỀN TRUNG';
+    } else if (['MN', 'mn'].includes(ticket.gameType)) {
+      ticketTypeStr = 'LÔ ĐỀ MIỀN NAM';
+    } else {
+      ticketTypeStr = 'LÔ ĐỀ 3 MIỀN';
+    }
+  } else if (ticket?.gameType) {
+    ticketTypeStr = ticket.gameType.replace(/_/g, ' ').toUpperCase();
+  }
+
+  const isWinning = ticket?.isWinner === true || (ticket?.prizeAmount != null && Number(ticket.prizeAmount) > 0);
+  const statusStr = isWinning ? 'Trúng thưởng' : (ticket?.status === 'pending' ? 'Chờ in' : (ticket?.status === 'completed' ? 'Hoàn thành' : 'Đã huỷ'));
   const formattedPrice = ticket?.totalCost ? ticket.totalCost.toLocaleString('vi-VN') + 'đ' : '0đ';
   const dateObj = new Date(ticket?.createdAt || Date.now());
   const timeStr = `⏰${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}:${String(dateObj.getSeconds()).padStart(2, '0')} - ${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${dateObj.getFullYear()}`;
@@ -84,7 +144,73 @@ export default function HistoryDetailScreen() {
     return `${host}/${path}`;
   };
 
-  const imageUrl = ticket?.ticketImageUrl ? { uri: getImageUrl(ticket.ticketImageUrl) } : require('../../assets/images/mock_ticket.jpg');
+  const hasRealImage = Boolean(
+    ticket?.ticketImageUrl &&
+    typeof ticket.ticketImageUrl === 'string' &&
+    ticket.ticketImageUrl.trim().length > 0 &&
+    !ticket.ticketImageUrl.includes('mock_ticket')
+  );
+
+  const imageUrl = hasRealImage ? { uri: getImageUrl(ticket.ticketImageUrl) } : null;
+
+  const parseWinningNumbers = (raw: any): string[] => {
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw.map(String);
+    if (typeof raw === 'string') {
+      return raw.split(/[,;\s]+/).map(s => s.trim()).filter(Boolean);
+    }
+    return [];
+  };
+
+  const winningNumbersList = useMemo(() => {
+    const fromTicket = parseWinningNumbers(ticket?.winningNumbers);
+    if (fromTicket.length > 0) return fromTicket;
+    const fromDraw = parseWinningNumbers(drawInfo?.winningNumbers || ticket?.draw?.winningNumbers || ticket?.drawResult?.winningNumbers);
+    if (fromDraw.length > 0) return fromDraw;
+    return [];
+  }, [ticket?.winningNumbers, drawInfo?.winningNumbers, ticket?.draw, ticket?.drawResult]);
+
+  const userBetNumbers = useMemo(() => {
+    const set = new Set<string>();
+    if (Array.isArray(ticket?.items)) {
+      ticket.items.forEach((it: any) => {
+        if (Array.isArray(it.numbers)) {
+          it.numbers.forEach((n: any) => set.add(String(n).trim()));
+        }
+      });
+    }
+    if (Array.isArray(ticket?.numbers)) {
+      ticket.numbers.forEach((n: any) => set.add(String(n).trim()));
+    }
+    return set;
+  }, [ticket?.items, ticket?.numbers]);
+
+  const isMatchNumber = (winNum: string) => {
+    if (userBetNumbers.has(winNum)) return true;
+    for (const bet of userBetNumbers) {
+      if (bet.length === 2 && winNum.endsWith(bet)) return true;
+      if (bet.length === 3 && winNum.endsWith(bet)) return true;
+      if (bet.length === 4 && winNum.endsWith(bet)) return true;
+    }
+    return false;
+  };
+
+  const getDrawDateTimeStr = () => {
+    const drawDateObj = drawInfo?.drawTime || drawInfo?.closeTime;
+    if (drawDateObj) {
+      const dt = new Date(drawDateObj);
+      const vnDate = dt.toLocaleDateString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
+      const vnTime = dt.toLocaleTimeString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false, hour: '2-digit', minute: '2-digit' });
+      return `${vnTime} - ${vnDate}`;
+    }
+    if (ticket?.drawDate) {
+      return ticket.drawTime ? `${ticket.drawTime} - ${ticket.drawDate}` : ticket.drawDate;
+    }
+    const dt = new Date(ticket?.createdAt || Date.now());
+    const vnDate = dt.toLocaleDateString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
+    const vnTime = dt.toLocaleTimeString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false, hour: '2-digit', minute: '2-digit' });
+    return `${vnTime} - ${vnDate}`;
+  };
 
   const renderHeader = () => (
     <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) }]}>
@@ -108,10 +234,10 @@ export default function HistoryDetailScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
         }
       >
-        <View style={styles.card}>
+        <View style={[styles.card, isWinning && styles.cardWinning]}>
           <View style={styles.cardHeader}>
-            <Text style={styles.logoText}>{ticketTypeStr}</Text>
-            <Text style={styles.statusText}>{statusStr}</Text>
+            <Text style={[styles.logoText, isWinning && { color: '#E11D48' }]}>{ticketTypeStr}</Text>
+            <Text style={[styles.statusText, isWinning && { color: '#E11D48' }]}>{statusStr}</Text>
           </View>
 
           <View style={styles.dashedDivider} />
@@ -207,6 +333,13 @@ export default function HistoryDetailScreen() {
             <Text style={styles.infoValue}>{ticket?.drawId || 'Đang cập nhật'}</Text>
           </View>
 
+          {ticket?.playType ? (
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Cách chơi:</Text>
+              <Text style={styles.infoValueBold}>{ticket.playType}{ticket.provinceName ? ` (${ticket.provinceName})` : ''}</Text>
+            </View>
+          ) : null}
+
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Thanh toán:</Text>
             <Text style={styles.infoValueBold}>{formattedPrice}</Text>
@@ -215,37 +348,125 @@ export default function HistoryDetailScreen() {
           <View style={styles.dashedDivider} />
 
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Trúng thưởng:</Text>
+            <Text style={[styles.infoLabel, isWinning && { color: '#E11D48', fontWeight: 'bold' }]}>Trúng thưởng:</Text>
             <View style={styles.prizeRow}>
-              <Trophy size={16} color="#FF5C00" />
-              <Text style={styles.prizeText}>{prizeAmount}</Text>
+              <Trophy size={16} color={isWinning ? '#E11D48' : '#FF5C00'} />
+              <Text style={[styles.prizeText, isWinning && { color: '#E11D48', fontWeight: 'bold' }]}>{prizeAmount}</Text>
             </View>
           </View>
 
           <View style={styles.dashedDivider} />
 
-          {ticket?.status === 'completed' && (
-            <View style={styles.ticketImageContainer}>
-              <Text style={styles.ticketImageLabel}>Hình ảnh vé thực tế:</Text>
-              <TouchableOpacity style={{ width: '100%' }} onPress={() => setImageViewerVisible(true)}>
-                <Image 
-                  source={imageUrl} 
-                  style={styles.mockTicketImage}
-                  resizeMode="cover"
-                />
-              </TouchableOpacity>
+          {/* Khối hiển thị Kết quả kỳ quay + Ngày giờ kỳ quay */}
+          <View style={styles.resultSection}>
+            <View style={styles.resultSectionHeader}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Trophy size={18} color="#0A3B7C" />
+                <Text style={styles.resultSectionTitle}>
+                  Kết quả kỳ quay: <Text style={{ color: COLORS.primary }}>{ticket?.drawId || drawInfo?.drawCode || 'Đang cập nhật'}</Text>
+                </Text>
+              </View>
             </View>
+
+            <View style={styles.resultMetaRow}>
+              <Text style={styles.resultMetaText}>
+                ⏰ Ngày giờ quay: <Text style={{ fontWeight: '600', color: COLORS.textDark }}>{getDrawDateTimeStr()}</Text>
+              </Text>
+              {(ticket?.provinceName || drawInfo?.province?.name) ? (
+                <Text style={[styles.resultMetaText, { marginTop: 4 }]}>
+                  📍 Đài mở thưởng: <Text style={{ fontWeight: '600', color: COLORS.textDark }}>{ticket?.provinceName || drawInfo?.province?.name}</Text>
+                </Text>
+              ) : null}
+            </View>
+
+            {winningNumbersList.length > 0 ? (
+              <View style={styles.resultNumbersContainer}>
+                {(isLode || isKienThiet) && winningNumbersList.length >= 8 ? (
+                  <View style={{ width: '100%', marginBottom: 6 }}>
+                    <View style={styles.specialPrizeBox}>
+                      <Text style={styles.specialPrizeLabel}>GIẢI ĐẶC BIỆT</Text>
+                      <Text style={styles.specialPrizeNum}>{winningNumbersList[0]}</Text>
+                    </View>
+                    <Text style={styles.subPrizesTitle}>Các số mở thưởng:</Text>
+                    <View style={styles.winningGrid}>
+                      {winningNumbersList.slice(1).map((num: string, idx: number) => {
+                        const isMatch = isMatchNumber(num);
+                        return (
+                          <View key={idx} style={[styles.winningTag, isMatch && styles.winningTagMatch]}>
+                            <Text style={[styles.winningTagText, isMatch && styles.winningTagTextMatch]}>
+                              {num}
+                            </Text>
+                            {isMatch && (
+                              <View style={styles.matchBadge}>
+                                <Text style={styles.matchBadgeText}>Trúng</Text>
+                              </View>
+                            )}
+                          </View>
+                        );
+                      })}
+                    </View>
+                  </View>
+                ) : (
+                  <View style={styles.winningGrid}>
+                    {winningNumbersList.map((num: string, idx: number) => {
+                      const isMatch = isMatchNumber(num);
+                      return (
+                        <View key={idx} style={[styles.winningTag, isMatch && styles.winningTagMatch]}>
+                          <Text style={[styles.winningTagText, isMatch && styles.winningTagTextMatch]}>
+                            {num}
+                          </Text>
+                          {isMatch && (
+                            <View style={styles.matchBadge}>
+                              <Text style={styles.matchBadgeText}>Trúng</Text>
+                            </View>
+                          )}
+                        </View>
+                      );
+                    })}
+                  </View>
+                )}
+              </View>
+            ) : (
+              <View style={styles.waitingResultBox}>
+                <Text style={styles.waitingResultText}>
+                  {ticket?.status === 'completed' || isWinning
+                    ? 'Đang đồng bộ kết quả chi tiết của kỳ quay...'
+                    : 'Kỳ quay chưa diễn ra. Kết quả sẽ tự động hiển thị sau khi mở thưởng.'}
+                </Text>
+              </View>
+            )}
+          </View>
+
+          {/* Hình ảnh vé thực tế: CHỈ HIỂN THỊ KHI ADMIN CÓ UPLOAD ẢNH THẬT */}
+          {hasRealImage && imageUrl && (
+            <>
+              <View style={styles.dashedDivider} />
+              <View style={styles.ticketImageContainer}>
+                <Text style={styles.ticketImageLabel}>Hình ảnh vé thực tế:</Text>
+                <TouchableOpacity style={{ width: '100%' }} onPress={() => setImageViewerVisible(true)}>
+                  <Image 
+                    source={imageUrl} 
+                    style={styles.mockTicketImage}
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
+              </View>
+            </>
           )}
         </View>
       </ScrollView>
-      <Modal visible={imageViewerVisible} transparent={true} animationType="fade" onRequestClose={() => setImageViewerVisible(false)}>
-        <View style={{flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center'}}>
-          <TouchableOpacity style={{position: 'absolute', top: Math.max(insets.top, 20), right: 20, zIndex: 10}} onPress={() => setImageViewerVisible(false)}>
-            <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold', padding: 10}}>ĐÓNG</Text>
-          </TouchableOpacity>
-          <Image source={imageUrl} style={{width: '95%', height: '80%'}} resizeMode="contain" />
-        </View>
-      </Modal>
+
+      {/* Modal xem ảnh phóng to: chỉ khi có ảnh thực tế */}
+      {hasRealImage && imageUrl && (
+        <Modal visible={imageViewerVisible} transparent={true} animationType="fade" onRequestClose={() => setImageViewerVisible(false)}>
+          <View style={{flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center'}}>
+            <TouchableOpacity style={{position: 'absolute', top: Math.max(insets.top, 20), right: 20, zIndex: 10}} onPress={() => setImageViewerVisible(false)}>
+              <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold', padding: 10}}>ĐÓNG</Text>
+            </TouchableOpacity>
+            <Image source={imageUrl} style={{width: '95%', height: '80%'}} resizeMode="contain" />
+          </View>
+        </Modal>
+      )}
 
       {/* Items Modal */}
       <Modal visible={allItemsModalVisible} transparent animationType="slide">
@@ -346,6 +567,11 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.md,
     padding: SPACING.lg,
     ...SHADOWS.light,
+  },
+  cardWinning: {
+    backgroundColor: '#FFF1F2',
+    borderColor: '#FECDD3',
+    borderWidth: 1.5,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -452,5 +678,120 @@ const styles = StyleSheet.create({
     height: 400,
     borderRadius: BORDER_RADIUS.md,
     backgroundColor: '#F1F5F9',
+  },
+  resultSection: {
+    marginTop: SPACING.md,
+    backgroundColor: '#F8FAFC',
+    borderRadius: BORDER_RADIUS.md,
+    padding: SPACING.md,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  resultSectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  resultSectionTitle: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#0A3B7C',
+  },
+  resultMetaRow: {
+    marginBottom: 10,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+  },
+  resultMetaText: {
+    fontSize: 13,
+    color: COLORS.gray600,
+    lineHeight: 18,
+  },
+  resultNumbersContainer: {
+    marginTop: 4,
+  },
+  specialPrizeBox: {
+    backgroundColor: '#FEF2F2',
+    borderColor: '#FECACA',
+    borderWidth: 1.5,
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  specialPrizeLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#DC2626',
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+  specialPrizeNum: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#DC2626',
+    letterSpacing: 3,
+  },
+  subPrizesTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.gray600,
+    marginBottom: 8,
+  },
+  winningGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  winningTag: {
+    backgroundColor: '#FFF',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    minWidth: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  winningTagMatch: {
+    backgroundColor: '#ECFDF5',
+    borderColor: '#10B981',
+    borderWidth: 1.5,
+  },
+  winningTagText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: COLORS.textDark,
+  },
+  winningTagTextMatch: {
+    color: '#047857',
+    fontWeight: '800',
+  },
+  matchBadge: {
+    backgroundColor: '#10B981',
+    borderRadius: 4,
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    marginTop: 2,
+  },
+  matchBadgeText: {
+    fontSize: 9,
+    color: '#FFF',
+    fontWeight: 'bold',
+  },
+  waitingResultBox: {
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  waitingResultText: {
+    fontSize: 13,
+    color: COLORS.gray500,
+    fontStyle: 'italic',
+    textAlign: 'center',
   },
 });

@@ -22,11 +22,18 @@ export default function KienThietMatrix() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const schedule = useAppStore((state) => state.kienThietSchedule);
 
-  const handleProvinceClick = (prov: ProvinceItem, dateString: string) => {
+  const handleProvinceClick = (
+    prov: ProvinceItem,
+    dateString: string,
+    region: 'MB' | 'MT' | 'MN',
+    provinceList?: ProvinceItem[]
+  ) => {
     navigation.navigate('GameLayoutC', {
       provinceId: prov.id,
       provinceName: prov.name,
       drawDate: dateString,
+      region,
+      provinces: provinceList,
     });
   };
 
@@ -55,12 +62,17 @@ export default function KienThietMatrix() {
     };
   };
 
-  const renderProvinceBtn = (prov: ProvinceItem, dateString: string) => {
+  const renderProvinceBtn = (
+    prov: ProvinceItem,
+    dateString: string,
+    region: 'MB' | 'MT' | 'MN',
+    provinceList?: ProvinceItem[]
+  ) => {
     return (
       <TouchableOpacity
         key={prov.id}
         style={styles.logoBtn}
-        onPress={() => handleProvinceClick(prov, dateString)}
+        onPress={() => handleProvinceClick(prov, dateString, region, provinceList)}
       >
         <ProvinceLogo />
         <Text style={styles.logoLabel} numberOfLines={1}>{prov.code}</Text>
@@ -114,21 +126,42 @@ export default function KienThietMatrix() {
             {/* Column 2: Miền Bắc */}
             <View style={[styles.cell, styles.regionCol, styles.center, styles.borderDashed]}>
               <View style={styles.gridContainer}>
-                {row.mb.map((prov: any) => renderProvinceBtn(prov, row.dateString))}
+                {row.mb && row.mb.map((prov: any) =>
+                  renderProvinceBtn(
+                    prov,
+                    row.dateString,
+                    'MB',
+                    row.mb.map((p: any) => ({ ...p, region: 'MB' }))
+                  )
+                )}
               </View>
             </View>
 
             {/* Column 3: Miền Trung */}
             <View style={[styles.cell, styles.regionCol, styles.borderDashed]}>
               <View style={styles.gridContainer}>
-                {row.mt.map((prov: any) => renderProvinceBtn(prov, row.dateString))}
+                {row.mt && row.mt.map((prov: any) =>
+                  renderProvinceBtn(
+                    prov,
+                    row.dateString,
+                    'MT',
+                    row.mt.map((p: any) => ({ ...p, region: 'MT' }))
+                  )
+                )}
               </View>
             </View>
 
             {/* Column 4: Miền Nam */}
             <View style={[styles.cell, styles.regionCol]}>
               <View style={styles.gridContainer}>
-                {row.mn.map((prov: any) => renderProvinceBtn(prov, row.dateString))}
+                {row.mn && row.mn.map((prov: any) =>
+                  renderProvinceBtn(
+                    prov,
+                    row.dateString,
+                    'MN',
+                    row.mn.map((p: any) => ({ ...p, region: 'MN' }))
+                  )
+                )}
               </View>
             </View>
           </View>

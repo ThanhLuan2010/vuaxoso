@@ -51,13 +51,15 @@ export default function NotificationsScreen() {
       const dateStr = `${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${dateObj.getFullYear()}`;
       const timeStr = `${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}:${String(dateObj.getSeconds()).padStart(2, '0')}`;
       
+      const rawOrderId = n.orderId || n.data?.orderId || n.order?._id || n.order?.orderId || n.metadata?.orderId || (n.title + ' ' + n.body).match(/ORD_[\w-]+/)?.[0];
+
       const item: NotificationItem = {
         id: n._id || n.id,
         title: n.title,
         body: n.body,
         time: timeStr,
         type: n.type,
-        orderId: n.orderId,
+        orderId: rawOrderId,
         isRead: n.isRead,
       };
 
@@ -130,8 +132,17 @@ export default function NotificationsScreen() {
 
 
   const handleNotificationPress = (item: NotificationItem) => {
-    if (item.type === 'order' && item.orderId) {
-      navigation.navigate('HistoryDetail', { orderId: item.orderId });
+    const targetOrderId = item.orderId || (item.title + ' ' + item.body).match(/ORD_[\w-]+/)?.[0];
+    if (targetOrderId) {
+      navigation.navigate('HistoryDetail', { orderId: targetOrderId });
+      return;
+    }
+
+    if (item.type === 'win' || item.type === 'order' || (item.title + ' ' + item.body).toLowerCase().includes('trúng') || (item.title + ' ' + item.body).toLowerCase().includes('vé')) {
+      navigation.navigate('MainTabs', {
+        screen: 'History',
+        params: { initialTab: 'Hoàn thành' }
+      });
     }
   };
 

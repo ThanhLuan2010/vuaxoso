@@ -44,6 +44,7 @@ export interface CartItem {
   playType?: string;
   provinceName?: string;
   drawDate?: string;
+  drawId?: string;
   winAmount?: number;
   region?: string;
   provinceId?: string;
@@ -439,7 +440,7 @@ export const useAppStore = create<AppState>()(
             return {
               gameType: targetGameType,
               playType: itemPlayType,
-              drawId: 'DUMMY_DRAW_ID',
+              drawId: item.drawId || 'DUMMY_DRAW_ID',
               provinceName: item.provinceName,
               drawDate: item.drawDate,
               items: itemBoards

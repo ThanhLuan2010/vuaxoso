@@ -27,10 +27,11 @@ import { COLORS } from '../../theme/theme';
 // ------------------------------------------------------------
 // Helpers: get region label from province id
 // ------------------------------------------------------------
-const getRegionLabel = (region: string): string => {
+const getRegionLabel = (region?: string): string => {
   if (region === 'MB') return 'KIẾN THIẾT MIỀN BẮC';
   if (region === 'MT') return 'KIẾN THIẾT MIỀN TRUNG';
-  return 'KIẾN THIẾT MIỀN NAM';
+  if (region === 'MN') return 'KIẾN THIẾT MIỀN NAM';
+  return 'XỔ SỐ KIẾN THIẾT';
 };
 
 // ------------------------------------------------------------
@@ -85,7 +86,7 @@ const DiamondLogo = ({ size = 22 }: { size?: number }) => (
 // ------------------------------------------------------------
 // Normal ticket card (xNNNNN with multiplier superscript)
 // ------------------------------------------------------------
-const NormalTicketCard = ({
+const NormalTicketCard = React.memo(({
   ticket,
   isSelected,
   onPress,
@@ -113,12 +114,12 @@ const NormalTicketCard = ({
       )}
     </View>
   </TouchableOpacity>
-);
+));
 
 // ------------------------------------------------------------
 // Special ticket card (NNNNNN with diamond, multiplier top-right)
 // ------------------------------------------------------------
-const SpecialTicketCard = ({
+const SpecialTicketCard = React.memo(({
   ticket,
   isSelected,
   onPress,
@@ -144,32 +145,97 @@ const SpecialTicketCard = ({
       <Text style={styles.specialCardMultiplier}>{ticket.multiplier}</Text>
     )}
   </TouchableOpacity>
-);
+));
 
 // ============================================================
 // Main Screen
 // ============================================================
 export default function GameLayoutCScreen({ route, navigation }: any) {
-  const { provinceId, provinceName, drawDate } = route.params;
+  const {
+    provinceId,
+    provinceName,
+    drawDate,
+    region: initialRegion,
+    provinces: initialProvinces,
+  } = route.params || {};
   const insets = useSafeAreaInsets();
   const addToCart = useAppStore((state) => state.addToCart);
+  const kienThietSchedule = useAppStore((state) => state.kienThietSchedule);
+
+  const detectRegion = (): 'MB' | 'MT' | 'MN' => {
+    if (initialRegion) return initialRegion;
+
+    if (kienThietSchedule && kienThietSchedule.length > 0) {
+      for (const day of kienThietSchedule) {
+        if (day.mb?.some((p: any) => p.id === provinceId)) return 'MB';
+        if (day.mt?.some((p: any) => p.id === provinceId)) return 'MT';
+        if (day.mn?.some((p: any) => p.id === provinceId)) return 'MN';
+      }
+    }
+
+    for (const day of PROVINCE_SCHEDULES) {
+      if (day.mb?.some((p: any) => p.id === provinceId)) return 'MB';
+      if (day.mt?.some((p: any) => p.id === provinceId)) return 'MT';
+      if (day.mn?.some((p: any) => p.id === provinceId)) return 'MN';
+    }
+
+    const lowerId = (provinceId || '').toLowerCase();
+    const lowerName = (provinceName || '').toLowerCase();
+    if (lowerId.includes('mb') || lowerName.includes('bắc') || lowerId === 'hn') return 'MB';
+    if (lowerName.includes('trung')) return 'MT';
+    return 'MN';
+  };
+
+  const resolvedRegion = initialRegion || detectRegion();
 
   // Collect all provinces in the same region on the same day
   const allProvinces: ProvinceItem[] = useMemo(() => {
-    const schedule = PROVINCE_SCHEDULES.find((s) => s.dateString === drawDate);
-    if (!schedule) return [{ id: provinceId, name: provinceName, code: provinceName, region: 'MN' as any }];
-    const allLists = [...schedule.mb, ...schedule.mt, ...schedule.mn];
-    // Find region of our province
-    const myProv = allLists.find((p) => p.id === provinceId);
-    if (!myProv) return [{ id: provinceId, name: provinceName, code: provinceName, region: 'MN' as any }];
-    const region = myProv.region;
-    const regionList = region === 'MB' ? schedule.mb : region === 'MT' ? schedule.mt : schedule.mn;
-    return regionList.length > 0 ? regionList : [myProv];
-  }, [provinceId, provinceName, drawDate]);
+    // 1. If passed via navigation params
+    if (initialProvinces && initialProvinces.length > 0) {
+      return initialProvinces.map((p: any) => ({
+        ...p,
+        region: p.region || resolvedRegion,
+      }));
+    }
 
-  const regionLabel = allProvinces.length > 0 ? getRegionLabel(allProvinces[0].region) : 'KIẾN THIẾT';
+    // 2. Try looking up in the store's kienThietSchedule
+    if (kienThietSchedule && kienThietSchedule.length > 0) {
+      const schedule = kienThietSchedule.find((s: any) => s.dateString === drawDate);
+      if (schedule) {
+        if (resolvedRegion === 'MB' && schedule.mb?.length) {
+          return schedule.mb.map((p: any) => ({ ...p, region: 'MB' }));
+        }
+        if (resolvedRegion === 'MT' && schedule.mt?.length) {
+          return schedule.mt.map((p: any) => ({ ...p, region: 'MT' }));
+        }
+        if (resolvedRegion === 'MN' && schedule.mn?.length) {
+          return schedule.mn.map((p: any) => ({ ...p, region: 'MN' }));
+        }
+      }
+    }
+
+    // 3. Try looking up in static PROVINCE_SCHEDULES
+    const schedule = PROVINCE_SCHEDULES.find((s) => s.dateString === drawDate);
+    if (schedule) {
+      const allLists = [...schedule.mb, ...schedule.mt, ...schedule.mn];
+      const myProv = allLists.find((p) => p.id === provinceId);
+      const r = myProv?.region || resolvedRegion;
+      const regionList = r === 'MB' ? schedule.mb : r === 'MT' ? schedule.mt : schedule.mn;
+      if (regionList && regionList.length > 0) return regionList;
+    }
+
+    return [{
+      id: provinceId,
+      name: provinceName,
+      code: provinceName,
+      region: resolvedRegion,
+    }];
+  }, [provinceId, provinceName, drawDate, resolvedRegion, initialProvinces, kienThietSchedule]);
+
+  const regionLabel = getRegionLabel(resolvedRegion || (allProvinces.length > 0 ? allProvinces[0].region : undefined));
 
   const [selectedProvinceId, setSelectedProvinceId] = useState<string>(provinceId);
+  const currentProvinceName = allProvinces.find((p) => p.id === selectedProvinceId)?.name ?? provinceName;
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTickets, setSelectedTickets] = useState<Record<string, number>>({});
   const [qtyModalTicket, setQtyModalTicket] = useState<any>(null);
@@ -181,8 +247,9 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const isFirstRender = React.useRef(true);
 
-  const fetchTickets = async (pageNum = 1, isRefresh = false) => {
+  const fetchTickets = async (pageNum = 1, isRefresh = false, searchOverride?: string) => {
     try {
       if (isRefresh) {
         setRefreshing(true);
@@ -192,15 +259,31 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
         setLoadingMore(true);
       }
 
+      const activeSearch = searchOverride !== undefined ? searchOverride : searchQuery;
+
       const res = await api.get('/tickets', {
         params: {
           provinceId: selectedProvinceId,
           drawDate: drawDate,
           page: pageNum,
           limit: 10,
+          search: activeSearch.trim() || undefined,
         }
       });
-      const mapped = (res.data || []).map((t: any) => ({
+
+      const raw = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+      // Client-side fallback if server returned unpaginated list
+      let pageItems = raw;
+      if (raw.length > 10) {
+        let filtered = raw;
+        if (activeSearch.trim()) {
+          filtered = raw.filter((t: any) => t.number && t.number.includes(activeSearch.trim()));
+        }
+        const start = (pageNum - 1) * 10;
+        pageItems = filtered.slice(start, start + 10);
+      }
+
+      const mapped = pageItems.map((t: any) => ({
         ...t,
         id: t._id,
         sold: t.isSold,
@@ -211,7 +294,7 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
       } else {
         setApiTickets((prev) => [...prev, ...mapped]);
       }
-      setHasMore(mapped.length === 10);
+      setHasMore(pageItems.length === 10);
       setPage(pageNum);
     } catch (error) {
       console.error('Lỗi lấy vé:', error);
@@ -226,6 +309,18 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
     setPage(1);
     fetchTickets(1);
   }, [selectedProvinceId, drawDate]);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    const timer = setTimeout(() => {
+      setPage(1);
+      fetchTickets(1, false, searchQuery);
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const onRefresh = () => {
     fetchTickets(1, true);
@@ -314,22 +409,22 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
 
     navigation.navigate('GamePayment', {
       gameId: `kienthiet_${selectedProvinceId}`,
-      gameName: `Kiến Thiết ${allProvinces.find((p) => p.id === selectedProvinceId)?.name ?? provinceName}`,
+      gameName: `Kiến Thiết ${currentProvinceName}`,
       playType: 'Vé Kiến Thiết',
       boards,
       totalCost,
-      provinceName,
+      provinceName: currentProvinceName,
       drawDate
     });
 
     setSelectedTickets({});
   };
 
-  const ticketFee = Object.entries(selectedTickets).reduce((sum, [id, qty]) => { 
-    const t = tickets.find((tk) => tk.id === id); 
+  const ticketFee = Object.entries(selectedTickets).reduce((sum, [id, qty]) => {
+    const t = tickets.find((tk) => tk.id === id);
     if (!t) return sum;
     const price = t.number.toLowerCase().startsWith('x') ? 1600000 : (t.price || 10000);
-    return sum + price * qty; 
+    return sum + price * qty;
   }, 0);
   const serviceFee = 0;
   const totalFee = ticketFee + serviceFee;
@@ -337,6 +432,7 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
   // Current selected date string for display
   const currentDay = new Date();
   const dayStr = `${String(currentDay.getDate()).padStart(2, '0')}/${String(currentDay.getMonth() + 1).padStart(2, '0')}/${currentDay.getFullYear()}`;
+  const displayDate = drawDate || dayStr;
 
   // Render a grid row of 3 normal tickets
   const renderNormalGrid = () => {
@@ -464,7 +560,7 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
         </ScrollView>
 
         {/* ── DATE LABEL ── */}
-        <Text style={styles.dateLabel}>{dayStr}</Text>
+        <Text style={styles.dateLabel}>{displayDate}</Text>
 
         {/* ── NORMAL TICKETS GRID ── */}
         {normalTickets.length > 0 && renderNormalGrid()}
@@ -497,7 +593,7 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
         )}
 
         {!loadingMore && hasMore && (normalTickets.length > 0 || specialTickets.length > 0) && (
-          <TouchableOpacity 
+          <TouchableOpacity
             style={{ padding: 12, alignItems: 'center', marginVertical: 10, backgroundColor: '#FFF', borderRadius: 8, borderWidth: 1, borderColor: '#E2E8F0' }}
             onPress={handleLoadMore}
           >
@@ -539,7 +635,7 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
                   cost: ticket.price || 10000,
                   baseCost: ticket.price || 10000,
                   quantity: qty,
-                  provinceName: provinceName,
+                  provinceName: currentProvinceName,
                   provinceId: selectedProvinceId,
                   drawDate: drawDate,
                 });
@@ -562,34 +658,34 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
             <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: '#0F2942' }}>Chọn số lượng vé</Text>
             <Text style={{ fontSize: 16, marginBottom: 10 }}>Vé số: <Text style={{ color: '#E51F27', fontWeight: 'bold' }}>{qtyModalTicket?.number}</Text></Text>
             {qtyModalTicket?.imageUrl ? (
-              <Image 
-                source={{ uri: qtyModalTicket.imageUrl }} 
-                style={{ width: '100%', height: 120, resizeMode: 'contain', marginBottom: 20, borderRadius: 8 }} 
+              <Image
+                source={{ uri: qtyModalTicket.imageUrl }}
+                style={{ width: '100%', height: 120, resizeMode: 'contain', marginBottom: 20, borderRadius: 8 }}
               />
             ) : null}
-            
+
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={{ width: 40, height: 40, backgroundColor: '#F0F0F0', borderRadius: 8, justifyContent: 'center', alignItems: 'center' }}
                 onPress={() => setTempQty(Math.max(1, tempQty - 1))}
               >
                 <Text style={{ fontSize: 24, fontWeight: 'bold' }}>-</Text>
               </TouchableOpacity>
-              
+
               <Text style={{ fontSize: 20, fontWeight: 'bold', marginHorizontal: 20 }}>{tempQty}</Text>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 style={{ width: 40, height: 40, backgroundColor: '#F0F0F0', borderRadius: 8, justifyContent: 'center', alignItems: 'center' }}
                 onPress={() => setTempQty(Math.min(qtyModalTicket?.multiplier || 1, tempQty + 1))}
               >
                 <Text style={{ fontSize: 24, fontWeight: 'bold' }}>+</Text>
               </TouchableOpacity>
             </View>
-            
+
             <Text style={{ color: '#888', marginBottom: 20 }}>Số vé hiện có: {qtyModalTicket?.multiplier}</Text>
-            
+
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={{ flex: 1, padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#DDD', marginRight: 10, alignItems: 'center' }}
                 onPress={() => {
                   if (qtyModalTicket && selectedTickets[qtyModalTicket.id]) {
@@ -602,8 +698,8 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
               >
                 <Text style={{ fontWeight: '600', color: '#666' }}>Bỏ chọn vé</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 style={{ flex: 1, padding: 12, borderRadius: 8, backgroundColor: '#E51F27', alignItems: 'center' }}
                 onPress={() => {
                   if (qtyModalTicket) {

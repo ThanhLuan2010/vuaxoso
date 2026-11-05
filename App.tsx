@@ -7,6 +7,7 @@ import Toast from 'react-native-toast-message';
 
 import { useAppStore } from './src/store/useAppStore';
 import { initPushNotification } from './src/services/notificationService';
+import { navigationRef, navigate } from './src/navigation/navigationRef';
 
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
@@ -16,7 +17,28 @@ function App(): React.JSX.Element {
     restoreSession();
 
     let unsubscribe: (() => void) | undefined;
-    initPushNotification().then(cleanup => {
+    const handleNotificationClick = (remoteMessage: any) => {
+      const data = remoteMessage?.data || {};
+      const title = remoteMessage?.notification?.title || data.title || '';
+      const body = remoteMessage?.notification?.body || data.body || '';
+      const content = `${title} ${body}`;
+
+      const orderId = data.orderId || data.id || content.match(/ORD_[\w-]+/)?.[0];
+      if (orderId) {
+        navigate('HistoryDetail', { orderId });
+        return;
+      }
+
+      const type = data.type;
+      if (type === 'win' || type === 'order' || content.toLowerCase().includes('trúng') || content.toLowerCase().includes('vé')) {
+        navigate('MainTabs', {
+          screen: 'History',
+          params: { initialTab: 'Hoàn thành' }
+        });
+      }
+    };
+
+    initPushNotification(handleNotificationClick).then(cleanup => {
       unsubscribe = cleanup;
     });
 
@@ -30,7 +52,7 @@ function App(): React.JSX.Element {
   return (
     <SafeAreaProvider>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         <AppNavigator />
       </NavigationContainer>
       <Toast />

@@ -1,4 +1,5 @@
 import { NavigatorScreenParams } from '@react-navigation/native';
+import { ProvinceItem } from '../utils/constants';
 
 export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<TabParamList>;
@@ -11,7 +12,13 @@ export type RootStackParamList = {
   GameLayoutA: { gameId: string; initialTab?: string };
   GameLayoutBingo18: { gameId: string; initialTab?: string };
   GameLayoutB: { gameId: string };
-  GameLayoutC: { provinceId: string; provinceName: string; drawDate: string };
+  GameLayoutC: {
+    provinceId: string;
+    provinceName: string;
+    drawDate: string;
+    region?: 'MB' | 'MT' | 'MN';
+    provinces?: ProvinceItem[];
+  };
   GameLayoutLode: { gameId: string };
   Wallet: undefined;
   DepositBinance: undefined;

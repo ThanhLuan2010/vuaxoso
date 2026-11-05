@@ -24,8 +24,9 @@ const TAB_STATUS_MAP: Record<string, string> = {
 
 const FILTER_MAP: Record<string, string[]> = {
   'Vietlott': ['keno', 'bao_keno', 'power_655', 'mega_645', 'max_3d', 'max_3d_pro', 'max_4d', 'lotto_535', 'lotto_570'],
-  'Điện toán': ['loto_235', 'loto_cap', 'dientoan_636', 'bao_loto_2', 'than_tai_4', 'bao_636'],
-  'Kiến Thiết': ['kienthiet'],
+  'Điện toán': ['loto_235', 'loto_cap', 'dientoan_636', 'bao_loto_2', 'than_tai_4', 'bao_636', 'truot_loto'],
+  'Kiến Thiết': ['kienthiet', 'kienthiet_MB', 'kienthiet_MN', 'kienthiet_MT'],
+  'Lô Đề': ['xoso_3mien', 'lode', 'MB', 'MT', 'MN', 'mb', 'mt', 'mn', 'lode_3mien'],
 };
 
 export default function HistoryScreen() {
@@ -129,7 +130,7 @@ export default function HistoryScreen() {
         style={{ flexGrow: 0 }}
         contentContainerStyle={styles.filterContainer}
       >
-        {['Tất cả', 'Vietlott', 'Điện toán', 'Kiến Thiết'].map((filter) => (
+        {['Tất cả', 'Vietlott', 'Điện toán', 'Kiến Thiết', 'Lô Đề'].map((filter) => (
           <TouchableOpacity
             key={filter}
             style={[styles.filterItem, activeFilter === filter && styles.filterItemActive]}
@@ -158,10 +159,21 @@ export default function HistoryScreen() {
 
   const renderOrderItem = ({ item: ticket, index }: { item: any; index: number }) => {
     const isKienThiet = ticket.gameType?.startsWith('kienthiet');
+    const isLode = ['xoso_3mien', 'lode', 'MB', 'MT', 'MN', 'mb', 'mt', 'mn', 'lode_3mien'].includes(ticket.gameType);
     let ticketTypeStr = ticket.gameType ? ticket.gameType.toUpperCase() : 'VÉ SỐ';
     if (isKienThiet) {
       const parts = ticket.gameType.split('_');
-      ticketTypeStr = parts[1] ? parts[1].toUpperCase() : 'KIẾN THIẾT';
+      ticketTypeStr = parts[1] ? `K.THIẾT ${parts[1].toUpperCase()}` : 'KIẾN THIẾT';
+    } else if (isLode) {
+      if (['MB', 'mb'].includes(ticket.gameType)) {
+        ticketTypeStr = 'LÔ ĐỀ MB';
+      } else if (['MT', 'mt'].includes(ticket.gameType)) {
+        ticketTypeStr = 'LÔ ĐỀ MT';
+      } else if (['MN', 'mn'].includes(ticket.gameType)) {
+        ticketTypeStr = 'LÔ ĐỀ MN';
+      } else {
+        ticketTypeStr = 'LÔ ĐỀ';
+      }
     } else {
       switch (ticket.gameType) {
         case 'max_3d': ticketTypeStr = 'MAX 3D'; break;
@@ -170,13 +182,13 @@ export default function HistoryScreen() {
         case 'lotto_570': ticketTypeStr = 'LOTTO 5/70'; break;
         case 'loto_235': ticketTypeStr = 'LÔ TÔ 235'; break;
         case 'loto_cap': ticketTypeStr = 'LÔ TÔ CẶP'; break;
-        case 'xoso_3mien': ticketTypeStr = 'LÔ ĐỀ 3 MIỀN'; break;
         case 'than_tai_4': ticketTypeStr = 'THẦN TÀI 4'; break;
         case 'dientoan_636': ticketTypeStr = 'ĐIỆN TOÁN 636'; break;
         default: ticketTypeStr = ticket.gameType ? ticket.gameType.replace(/_/g, ' ').toUpperCase() : 'VÉ SỐ'; break;
       }
     }
 
+    const isWinning = ticket.isWinner === true || (ticket.prizeAmount != null && Number(ticket.prizeAmount) > 0);
     const formattedPrice = (ticket.totalCost || 0).toLocaleString('vi-VN') + 'đ';
     const dateObj = new Date(ticket.createdAt || Date.now());
     const timeStr = `${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}:${String(dateObj.getSeconds()).padStart(2, '0')} - ${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${dateObj.getFullYear()}`;
@@ -193,25 +205,46 @@ export default function HistoryScreen() {
         )}
 
         <TouchableOpacity
-          style={styles.ticketCard}
+          style={[styles.ticketCard, isWinning && styles.ticketCardWinning]}
           activeOpacity={0.8}
           onPress={() => navigation.navigate('HistoryDetail', { ticket })}
         >
-          <View style={styles.ticketLeft}>
-            <Text style={styles.ticketType}>{ticketTypeStr}</Text>
+          <View style={[styles.ticketLeft, isWinning && styles.ticketLeftWinning]}>
+            <Text style={[styles.ticketType, isWinning && { color: '#E11D48' }]}>{ticketTypeStr}</Text>
+            {isWinning && (
+              <View style={styles.winPill}>
+                <Text style={styles.winPillText}>THẮNG</Text>
+              </View>
+            )}
           </View>
 
           {/* Dotted border line */}
           <View style={styles.ticketDivider}>
-            <View style={styles.dottedLine} />
-            <View style={styles.halfCircleTop} />
-            <View style={styles.halfCircleBottom} />
+            <View style={[styles.dottedLine, isWinning && { borderColor: '#FECDD3' }]} />
+            <View style={[styles.halfCircleTop, isWinning && { borderColor: '#FECDD3', backgroundColor: '#FFF1F2' }]} />
+            <View style={[styles.halfCircleBottom, isWinning && { borderColor: '#FECDD3', backgroundColor: '#FFF1F2' }]} />
           </View>
 
           <View style={styles.ticketRight}>
-            <Text style={styles.ticketIdLabel}>
-              Mã đơn:<Text style={styles.ticketIdVal}> {ticket.orderId}</Text>
-            </Text>
+            <View style={styles.ticketHeaderRow}>
+              <Text style={styles.ticketIdLabel} numberOfLines={1} ellipsizeMode="tail">
+                Mã đơn:<Text style={styles.ticketIdVal}> {ticket.orderId}</Text>
+              </Text>
+              {isWinning && (
+                <View style={styles.winningBadge}>
+                  <Text style={styles.winningBadgeText}>TRÚNG THƯỞNG</Text>
+                </View>
+              )}
+            </View>
+
+            {ticket.playType ? (
+              <View style={styles.playTypeContainer}>
+                <Text style={styles.playTypeLabel}>Cách chơi: <Text style={styles.playTypeVal}>{ticket.playType}</Text></Text>
+                {ticket.provinceName ? (
+                  <Text style={styles.provinceNameText}>({ticket.provinceName})</Text>
+                ) : null}
+              </View>
+            ) : null}
 
             {ticket.items && ticket.items.length > 0 ? (
               <>
@@ -222,7 +255,7 @@ export default function HistoryScreen() {
                     <View key={idx} style={styles.ticketBallsRow}>
                       <Text style={styles.ticketRowLabel}>{item.id || String.fromCharCode(65 + idx)}</Text>
                       {displayNumbers.map((n: string, i: number) => (
-                        <View key={i} style={styles.ticketBall}>
+                        <View key={i} style={[styles.ticketBall, isWinning && styles.ticketBallWinning]}>
                           <Text style={styles.ticketBallText}>{n}</Text>
                         </View>
                       ))}
@@ -247,7 +280,7 @@ export default function HistoryScreen() {
               <View style={styles.ticketBallsRow}>
                 <Text style={styles.ticketRowLabel}>A</Text>
                 {((ticket.numbers && ticket.numbers.length > 10) ? ticket.numbers.slice(0, 10) : (ticket.numbers || [])).map((n: string, i: number) => (
-                  <View key={i} style={styles.ticketBall}>
+                  <View key={i} style={[styles.ticketBall, isWinning && styles.ticketBallWinning]}>
                     <Text style={styles.ticketBallText}>{n}</Text>
                   </View>
                 ))}
@@ -262,14 +295,23 @@ export default function HistoryScreen() {
               </View>
             )}
 
-            <Text style={styles.ticketKy}>Kỳ QSMT: {ticket.drawId || 'Đang cập nhật'}</Text>
+            <Text style={styles.ticketKy}>
+              Kỳ QSMT: {ticket.drawDate ? `${ticket.drawDate} (${ticket.drawId || 'Kỳ mở thưởng'})` : (ticket.drawId || 'Đang cập nhật')}
+            </Text>
 
             <View style={styles.ticketBottomRow}>
               <View style={styles.timeRow}>
-                <Timer size={14} color={COLORS.gray500} />
-                <Text style={styles.timeText}>{timeStr}</Text>
+                <Timer size={14} color={isWinning ? '#E11D48' : COLORS.gray500} />
+                <Text style={[styles.timeText, isWinning && { color: '#BE123C' }]}>{timeStr}</Text>
               </View>
-              <Text style={styles.priceText}>{formattedPrice}</Text>
+              {isWinning && ticket.prizeAmount && Number(ticket.prizeAmount) > 0 ? (
+                <View style={{ alignItems: 'flex-end' }}>
+                  <Text style={styles.winningPrizeText}>+{Number(ticket.prizeAmount).toLocaleString('vi-VN')}đ</Text>
+                  <Text style={styles.originalPriceSub}>{formattedPrice}</Text>
+                </View>
+              ) : (
+                <Text style={styles.priceText}>{formattedPrice}</Text>
+              )}
             </View>
           </View>
         </TouchableOpacity>
@@ -420,11 +462,21 @@ const styles = StyleSheet.create({
     ...SHADOWS.light,
     minHeight: 100,
   },
+  ticketCardWinning: {
+    backgroundColor: '#FFF1F2',
+    borderColor: '#FECDD3',
+    borderWidth: 1.5,
+  },
   ticketLeft: {
     width: 70,
     justifyContent: 'center',
     alignItems: 'center',
     padding: SPACING.md,
+  },
+  ticketLeftWinning: {
+    backgroundColor: '#FFE4E6',
+    borderTopLeftRadius: BORDER_RADIUS.md - 1.5,
+    borderBottomLeftRadius: BORDER_RADIUS.md - 1.5,
   },
   ticketBac: {
     color: '#0A3B7C',
@@ -473,11 +525,20 @@ const styles = StyleSheet.create({
   ticketRight: {
     flex: 1,
     padding: SPACING.md,
+    overflow: 'hidden',
+  },
+  ticketHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+    gap: 6,
   },
   ticketIdLabel: {
-    fontSize: 13,
+    fontSize: 12,
     color: COLORS.gray600,
-    marginBottom: 8,
+    flex: 1,
+    marginRight: 6,
   },
   ticketIdVal: {
     color: '#0066FF',
@@ -546,5 +607,64 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     color: COLORS.success,
+  },
+  winPill: {
+    backgroundColor: '#E11D48',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+    marginTop: 6,
+  },
+  winPillText: {
+    color: '#FFF',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  winningBadge: {
+    backgroundColor: '#FEE2E2',
+    borderColor: '#FECDD3',
+    borderWidth: 1,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    flexShrink: 0,
+    alignSelf: 'center',
+  },
+  winningBadgeText: {
+    color: '#E11D48',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  winningPrizeText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#E11D48',
+  },
+  originalPriceSub: {
+    fontSize: 11,
+    color: COLORS.gray500,
+    textDecorationLine: 'line-through',
+  },
+  ticketBallWinning: {
+    backgroundColor: '#E11D48',
+  },
+  playTypeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 6,
+  },
+  playTypeLabel: {
+    fontSize: 12,
+    color: COLORS.gray600,
+  },
+  playTypeVal: {
+    fontWeight: '600',
+    color: '#0A3B7C',
+  },
+  provinceNameText: {
+    fontSize: 12,
+    color: '#E51F27',
+    fontWeight: '500',
   },
 });

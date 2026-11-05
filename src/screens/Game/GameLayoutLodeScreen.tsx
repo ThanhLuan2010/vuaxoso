@@ -1,5 +1,5 @@
 import Toast from 'react-native-toast-message';
-import { ChevronLeft, Info } from 'lucide-react-native';
+import { ChevronLeft, Info, Calendar, ChevronDown, Check, X } from 'lucide-react-native';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
@@ -292,6 +292,33 @@ const NumberPicker = ({ expectedLength, onNumbersGenerated, subName }: { expecte
 };
 
 
+const getVnDateDetails = (dateInput: Date | string | number) => {
+  const d = new Date(dateInput);
+  const vnDateStr = d.toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }); // "YYYY-MM-DD"
+  const [yearStr, monthStr, dayStr] = vnDateStr.split('-');
+  const y = Number(yearStr);
+  const m = Number(monthStr);
+  const dt = Number(dayStr);
+  const localVnDate = new Date(y, m - 1, dt);
+  const targetDay = localVnDate.getDay();
+  const vnTimeStr = d.toLocaleTimeString('en-GB', {
+    timeZone: 'Asia/Ho_Chi_Minh',
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  return {
+    dateKey: vnDateStr,
+    formattedDate: `${dayStr}/${monthStr}/${yearStr}`,
+    dayMonth: `${dayStr}/${monthStr}`,
+    yearStr,
+    targetDay,
+    timeStr: vnTimeStr,
+    localVnDate,
+  };
+};
+
 export default function GameLayoutLodeScreen({ route, navigation }: any) {
   const insets = useSafeAreaInsets();
   const { addToCart } = useAppStore();
@@ -303,6 +330,9 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
   const [inputNumbers, setInputNumbers] = useState('');
   const [baseAmount, setBaseAmount] = useState('1000');
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+  const [isDrawPickerVisible, setIsDrawPickerVisible] = useState(false);
+  const [selectedDrawId, setSelectedDrawId] = useState<string | null>(null);
+  const [activeDraws, setActiveDraws] = useState<any[]>([]);
   const [isBuyNow, setIsBuyNow] = useState(false);
   const [showAllNumbers, setShowAllNumbers] = useState(false);
   const [isInputExpanded, setIsInputExpanded] = useState(false);
@@ -316,11 +346,13 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
   useEffect(() => {
     const fetchProvincesAndRates = async () => {
       try {
-        const [provRes, gamesRes] = await Promise.all([
+        const [provRes, gamesRes, drawsRes] = await Promise.all([
           api.get('/provinces'),
-          api.get('/games')
+          api.get('/games'),
+          api.get('/draws/active').catch(() => ({ data: [] }))
         ]);
         if (provRes?.data) setAllProvinces(provRes.data);
+        if (Array.isArray(drawsRes?.data)) setActiveDraws(drawsRes.data);
         if (Array.isArray(gamesRes?.data)) {
           const ratesMap: Record<string, Record<string, number>> = {};
           gamesRes.data.forEach((g: any) => {
@@ -342,63 +374,202 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
   useEffect(() => {
     const interval = setInterval(() => {
       setTick(t => t + 1);
+      api.get('/draws/active')
+        .then(res => {
+          if (Array.isArray(res.data)) setActiveDraws(res.data);
+        })
+        .catch(() => { });
     }, 15000);
     return () => clearInterval(interval);
   }, []);
 
-  // Tính ngày và đài quay thưởng dựa trên giờ chốt của từng miền (theo giờ Việt Nam UTC+7)
-  // MN: chốt 16:10, MT: chốt 17:10, MB: chốt 18:10
-  const getTargetDateInfo = (r: Region) => {
+  // Tính danh sách các kỳ quay trong tương lai (từ CMS / API và lịch quay định kỳ)
+  // CHỈ CHO PHÉP CHỌN CÁC KỲ QUAY TRONG TƯƠNG LAI
+  const availableDrawDates = useMemo(() => {
     const now = new Date();
-    const vnTimeStr = now.toLocaleTimeString('en-US', {
-      timeZone: 'Asia/Ho_Chi_Minh',
-      hour12: false,
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-    const [hours, minutes] = vnTimeStr.split(':').map(Number);
-    const currentMinutes = (isNaN(hours) ? now.getHours() : hours) * 60 + (isNaN(minutes) ? now.getMinutes() : minutes);
+    const nowMs = now.getTime();
+    const todayVn = getVnDateDetails(now);
+    const [hours, minutes] = todayVn.timeStr.split(':').map(Number);
+    const currentMinutes = hours * 60 + minutes;
 
     let cutoffMinutes = 18 * 60 + 10; // MB: 18:10
-    if (r === 'mn') {
+    if (region === 'mn') {
       cutoffMinutes = 16 * 60 + 10; // MN: 16:10
-    } else if (r === 'mt') {
+    } else if (region === 'mt') {
       cutoffMinutes = 17 * 60 + 10; // MT: 17:10
     }
 
-    const isPastCutoff = currentMinutes >= cutoffMinutes;
-
-    const vnDateStr = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
-    const [y, m, d] = vnDateStr.split('-').map(Number);
-    const targetDate = new Date(y, m - 1, d);
-
-    if (isPastCutoff) {
-      targetDate.setDate(targetDate.getDate() + 1);
-    }
+    const isTodayPastCutoff = currentMinutes >= cutoffMinutes;
+    const tomorrowVn = getVnDateDetails(new Date(nowMs + 24 * 60 * 60 * 1000));
+    const dayAfterVn = getVnDateDetails(new Date(nowMs + 48 * 60 * 60 * 1000));
 
     const daysOfWeek = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-    const dayName = daysOfWeek[targetDate.getDay()];
-    const dayStr = String(targetDate.getDate()).padStart(2, '0');
-    const monthStr = String(targetDate.getMonth() + 1).padStart(2, '0');
-    const yearStr = targetDate.getFullYear();
-    const formattedDate = `${dayStr}/${monthStr}/${yearStr}`;
-    const dateLabel = isPastCutoff 
-      ? `${dayName}, ${dayStr}/${monthStr} (Ngày mai)` 
-      : `${dayName}, ${dayStr}/${monthStr} (Hôm nay)`;
 
-    return {
-      targetDay: targetDate.getDay(),
-      isPastCutoff,
-      dateLabel,
-      formattedDate,
-      targetDate,
-    };
-  };
+    const options: any[] = [];
 
-  const targetDateInfo = useMemo(() => getTargetDateInfo(region), [region, tick]);
+    // 1. ƯU TIÊN HIỂN THỊ TẤT CẢ CÁC KỲ QUAY ĐƯỢC TẠO TRÊN CMS (/draws/active)
+    const matchedApiDraws = activeDraws.filter(draw => {
+      const gCode = (draw.game?.code || '').toLowerCase();
+      const isRegionMatch = gCode === region || gCode === 'xoso_3mien' || gCode === 'xs' + region;
+      if (!isRegionMatch) return false;
+
+      const closeTimeMs = new Date(draw.closeTime).getTime();
+      if (closeTimeMs <= nowMs) return false; // Chỉ lấy các kỳ trong tương lai
+
+      return true;
+    });
+
+    // Sắp xếp các kỳ từ CMS theo thời gian đóng cược sớm nhất -> muộn hơn
+    matchedApiDraws.sort((a, b) => new Date(a.closeTime).getTime() - new Date(b.closeTime).getTime());
+
+    matchedApiDraws.forEach(draw => {
+      const closeTimeMs = new Date(draw.closeTime).getTime();
+      const vnDetails = getVnDateDetails(draw.closeTime);
+      const dayName = daysOfWeek[vnDetails.targetDay];
+
+      let badgeText = '';
+      if (vnDetails.dateKey === todayVn.dateKey) {
+        badgeText = 'Hôm nay';
+      } else if (vnDetails.dateKey === tomorrowVn.dateKey) {
+        badgeText = 'Ngày mai';
+      } else if (vnDetails.dateKey === dayAfterVn.dateKey) {
+        badgeText = 'Ngày kia';
+      }
+
+      const drawCodeStr = draw.drawCode
+        ? (draw.drawCode.startsWith('#') ? draw.drawCode : `#${draw.drawCode}`)
+        : '';
+
+      const pId = typeof draw.provinceId === 'string'
+        ? draw.provinceId
+        : (draw.provinceId?._id || draw.provinceId?.provinceId || draw.province?.provinceId || draw.province?.id || draw.province?.code || '');
+
+      const provName = draw.province?.name || (pId ? (allProvinces.find(p => p.provinceId?.toLowerCase() === pId?.toLowerCase())?.name || pId) : (region === 'mb' ? 'Miền Bắc' : 'Toàn miền'));
+
+      const id = String(draw._id || draw.id || `${drawCodeStr}_${draw.closeTime}`);
+
+      options.push({
+        id,
+        drawId: drawCodeStr || id,
+        drawCode: drawCodeStr,
+        closeTimeMs,
+        closeTimeStr: vnDetails.timeStr,
+        targetDay: vnDetails.targetDay,
+        targetDate: vnDetails.localVnDate,
+        dayName,
+        dayMonth: vnDetails.dayMonth,
+        yearStr: vnDetails.yearStr,
+        formattedDate: vnDetails.formattedDate,
+        dateKey: vnDetails.dateKey,
+        dateLabel: drawCodeStr ? `${drawCodeStr} - ${dayName}, ${vnDetails.dayMonth}` : `${dayName}, ${vnDetails.dayMonth}`,
+        badgeText,
+        isToday: vnDetails.dateKey === todayVn.dateKey,
+        isPastCutoff: isTodayPastCutoff,
+        provincesText: provName,
+        provinceId: pId || undefined,
+        isFromApi: true,
+      });
+    });
+
+    // 2. TẠO CÁC KỲ ĐỊNH KỲ CHO CÁC NGÀY CHƯA CÓ KỲ TỪ CMS TRONG 14 NGÀY TỚI
+    const [y, m, d] = todayVn.dateKey.split('-').map(Number);
+    const startOffset = isTodayPastCutoff ? 1 : 0;
+    const daysCount = 14;
+
+    for (let offset = startOffset; offset < startOffset + daysCount; offset++) {
+      const targetDate = new Date(y, m - 1, d + offset);
+      const targetDay = targetDate.getDay();
+      const dayName = daysOfWeek[targetDay];
+      const dayStr = String(targetDate.getDate()).padStart(2, '0');
+      const monthStr = String(targetDate.getMonth() + 1).padStart(2, '0');
+      const yearStr = String(targetDate.getFullYear());
+      const formattedDate = `${dayStr}/${monthStr}/${yearStr}`;
+      const dateKey = `${yearStr}-${monthStr}-${dayStr}`;
+
+      // Nếu ngày này ĐÃ CÓ kỳ từ CMS thì không cần thêm bản ghi giả định
+      const hasApiDrawOnThisDate = options.some(o => o.dateKey === dateKey);
+      if (!hasApiDrawOnThisDate) {
+        let badgeText = '';
+        let dateLabel = `${dayName}, ${dayStr}/${monthStr}`;
+        if (offset === 0) {
+          badgeText = 'Hôm nay';
+          dateLabel = `${dayName}, ${dayStr}/${monthStr} (Hôm nay)`;
+        } else if (offset === 1) {
+          badgeText = 'Ngày mai';
+          dateLabel = `${dayName}, ${dayStr}/${monthStr} (Ngày mai)`;
+        } else if (offset === 2) {
+          badgeText = 'Ngày kia';
+        }
+
+        const provs = allProvinces.filter(p => {
+          if (p.region.toLowerCase() !== region) return false;
+          if (p.drawDays && Array.isArray(p.drawDays)) {
+            return p.drawDays.includes(targetDay);
+          }
+          return true;
+        });
+
+        const provincesText = provs.length > 0
+          ? provs.map(p => p.name).join(', ')
+          : (region === 'mb' ? 'Miền Bắc' : '');
+
+        options.push({
+          id: `sched_${dateKey}`,
+          drawId: '',
+          drawCode: '',
+          closeTimeMs: targetDate.getTime(),
+          closeTimeStr: region === 'mn' ? '16:10' : (region === 'mt' ? '17:10' : '18:10'),
+          targetDay,
+          targetDate,
+          dayName,
+          dayMonth: `${dayStr}/${monthStr}`,
+          yearStr,
+          formattedDate,
+          dateKey,
+          dateLabel,
+          badgeText,
+          isToday: offset === 0,
+          isPastCutoff: isTodayPastCutoff,
+          provincesText,
+          isFromApi: false,
+        });
+      }
+    }
+
+    // Sắp xếp toàn bộ theo thời gian
+    options.sort((a, b) => a.closeTimeMs - b.closeTimeMs);
+
+    return options;
+  }, [region, activeDraws, allProvinces, tick]);
+
+  const targetDateInfo = useMemo(() => {
+    if (availableDrawDates.length === 0) {
+      return {
+        id: '',
+        drawId: '',
+        drawCode: '',
+        dateKey: '',
+        targetDay: new Date().getDay(),
+        targetDate: new Date(),
+        dayName: 'Hôm nay',
+        dayMonth: '',
+        yearStr: String(new Date().getFullYear()),
+        formattedDate: '',
+        dateLabel: 'Đang tải...',
+        closeTimeStr: '',
+        badgeText: '',
+        isToday: true,
+        isPastCutoff: false,
+        provincesText: '',
+        provinceId: undefined,
+      };
+    }
+    const found = availableDrawDates.find(d => d.id === selectedDrawId || (selectedDrawId && d.drawCode === selectedDrawId));
+    return found || availableDrawDates[0];
+  }, [availableDrawDates, selectedDrawId]);
 
   useEffect(() => {
-    const { targetDay } = targetDateInfo;
+    const { targetDay, provinceId: targetProvinceId } = targetDateInfo;
     const filtered = allProvinces.filter(p => {
       if (p.region.toLowerCase() !== region) return false;
       if (p.drawDays && Array.isArray(p.drawDays)) {
@@ -407,16 +578,30 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
       return true;
     });
 
+    // Nếu kỳ quay này từ CMS có chỉ định đài cụ thể (ví dụ An Giang), bổ sung vào danh sách đài
+    if (targetProvinceId) {
+      const specificProv = allProvinces.find(p => p.provinceId?.toLowerCase() === targetProvinceId.toLowerCase());
+      if (specificProv && !filtered.some(p => p.provinceId?.toLowerCase() === specificProv.provinceId?.toLowerCase())) {
+        filtered.unshift(specificProv);
+      }
+    }
+
     const items = filtered.map(p => ({ label: p.name, value: p.provinceId }));
     setProvinceItems(items);
-    if (items.length > 0) {
+
+    if (targetProvinceId && items.some(i => i.value?.toLowerCase() === targetProvinceId.toLowerCase())) {
+      const matched = items.find(i => i.value?.toLowerCase() === targetProvinceId.toLowerCase());
+      if (matched && provinceValue !== matched.value) {
+        setProvinceValue(matched.value);
+      }
+    } else if (items.length > 0) {
       if (!items.find(i => i.value === provinceValue)) {
         setProvinceValue(items[0].value);
       }
     } else {
       setProvinceValue(null);
     }
-  }, [region, allProvinces, targetDateInfo.targetDay]);
+  }, [region, allProvinces, targetDateInfo.targetDay, targetDateInfo.provinceId]);
 
   const currentDataSet = useMemo(() => {
     const base = region === 'mb' ? BET_DATA.mb : BET_DATA.mn_mt;
@@ -500,6 +685,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
       region,
       provinceId: provinceValue ?? undefined,
       provinceName: selectedProv?.label || (region === 'mb' ? 'Miền Bắc' : undefined),
+      drawId: targetDateInfo.drawCode || targetDateInfo.drawId || targetDateInfo.id,
       drawDate: targetDateInfo.formattedDate,
       category: selectedCategory,
       subCategory: selectedSub.name,
@@ -569,9 +755,18 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
               <Text style={{ fontSize: 13, fontWeight: '600', color: COLORS.textDark }}>
                 Chọn đài quay thưởng
               </Text>
-              <Text style={{ fontSize: 12, fontWeight: '600', color: targetDateInfo.isPastCutoff ? COLORS.primary : COLORS.gray500 }}>
-                Kỳ quay: {targetDateInfo.dateLabel}
-              </Text>
+              <TouchableOpacity
+                style={styles.drawDateSelectorBtn}
+                onPress={() => setIsDrawPickerVisible(true)}
+                activeOpacity={0.7}
+              >
+                <Calendar size={13} color={COLORS.primary} style={{ marginRight: 4 }} />
+                <Text style={styles.drawDateSelectorLabel}>Kỳ quay:</Text>
+                <Text style={styles.drawDateSelectorVal} numberOfLines={1}>
+                  {targetDateInfo.drawCode ? `${targetDateInfo.drawCode} • ` : ''}{targetDateInfo.dayName}, {targetDateInfo.dayMonth}{targetDateInfo.badgeText ? ` (${targetDateInfo.badgeText})` : ''}
+                </Text>
+                <ChevronDown size={14} color={COLORS.primary} style={{ marginLeft: 3 }} />
+              </TouchableOpacity>
             </View>
             <DropDownPicker
               open={provinceOpen}
@@ -751,6 +946,109 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
         </View>
       </KeyboardAvoidingView>
 
+      {/* Modal Chọn Kỳ Quay Thưởng (Chỉ các kỳ tương lai) */}
+      <Modal
+        visible={isDrawPickerVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setIsDrawPickerVisible(false)}
+      >
+        <View style={styles.datePickerModalOverlay}>
+          <View style={styles.datePickerModalContent}>
+            <View style={styles.datePickerModalHeader}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.datePickerModalTitle}>Chọn Kỳ Quay Thưởng</Text>
+                <Text style={styles.datePickerModalSubtitle}>
+                  Chỉ cho phép chọn các kỳ quay mở thưởng trong tương lai
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={styles.datePickerCloseBtn}
+                onPress={() => setIsDrawPickerVisible(false)}
+              >
+                <X size={20} color={COLORS.textDark} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView
+              style={styles.datePickerList}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 20 }}
+            >
+              {availableDrawDates.map((item) => {
+                const isSelected = item.id === targetDateInfo.id;
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={[
+                      styles.datePickerItem,
+                      isSelected && styles.datePickerItemSelected,
+                    ]}
+                    onPress={() => {
+                      setSelectedDrawId(item.id);
+                      if (item.provinceId && provinceItems.some(p => p.value === item.provinceId)) {
+                        setProvinceValue(item.provinceId);
+                      }
+                      setIsDrawPickerVisible(false);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.datePickerItemLeft}>
+                      <View style={[styles.dateRadioCircle, isSelected && styles.dateRadioCircleSelected]}>
+                        {isSelected && <View style={styles.dateRadioDot} />}
+                      </View>
+                      <View style={{ marginLeft: 12, flex: 1 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                          {item.drawCode ? (
+                            <View style={styles.drawCodeTag}>
+                              <Text style={styles.drawCodeTagText}>{item.drawCode}</Text>
+                            </View>
+                          ) : null}
+                          <Text style={[styles.dateItemDayName, isSelected && styles.dateItemTextSelected]}>
+                            {item.dayName}, {item.dayMonth}/{item.yearStr}
+                          </Text>
+                          {item.badgeText ? (
+                            <View
+                              style={[
+                                styles.dateBadge,
+                                item.isToday ? styles.dateBadgeToday : styles.dateBadgeTomorrow,
+                              ]}
+                            >
+                              <Text
+                                style={[
+                                  styles.dateBadgeText,
+                                  item.isToday ? styles.dateBadgeTextToday : styles.dateBadgeTextTomorrow,
+                                ]}
+                              >
+                                {item.badgeText}
+                              </Text>
+                            </View>
+                          ) : null}
+                        </View>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4, flexWrap: 'wrap', gap: 8 }}>
+                          <Text style={styles.dateItemTime}>
+                            Đóng cược: {item.closeTimeStr}
+                          </Text>
+                          {item.provincesText ? (
+                            <Text style={styles.dateItemProvinces} numberOfLines={1}>
+                              • Đài: {item.provincesText}
+                            </Text>
+                          ) : null}
+                        </View>
+                      </View>
+                    </View>
+
+                    {isSelected && (
+                      <Check size={18} color={COLORS.primary} style={{ marginLeft: 8 }} />
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
       <Modal
         visible={confirmModalVisible}
         transparent={true}
@@ -759,6 +1057,18 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Xác Nhận Đặt Cược</Text>
+            <View style={styles.modalRow}>
+              <Text style={styles.modalLabel}>Kỳ quay:</Text>
+              <Text style={styles.modalValue}>
+                {targetDateInfo.drawCode ? `${targetDateInfo.drawCode} • ` : ''}{targetDateInfo.dayName}, {targetDateInfo.formattedDate}
+              </Text>
+            </View>
+            <View style={styles.modalRow}>
+              <Text style={styles.modalLabel}>Đài:</Text>
+              <Text style={styles.modalValue}>
+                {provinceItems.find(p => p.value === provinceValue)?.label || (region === 'mb' ? 'Miền Bắc' : 'Toàn miền')}
+              </Text>
+            </View>
             <View style={styles.modalRow}>
               <Text style={styles.modalLabel}>Loại cược:</Text>
               <Text style={styles.modalValue}>{selectedCategory} - {selectedSub.name}</Text>
@@ -870,5 +1180,159 @@ const styles = StyleSheet.create({
   modalCancelBtn: { flex: 1, paddingVertical: SPACING.md, borderRadius: BORDER_RADIUS.sm, backgroundColor: COLORS.gray200, marginRight: SPACING.sm, alignItems: 'center' },
   modalCancelText: { color: COLORS.textDark, fontWeight: TYPOGRAPHY.fontWeight.bold },
   modalConfirmBtn: { flex: 1, paddingVertical: SPACING.md, borderRadius: BORDER_RADIUS.sm, backgroundColor: COLORS.primary, marginLeft: SPACING.sm, alignItems: 'center' },
-  modalConfirmText: { color: COLORS.cardBackground, fontWeight: TYPOGRAPHY.fontWeight.bold }
+  modalConfirmText: { color: COLORS.cardBackground, fontWeight: TYPOGRAPHY.fontWeight.bold },
+  drawDateSelectorBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF1F2',
+    borderColor: '#FECDD3',
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 16,
+    maxWidth: '65%',
+  },
+  drawDateSelectorLabel: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: COLORS.gray600,
+    marginRight: 4,
+  },
+  drawDateSelectorVal: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.primary,
+  },
+  datePickerModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  datePickerModalContent: {
+    backgroundColor: COLORS.cardBackground,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: SPACING.md,
+    paddingTop: SPACING.lg,
+    maxHeight: '75%',
+    ...SHADOWS.dark,
+  },
+  datePickerModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  datePickerModalTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: COLORS.textDark,
+  },
+  datePickerModalSubtitle: {
+    fontSize: 12,
+    color: COLORS.textMuted,
+    marginTop: 2,
+  },
+  datePickerCloseBtn: {
+    padding: 6,
+    borderRadius: 16,
+    backgroundColor: COLORS.gray100,
+  },
+  datePickerList: {
+    maxHeight: 400,
+  },
+  datePickerItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderRadius: BORDER_RADIUS.md,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#FFF',
+    marginBottom: 8,
+  },
+  datePickerItemSelected: {
+    borderColor: COLORS.primary,
+    backgroundColor: '#FFF5F5',
+  },
+  datePickerItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  dateRadioCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#CBD5E1',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dateRadioCircleSelected: {
+    borderColor: COLORS.primary,
+  },
+  dateRadioDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: COLORS.primary,
+  },
+  dateItemDayName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.textDark,
+  },
+  dateItemTextSelected: {
+    color: COLORS.primary,
+    fontWeight: '700',
+  },
+  dateBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+    borderRadius: 6,
+  },
+  dateBadgeToday: {
+    backgroundColor: '#DCFCE7',
+  },
+  dateBadgeTomorrow: {
+    backgroundColor: '#FEF3C7',
+  },
+  dateBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  dateBadgeTextToday: {
+    color: '#15803D',
+  },
+  dateBadgeTextTomorrow: {
+    color: '#B45309',
+  },
+  dateItemProvinces: {
+    fontSize: 12,
+    color: COLORS.textMuted,
+  },
+  drawCodeTag: {
+    backgroundColor: '#FEE2E2',
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#FECACA',
+  },
+  drawCodeTagText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.primary,
+  },
+  dateItemTime: {
+    fontSize: 12,
+    color: COLORS.textDark,
+    fontWeight: '500',
+  },
 });
