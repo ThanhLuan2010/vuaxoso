@@ -471,32 +471,35 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
     setIsLotoMultiplierModalVisible(true);
   };
 
-  const getCostPerBoard = (type: string) => {
-    if (gameId === 'max_3d') return 10000;
+  const getCostPerBoard = (type: string, multiplier = 10000) => {
+    const factor = multiplier / 10000;
+    if (gameId === 'max_3d' || gameId === 'max_4d' || gameId === 'than_tai_4') {
+      return multiplier;
+    }
     if (gameId === 'power_655' || gameId === 'mega_645') {
-      if (type === 'Cơ bản') return 10000;
-      if (type === 'Bao 5') return gameId === 'power_655' ? 500000 : 400000;
-      if (type === 'Bao 7') return 70000;
-      if (type === 'Bao 8') return 280000;
-      if (type === 'Bao 9') return 840000;
-      if (type === 'Bao 10') return 2100000;
-      if (type === 'Bao 11') return 4620000;
-      if (type === 'Bao 12') return 9240000;
-      if (type === 'Bao 13') return 17160000;
-      if (type === 'Bao 14') return 30030000;
-      if (type === 'Bao 15') return 50050000;
-      if (type === 'Bao 18') return 185640000;
+      if (type === 'Cơ bản') return 10000 * factor;
+      if (type === 'Bao 5') return (gameId === 'power_655' ? 500000 : 400000) * factor;
+      if (type === 'Bao 7') return 70000 * factor;
+      if (type === 'Bao 8') return 280000 * factor;
+      if (type === 'Bao 9') return 840000 * factor;
+      if (type === 'Bao 10') return 2100000 * factor;
+      if (type === 'Bao 11') return 4620000 * factor;
+      if (type === 'Bao 12') return 9240000 * factor;
+      if (type === 'Bao 13') return 17160000 * factor;
+      if (type === 'Bao 14') return 30030000 * factor;
+      if (type === 'Bao 15') return 50050000 * factor;
+      if (type === 'Bao 18') return 185640000 * factor;
     } else if (isLottoGame) {
-      if (type === 'Cơ bản' || type === 'Bao 5') return 10000;
+      if (type === 'Cơ bản' || type === 'Bao 5') return 10000 * factor;
       const req = getRequiredNumbersCount(type);
       const c = (n: number, k: number) => {
         let r = 1;
         for (let i = 1; i <= k; i++) r = r * (n - i + 1) / i;
         return Math.round(r);
       };
-      return c(req, 5) * 10000;
+      return c(req, 5) * 10000 * factor;
     }
-    return 10000;
+    return 10000 * factor;
   };
 
   const getActiveBoardsCount = () => {
@@ -504,12 +507,9 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
   };
 
   const getStandardTotalCost = () => {
-    if (gameId === 'max_3d' || gameId === 'max_4d' || gameId === 'than_tai_4') {
-      return standardBoards
-        .filter((b) => b.numbers.length > 0 || b.isTC)
-        .reduce((sum, b) => sum + (b.multiplier || 10000), 0);
-    }
-    return getActiveBoardsCount() * getCostPerBoard(standardPlayType);
+    return standardBoards
+      .filter((b) => b.numbers.length > 0 || b.isTC)
+      .reduce((sum, b) => sum + getCostPerBoard(standardPlayType, b.multiplier || 10000), 0);
   };
 
   const handleOpenStandardBoardModal = (index: number, slotIndex = 0) => {
@@ -685,12 +685,18 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
       gameName,
       playType: standardPlayType,
       drawIds: selectedDraws,
-      boards: activeBoards.map(b => ({
-        id: b.id,
-        isTC: b.isTC,
-        numbers: b.numbers,
-        cost: b.multiplier || 10000
-      })),
+      boards: activeBoards.map(b => {
+        const boardCost = getCostPerBoard(standardPlayType, b.multiplier || 10000);
+        return {
+          id: b.id,
+          isTC: b.isTC,
+          numbers: b.numbers,
+          cost: boardCost,
+          baseCost: b.multiplier || 10000,
+          unitAmount: b.multiplier || 10000,
+          multiplier: b.multiplier || 10000,
+        };
+      }),
       totalCost: getStandardTotalCost()
     });
   };
@@ -721,9 +727,11 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
 
   const handleLottoAutoPickBoard = (index: number) => {
     const { main: reqMain, special: reqSpecial } = getLottoRequiredCounts();
+    const maxMain = gameId === 'lotto_570' ? 70 : 35;
+    const maxSpec = gameId === 'lotto_570' ? 24 : 12;
     const mainChosen: string[] = [];
     while (mainChosen.length < reqMain) {
-      const rand = Math.floor(Math.random() * 35) + 1;
+      const rand = Math.floor(Math.random() * maxMain) + 1;
       const randStr = String(rand).padStart(2, '0');
       if (!mainChosen.includes(randStr)) {
         mainChosen.push(randStr);
@@ -733,7 +741,7 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
 
     const specialChosen: string[] = [];
     while (specialChosen.length < reqSpecial) {
-      const rand = Math.floor(Math.random() * (gameId === 'lotto_570' ? 24 : 12)) + 1;
+      const rand = Math.floor(Math.random() * maxSpec) + 1;
       const randStr = String(rand).padStart(2, '0');
       if (!specialChosen.includes(randStr)) {
         specialChosen.push(randStr);
@@ -861,28 +869,34 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
     setIsStandardNumberModalVisible(false);
   };
 
-  const getLottoTotalCost = () => {
-    const activeBoards = standardBoards.filter((b) => b.numbers.length > 0 || b.isTC);
+  const getSingleLottoBoardCost = (b: { multiplier?: number }) => {
+    const mult = b.multiplier || 10000;
+    const factor = mult / 10000;
     if (lottoPlayType === 'Cơ bản') {
-      return activeBoards.length * 10000;
+      return mult;
     } else if (lottoPlayType === 'Bao số chính') {
       const mainBaoCount = lottoMainBao;
-      let costPerBao = 10000;
+      let costPerBaoAt10k = 10000;
       if (mainBaoCount === 4) {
-        costPerBao = gameId === 'lotto_570' ? 660000 : 310000;
+        costPerBaoAt10k = gameId === 'lotto_570' ? 660000 : 310000;
       } else {
         const c = (n: number, k: number) => {
           let r = 1;
           for (let i = 1; i <= k; i++) r = r * (n - i + 1) / i;
           return Math.round(r);
         };
-        costPerBao = c(mainBaoCount, 5) * 10000;
+        costPerBaoAt10k = c(mainBaoCount, 5) * 10000;
       }
-      return activeBoards.length * costPerBao;
+      return costPerBaoAt10k * factor;
     } else {
       const specBaoCount = lottoSpecialBao;
-      return activeBoards.length * specBaoCount * 10000;
+      return specBaoCount * mult;
     }
+  };
+
+  const getLottoTotalCost = () => {
+    const activeBoards = standardBoards.filter((b) => b.numbers.length > 0 || b.isTC);
+    return activeBoards.reduce((sum, b) => sum + getSingleLottoBoardCost(b), 0);
   };
 
   const handleLottoCheckout = () => {
@@ -908,13 +922,19 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
       gameName,
       playType: displayPlayType,
       drawIds: selectedDraws,
-      boards: activeBoards.map(b => ({
-        id: b.id,
-        isTC: b.isTC,
-        numbers: b.numbers,
-        specialNumbers: b.specialNumbers,
-        cost: getLottoTotalCost() / activeBoards.length
-      })),
+      boards: activeBoards.map(b => {
+        const boardCost = getSingleLottoBoardCost(b);
+        return {
+          id: b.id,
+          isTC: b.isTC,
+          numbers: b.numbers,
+          specialNumbers: b.specialNumbers,
+          cost: boardCost,
+          baseCost: b.multiplier || 10000,
+          unitAmount: b.multiplier || 10000,
+          multiplier: b.multiplier || 10000,
+        };
+      }),
       totalCost: getLottoTotalCost()
     });
   };
@@ -1574,17 +1594,21 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
 
       const nowMs = Date.now();
 
-      if (mappedGameCode === 'truot_loto' || mappedGameCode === 'loto_cap') {
+      const activeDrawsForCurrent = (draws || []).filter(
+        (d: any) => d.game && d.game.code === mappedGameCode && new Date(d.closeTime).getTime() > nowMs
+      );
+
+      if ((mappedGameCode === 'truot_loto' || mappedGameCode === 'loto_cap') && activeDrawsForCurrent.length === 0) {
         const generatedDraws: any[] = [];
         const now = new Date();
-        const todayCutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 17, 20, 0);
+        const todayCutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 10, 0);
         let startDayOffset = 0;
         if (now.getTime() >= todayCutoff.getTime()) {
           startDayOffset = 1;
         }
 
         for (let i = 0; i < 10; i++) {
-          const drawDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + startDayOffset + i, 17, 20, 0);
+          const drawDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + startDayOffset + i, 18, 10, 0);
           const day = String(drawDate.getDate()).padStart(2, '0');
           const month = String(drawDate.getMonth() + 1).padStart(2, '0');
           const year = drawDate.getFullYear();

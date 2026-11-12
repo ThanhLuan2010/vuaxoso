@@ -1,5 +1,5 @@
 import Toast from 'react-native-toast-message';
-import { ArrowLeft, Search } from 'lucide-react-native';
+import { ArrowLeft, Search, Clock } from 'lucide-react-native';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
@@ -236,6 +236,28 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
 
   const [selectedProvinceId, setSelectedProvinceId] = useState<string>(provinceId);
   const currentProvinceName = allProvinces.find((p) => p.id === selectedProvinceId)?.name ?? provinceName;
+
+  const cutoffTimeStr = resolvedRegion === 'MN' ? '16:10' : (resolvedRegion === 'MT' ? '17:10' : '18:10');
+
+  const isPastCutoff = useMemo(() => {
+    const now = new Date();
+    const vnTimeStr = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false, hour: '2-digit', minute: '2-digit' });
+    const [h, m] = vnTimeStr.split(':').map(Number);
+    const currentMinutes = h * 60 + m;
+
+    const vnDay = String(now.getDate()).padStart(2, '0');
+    const vnMonth = String(now.getMonth() + 1).padStart(2, '0');
+    const todaySlash = `${vnDay}/${vnMonth}`;
+
+    const isToday = drawDate && (drawDate.includes(todaySlash) || drawDate.includes('Hôm nay'));
+    if (!isToday) return false;
+
+    if (resolvedRegion === 'MN') return currentMinutes >= 16 * 60 + 10;
+    if (resolvedRegion === 'MT') return currentMinutes >= 17 * 60 + 10;
+    if (resolvedRegion === 'MB') return currentMinutes >= 18 * 60 + 10;
+    return false;
+  }, [drawDate, resolvedRegion]);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTickets, setSelectedTickets] = useState<Record<string, number>>({});
   const [qtyModalTicket, setQtyModalTicket] = useState<any>(null);
@@ -381,6 +403,10 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
   };
 
   const handleBuy = () => {
+    if (isPastCutoff) {
+      Alert.alert('Hết giờ bán vé', `Đài ${currentProvinceName} đã quá thời gian chốt vé hôm nay (Đóng lúc ${cutoffTimeStr}).`);
+      return;
+    }
     if (Object.keys(selectedTickets).length === 0) {
       Alert.alert('Chưa chọn vé', 'Vui lòng chọn ít nhất 1 vé để đặt mua.');
       return;
@@ -534,6 +560,15 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
           )}
         </View>
 
+        {isPastCutoff && (
+          <View style={styles.cutoffWarningBanner}>
+            <Clock size={16} color="#B91C1C" style={{ marginRight: 6 }} />
+            <Text style={styles.cutoffWarningText}>
+              Đã hết giờ mở bán vé đài này hôm nay (Chốt lúc {cutoffTimeStr}).
+            </Text>
+          </View>
+        )}
+
         {/* ── PROVINCE FILTER TABS ── */}
         <ScrollView
           horizontal
@@ -620,34 +655,46 @@ export default function GameLayoutCScreen({ route, navigation }: any) {
         </View>
 
         <View style={[styles.footerBtns, { flexDirection: "row", gap: 10 }]}>
-          <TouchableOpacity style={[styles.buyBtn, { flex: 1, backgroundColor: COLORS.secondary }]} onPress={() => {
-            if (Object.keys(selectedTickets).length === 0) {
-              Alert.alert("Chưa chọn vé", "Vui lòng chọn ít nhất 1 vé để đặt mua.");
-              return;
-            }
-            Object.entries(selectedTickets).forEach(([id, qty]) => {
-              const ticket = tickets.find((t) => t.id === id);
-              if (ticket) {
-                addToCart({
-                  gameId: `kienthiet_${selectedProvinceId}`,
-                  gameName: `XỔ SỐ KIẾN THIẾT - ${regionLabel}`,
-                  numbers: [ticket.number],
-                  cost: ticket.price || 10000,
-                  baseCost: ticket.price || 10000,
-                  quantity: qty,
-                  provinceName: currentProvinceName,
-                  provinceId: selectedProvinceId,
-                  drawDate: drawDate,
-                });
+          <TouchableOpacity 
+            style={[styles.buyBtn, { flex: 1, backgroundColor: COLORS.secondary }, isPastCutoff && { opacity: 0.5 }]} 
+            disabled={isPastCutoff}
+            onPress={() => {
+              if (isPastCutoff) {
+                Alert.alert('Hết giờ bán vé', `Đài ${currentProvinceName} đã quá thời gian chốt vé hôm nay (Đóng lúc ${cutoffTimeStr}).`);
+                return;
               }
-            });
-            Toast.show({ type: 'success', text1: 'Thành công', text2: 'Đã thêm vào giỏ hàng' });
-            setSelectedTickets({});
-          }}>
+              if (Object.keys(selectedTickets).length === 0) {
+                Alert.alert("Chưa chọn vé", "Vui lòng chọn ít nhất 1 vé để đặt mua.");
+                return;
+              }
+              Object.entries(selectedTickets).forEach(([id, qty]) => {
+                const ticket = tickets.find((t) => t.id === id);
+                if (ticket) {
+                  addToCart({
+                    gameId: `kienthiet_${selectedProvinceId}`,
+                    gameName: `XỔ SỐ KIẾN THIẾT - ${regionLabel}`,
+                    numbers: [ticket.number],
+                    cost: ticket.price || 10000,
+                    baseCost: ticket.price || 10000,
+                    quantity: qty,
+                    provinceName: currentProvinceName,
+                    provinceId: selectedProvinceId,
+                    drawDate: drawDate,
+                  });
+                }
+              });
+              Toast.show({ type: 'success', text1: 'Thành công', text2: 'Đã thêm vào giỏ hàng' });
+              setSelectedTickets({});
+            }}
+          >
             <Text style={styles.buyBtnText}>Thêm vào giỏ</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.buyBtn, { flex: 1 }]} onPress={handleBuy}>
-            <Text style={styles.buyBtnText}>Mua ngay</Text>
+          <TouchableOpacity 
+            style={[styles.buyBtn, { flex: 1 }, isPastCutoff && { opacity: 0.5 }]} 
+            disabled={isPastCutoff}
+            onPress={handleBuy}
+          >
+            <Text style={styles.buyBtnText}>{isPastCutoff ? 'Hết giờ chốt' : 'Mua ngay'}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -783,6 +830,23 @@ const styles = StyleSheet.create({
     color: '#0F2942',
     padding: 0,
     height: '100%',
+  },
+  cutoffWarningBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEE2E2',
+    borderColor: '#FECDD3',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 12,
+  },
+  cutoffWarningText: {
+    fontSize: 12,
+    color: '#B91C1C',
+    fontWeight: '600',
+    flex: 1,
   },
 
   // Province tabs

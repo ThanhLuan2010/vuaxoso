@@ -82,14 +82,14 @@ export default function GameLayoutBScreen({ route, navigation }: any) {
           setCountdown(Math.max(0, Math.floor((closeTimeMs - Date.now()) / 1000)));
         }
       } else {
-        // Fallback: Tạo 10 kỳ quay hàng ngày theo giờ xổ Miền Bắc (chốt vé 17h20, xổ 18h15)
+        // Fallback: Tạo 10 kỳ quay hàng ngày theo giờ xổ Miền Bắc (chốt vé 18h10, xổ 18h15)
         const generatedDraws: any[] = [];
         const now = new Date();
-        const todayCutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 17, 20, 0);
+        const todayCutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 10, 0);
         let startDayOffset = now.getTime() >= todayCutoff.getTime() ? 1 : 0;
 
         for (let i = 0; i < 10; i++) {
-          const drawDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + startDayOffset + i, 17, 20, 0);
+          const drawDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + startDayOffset + i, 18, 10, 0);
           const day = String(drawDate.getDate()).padStart(2, '0');
           const month = String(drawDate.getMonth() + 1).padStart(2, '0');
           const year = drawDate.getFullYear();
@@ -113,14 +113,14 @@ export default function GameLayoutBScreen({ route, navigation }: any) {
       }
     } catch (error) {
       console.error('Lỗi khi tải kỳ quay:', error);
-      // Fallback
+      // Fallback: Tạo 10 kỳ quay theo giờ xổ Miền Bắc (chốt vé 18h10, xổ 18h15)
       const generatedDraws: any[] = [];
       const now = new Date();
-      const todayCutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 17, 20, 0);
+      const todayCutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 10, 0);
       let startDayOffset = now.getTime() >= todayCutoff.getTime() ? 1 : 0;
 
       for (let i = 0; i < 10; i++) {
-        const drawDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + startDayOffset + i, 17, 20, 0);
+        const drawDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + startDayOffset + i, 18, 10, 0);
         const day = String(drawDate.getDate()).padStart(2, '0');
         const month = String(drawDate.getMonth() + 1).padStart(2, '0');
         const year = drawDate.getFullYear();

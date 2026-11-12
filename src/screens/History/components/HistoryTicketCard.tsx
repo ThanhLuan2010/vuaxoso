@@ -161,12 +161,18 @@ export default function HistoryTicketCard({ ticket, index, prevTicket }: History
             </View>
           )}
 
-          <Text style={styles.ticketKy}>
-            Kỳ QSMT:{' '}
-            {ticket.drawDate
-              ? `${ticket.drawDate} (${ticket.drawId || 'Kỳ mở thưởng'})`
-              : ticket.drawId || 'Đang cập nhật'}
-          </Text>
+          {(() => {
+            const rawCode = ticket.drawCode || ticket.draw?.drawCode || (ticket.drawId && ticket.drawId !== ticket.drawDate && !ticket.drawId.match(/^[0-9a-f]{24}$/i) ? ticket.drawId : '');
+            const drawCodeStr = rawCode ? (String(rawCode).startsWith('#') ? rawCode : `#${rawCode}`) : '';
+            return (
+              <Text style={styles.ticketKy}>
+                Kỳ QSMT:{' '}
+                {ticket.drawDate
+                  ? (drawCodeStr ? `${ticket.drawDate} (${drawCodeStr})` : ticket.drawDate)
+                  : (drawCodeStr || ticket.drawId || 'Đang cập nhật')}
+              </Text>
+            );
+          })()}
 
           <View style={styles.ticketBottomRow}>
             <View style={styles.timeRow}>

@@ -44,7 +44,7 @@ export default function HistoryScreen({ route }: any) {
 
   // React Query cached query
   const {
-    data: newOrders = [],
+    data: ordersData,
     isLoading,
     isFetching,
     refetch,
@@ -57,22 +57,23 @@ export default function HistoryScreen({ route }: any) {
 
   // Handle pagination accumulation
   useEffect(() => {
+    if (!ordersData) return;
     if (page === 1) {
-      setAccumulatedOrders(newOrders);
-    } else if (newOrders.length > 0) {
+      setAccumulatedOrders(ordersData);
+    } else if (ordersData.length > 0) {
       setAccumulatedOrders((prev) => {
         const existingIds = new Set(prev.map((o) => o._id || o.orderId));
-        const filteredNew = newOrders.filter((o) => !existingIds.has(o._id || o.orderId));
+        const filteredNew = ordersData.filter((o) => !existingIds.has(o._id || o.orderId));
+        if (filteredNew.length === 0) return prev;
         return [...prev, ...filteredNew];
       });
     }
-  }, [newOrders, page]);
+  }, [ordersData, page]);
 
   useFocusEffect(
     useCallback(() => {
-      setPage(1);
       refetch();
-    }, [activeTab, activeFilter])
+    }, [refetch])
   );
 
   const onRefresh = useCallback(() => {
@@ -81,12 +82,13 @@ export default function HistoryScreen({ route }: any) {
   }, [refetch]);
 
   const handleLoadMore = () => {
-    if (!isFetching && newOrders.length === 10) {
+    if (!isFetching && ordersData && ordersData.length === 10) {
       setPage((prev) => prev + 1);
     }
   };
 
-  const hasMore = newOrders.length === 10;
+  const hasMore = ordersData ? ordersData.length === 10 : false;
+  const displayedOrders = (page === 1 && ordersData) ? ordersData : accumulatedOrders;
 
   const renderFooter = () => {
     if (isFetching && page > 1) {
@@ -97,7 +99,7 @@ export default function HistoryScreen({ route }: any) {
         </View>
       );
     }
-    if (!hasMore && accumulatedOrders.length > 0) {
+    if (!hasMore && displayedOrders.length > 0) {
       return (
         <View style={{ paddingVertical: 16, alignItems: 'center' }}>
           <Text style={{ color: COLORS.gray400, fontSize: 12 }}>Đã hiển thị tất cả đơn hàng</Text>
@@ -136,11 +138,11 @@ export default function HistoryScreen({ route }: any) {
         }}
       />
 
-      {isLoading && page === 1 ? (
+      {isLoading && page === 1 && displayedOrders.length === 0 ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
-      ) : accumulatedOrders.length === 0 ? (
+      ) : displayedOrders.length === 0 ? (
         <ScrollView
           contentContainerStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
           refreshControl={<RefreshControl refreshing={isFetching && page === 1} onRefresh={onRefresh} colors={[COLORS.primary]} />}
@@ -149,13 +151,13 @@ export default function HistoryScreen({ route }: any) {
         </ScrollView>
       ) : (
         <FlatList
-          data={accumulatedOrders}
+          data={displayedOrders}
           keyExtractor={(item, index) => item._id || item.orderId || `${index}`}
           renderItem={({ item, index }) => (
             <HistoryTicketCard
               ticket={item}
               index={index}
-              prevTicket={index > 0 ? accumulatedOrders[index - 1] : undefined}
+              prevTicket={index > 0 ? displayedOrders[index - 1] : undefined}
             />
           )}
           contentContainerStyle={styles.listContainer}

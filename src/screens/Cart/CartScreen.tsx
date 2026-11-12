@@ -61,7 +61,12 @@ export default function CartScreen({ navigation }: any) {
               <Text style={styles.provinceName}>{item.provinceName}</Text>
             ) : null}
             {item.drawDate ? (
-              <Text style={[styles.provinceName, { color: '#666' }]}>• {item.drawDate}</Text>
+              <Text style={[styles.provinceName, { color: '#666' }]}>
+                • {item.drawDate}{(() => {
+                  const raw = item.drawCode || (item.drawId && item.drawId !== item.drawDate ? item.drawId : '');
+                  return raw ? ` (${String(raw).startsWith('#') ? raw : '#' + raw})` : '';
+                })()}
+              </Text>
             ) : null}
           </View>
         </View>

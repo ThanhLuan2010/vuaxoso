@@ -20,11 +20,20 @@ import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme
 import api from '../../services/api';
 import { useOrderDetailQuery } from '../../hooks/queries';
 
+const parseWinningNumbers = (raw: any): string[] => {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw.map(String);
+  if (typeof raw === 'string') {
+    return raw.split(/[,;\s]+/).map(s => s.trim()).filter(Boolean);
+  }
+  return [];
+};
+
 export default function HistoryDetailScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const route = useRoute();
-  const { ticket: initialTicket, orderId } = route.params as any;
+  const { ticket: initialTicket, orderId } = (route.params as any) || {};
   
   const [ticket, setTicket] = useState<any>(initialTicket);
   const [loading, setLoading] = useState(!initialTicket);
@@ -36,7 +45,7 @@ export default function HistoryDetailScreen() {
   const [drawInfo, setDrawInfo] = useState<any>(null);
 
   const fetchOrderDetail = useCallback(async (isRefresh = false) => {
-    const idToFetch = orderId || ticket?._id || ticket?.id;
+    const idToFetch = orderId || ticket?._id || ticket?.id || ticket?.orderId;
     if (!idToFetch) return;
     try {
       if (isRefresh) setRefreshing(true);
@@ -48,7 +57,7 @@ export default function HistoryDetailScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [orderId, ticket?._id, ticket?.id]);
+  }, [orderId, ticket?._id, ticket?.id, ticket?.orderId]);
 
   useEffect(() => {
     if (orderId && (!ticket || (ticket.orderId !== orderId && ticket._id !== orderId))) {
@@ -60,18 +69,68 @@ export default function HistoryDetailScreen() {
   useEffect(() => {
     const fetchDrawResult = async () => {
       try {
+        // 1. Ưu tiên sử dụng draw đã được đính kèm từ backend (qua getOrderById)
+        if (ticket?.draw) {
+          setDrawInfo(ticket.draw);
+          if (ticket.draw.status === 'open' || (ticket.draw.closeTime && new Date(ticket.draw.closeTime).getTime() > Date.now())) {
+            return; // Kỳ quay đang mở hoặc ở tương lai -> dừng ngay, không query kết quả cũ!
+          }
+        }
+
+        // 2. Nếu vé có ngày quay ở tương lai, không gọi API kết quả
+        if (ticket?.drawDate) {
+          const parts = ticket.drawDate.split('/');
+          if (parts.length === 3) {
+            const drawDayStart = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]), 0, 0, 0);
+            if (Date.now() < drawDayStart.getTime()) {
+              return;
+            }
+          }
+        }
+
         let code = ticket?.gameType;
         if (code === 'xoso_3mien' && ticket?.region) {
           code = ticket.region.toUpperCase();
         }
         if (!code) return;
+
         const res = await api.get('/draws/results', { params: { code, limit: 30 } }).catch(() => null);
         if (res?.data && Array.isArray(res.data)) {
           const cleanDrawId = (ticket.drawId || '').replace(/^#/, '').trim();
+          const targetProv = (ticket.provinceName || '').toLowerCase().trim();
+
           const found = res.data.find((d: any) => {
+            // Kiểm tra khớp ObjectId chính xác nếu có
+            if (ticket.draw?._id && String(d._id) === String(ticket.draw._id)) return true;
+            if (ticket.drawId && String(d._id) === String(ticket.drawId)) return true;
+
+            // Kiểm tra mã kỳ quay
             const dCode = (d.drawCode || '').replace(/^#/, '').trim();
-            return (cleanDrawId && dCode === cleanDrawId) || d._id === ticket.drawId;
+            const isCodeMatch = cleanDrawId && dCode === cleanDrawId;
+            if (!isCodeMatch) return false;
+
+            // NẾU KHỚP MÃ KỲ QUAY: BẮT BUỘC PHẢI KHỚP CẢ ĐÀI LẪN NGÀY!
+            if (targetProv) {
+              const dProvName = (d.province?.name || d.provinceName || d.provinceId || '').toLowerCase().trim();
+              if (dProvName && !dProvName.includes(targetProv) && !targetProv.includes(dProvName)) {
+                return false; // Khác đài!
+              }
+            }
+
+            if (ticket.drawDate) {
+              const dCloseTime = d.closeTime || d.drawTime;
+              if (dCloseTime) {
+                const dt = new Date(dCloseTime);
+                const dVnDate = dt.toLocaleDateString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
+                if (dVnDate !== ticket.drawDate) {
+                  return false; // Khác ngày!
+                }
+              }
+            }
+
+            return true;
           });
+
           if (found) {
             setDrawInfo(found);
           }
@@ -83,11 +142,70 @@ export default function HistoryDetailScreen() {
     if (ticket) {
       fetchDrawResult();
     }
-  }, [ticket?.gameType, ticket?.drawId, ticket?.region]);
+  }, [ticket?.gameType, ticket?.drawId, ticket?.region, ticket?.provinceName, ticket?.drawDate, ticket?.draw]);
 
   const onRefresh = useCallback(() => {
     fetchOrderDetail(true);
   }, [fetchOrderDetail]);
+
+  // TẤT CẢ CÁC HOOKS PHẢI ĐƯỢC GỌI Ở ĐẦU COMPONENT TRƯỚC CÁC LỆNH RETURN ĐIỀU KIỆN
+  const isWinning = ticket?.isWinner === true || (ticket?.prizeAmount != null && Number(ticket.prizeAmount) > 0);
+
+  const winningNumbersList = useMemo(() => {
+    // 1. Nếu kỳ quay có trạng thái 'open' (đang mở đặt cược), chắc chắn 100% chưa có kết quả
+    if (drawInfo?.status === 'open' || ticket?.draw?.status === 'open') {
+      return [];
+    }
+
+    // 2. Nếu thời gian chốt cược của kỳ quay nằm trong tương lai, chưa có kết quả
+    const targetCloseTime = drawInfo?.closeTime || ticket?.draw?.closeTime;
+    if (targetCloseTime && new Date(targetCloseTime).getTime() > Date.now()) {
+      return [];
+    }
+
+    // 3. Nếu ngày quay là ngày tương lai (ví dụ 13/11 mà nay là 12/11), chưa có kết quả
+    if (ticket?.drawDate) {
+      const parts = ticket.drawDate.split('/');
+      if (parts.length === 3) {
+        const drawDateStart = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]), 0, 0, 0);
+        if (Date.now() < drawDateStart.getTime()) {
+          return [];
+        }
+      }
+    }
+
+    // 4. Nếu vé đang chờ ('pending') và chưa có cờ trúng thưởng, và drawInfo không phải là completed
+    if (ticket?.status === 'pending' && !isWinning && drawInfo?.status !== 'completed' && ticket?.draw?.status !== 'completed') {
+      return [];
+    }
+
+    const fromTicket = parseWinningNumbers(ticket?.winningNumbers);
+    if (fromTicket.length > 0) return fromTicket;
+    const fromDraw = parseWinningNumbers(drawInfo?.winningNumbers || ticket?.draw?.winningNumbers || ticket?.drawResult?.winningNumbers);
+    if (fromDraw.length > 0 && (drawInfo?.status === 'completed' || ticket?.draw?.status === 'completed' || ticket?.status === 'completed')) return fromDraw;
+    return [];
+  }, [ticket?.winningNumbers, drawInfo?.winningNumbers, drawInfo?.status, drawInfo?.closeTime, ticket?.draw, ticket?.drawResult, ticket?.drawDate, ticket?.status, isWinning]);
+
+  const userBetNumbers = useMemo(() => {
+    const set = new Set<string>();
+    if (Array.isArray(ticket?.items)) {
+      ticket.items.forEach((it: any) => {
+        if (Array.isArray(it.numbers)) {
+          it.numbers.forEach((n: any) => {
+            const s = String(n).trim();
+            if (s) set.add(s);
+          });
+        }
+      });
+    }
+    if (Array.isArray(ticket?.numbers)) {
+      ticket.numbers.forEach((n: any) => {
+        const s = String(n).trim();
+        if (s) set.add(s);
+      });
+    }
+    return set;
+  }, [ticket?.items, ticket?.numbers]);
 
   if (loading) {
     return (
@@ -128,7 +246,6 @@ export default function HistoryDetailScreen() {
     ticketTypeStr = ticket.gameType.replace(/_/g, ' ').toUpperCase();
   }
 
-  const isWinning = ticket?.isWinner === true || (ticket?.prizeAmount != null && Number(ticket.prizeAmount) > 0);
   const statusStr = isWinning ? 'Trúng thưởng' : (ticket?.status === 'pending' ? 'Chờ in' : (ticket?.status === 'completed' ? 'Hoàn thành' : 'Đã huỷ'));
   const formattedPrice = ticket?.totalCost ? ticket.totalCost.toLocaleString('vi-VN') + 'đ' : '0đ';
   const dateObj = new Date(ticket?.createdAt || Date.now());
@@ -154,55 +271,78 @@ export default function HistoryDetailScreen() {
 
   const imageUrl = hasRealImage ? { uri: getImageUrl(ticket.ticketImageUrl) } : null;
 
-  const parseWinningNumbers = (raw: any): string[] => {
-    if (!raw) return [];
-    if (Array.isArray(raw)) return raw.map(String);
-    if (typeof raw === 'string') {
-      return raw.split(/[,;\s]+/).map(s => s.trim()).filter(Boolean);
-    }
-    return [];
-  };
-
-  const winningNumbersList = useMemo(() => {
-    const fromTicket = parseWinningNumbers(ticket?.winningNumbers);
-    if (fromTicket.length > 0) return fromTicket;
-    const fromDraw = parseWinningNumbers(drawInfo?.winningNumbers || ticket?.draw?.winningNumbers || ticket?.drawResult?.winningNumbers);
-    if (fromDraw.length > 0) return fromDraw;
-    return [];
-  }, [ticket?.winningNumbers, drawInfo?.winningNumbers, ticket?.draw, ticket?.drawResult]);
-
-  const userBetNumbers = useMemo(() => {
-    const set = new Set<string>();
-    if (Array.isArray(ticket?.items)) {
-      ticket.items.forEach((it: any) => {
-        if (Array.isArray(it.numbers)) {
-          it.numbers.forEach((n: any) => set.add(String(n).trim()));
-        }
-      });
-    }
-    if (Array.isArray(ticket?.numbers)) {
-      ticket.numbers.forEach((n: any) => set.add(String(n).trim()));
-    }
-    return set;
-  }, [ticket?.items, ticket?.numbers]);
-
   const isMatchNumber = (winNum: string) => {
-    if (userBetNumbers.has(winNum)) return true;
+    if (!winNum || typeof winNum !== 'string') return false;
+    const cleanWin = winNum.trim();
+    if (!cleanWin) return false;
+    if (userBetNumbers.has(cleanWin)) return true;
+    const isDau = ticket?.playType?.toLowerCase()?.includes('đầu');
     for (const bet of userBetNumbers) {
-      if (bet.length === 2 && winNum.endsWith(bet)) return true;
-      if (bet.length === 3 && winNum.endsWith(bet)) return true;
-      if (bet.length === 4 && winNum.endsWith(bet)) return true;
+      if (!bet) continue;
+      if (isDau && bet.length >= 2 && cleanWin.startsWith(bet)) return true;
+      if (bet.length >= 2 && cleanWin.endsWith(bet)) return true;
     }
     return false;
   };
 
+  const getPrizeRows = (numbers: string[], gameType?: string, provinceOrRegion?: string) => {
+    if (!numbers || numbers.length === 0) return [];
+
+    const provStr = (provinceOrRegion || '').toLowerCase();
+    const gType = (gameType || '').toLowerCase();
+    const isMB =
+      numbers.length >= 27 ||
+      gType.includes('mb') ||
+      gType.includes('bac') ||
+      ['loto_235', 'loto_cap', 'bao_loto_2', 'truot_loto'].includes(gType) ||
+      provStr.includes('bắc') ||
+      provStr.includes('bac') ||
+      provStr.includes('hà nội') ||
+      provStr === 'mb';
+
+    if (isMB && numbers.length >= 27) {
+      return [
+        { label: 'Đặc biệt', isSpecial: true, numbers: [numbers[0]] },
+        { label: 'Giải Nhất', isSpecial: false, numbers: [numbers[1]] },
+        { label: 'Giải Nhì', isSpecial: false, numbers: numbers.slice(2, 4) },
+        { label: 'Giải Ba', isSpecial: false, numbers: numbers.slice(4, 10) },
+        { label: 'Giải Tư', isSpecial: false, numbers: numbers.slice(10, 14) },
+        { label: 'Giải Năm', isSpecial: false, numbers: numbers.slice(14, 20) },
+        { label: 'Giải Sáu', isSpecial: false, numbers: numbers.slice(20, 23) },
+        { label: 'Giải Bảy', isSpecial: false, numbers: numbers.slice(23, 27) },
+      ];
+    }
+
+    if (numbers.length >= 18) {
+      return [
+        { label: 'Đặc biệt', isSpecial: true, numbers: [numbers[0]] },
+        { label: 'Giải Nhất', isSpecial: false, numbers: [numbers[1]] },
+        { label: 'Giải Nhì', isSpecial: false, numbers: [numbers[2]] },
+        { label: 'Giải Ba', isSpecial: false, numbers: numbers.slice(3, 5) },
+        { label: 'Giải Tư', isSpecial: false, numbers: numbers.slice(5, 12) },
+        { label: 'Giải Năm', isSpecial: false, numbers: [numbers[12]] },
+        { label: 'Giải Sáu', isSpecial: false, numbers: numbers.slice(13, 16) },
+        { label: 'Giải Bảy', isSpecial: false, numbers: [numbers[16]] },
+        { label: 'Giải Tám', isSpecial: false, numbers: [numbers[17]] },
+      ];
+    }
+
+    return [
+      { label: 'Đặc biệt', isSpecial: true, numbers: [numbers[0]] },
+      { label: 'Các giải khác', isSpecial: false, numbers: numbers.slice(1) }
+    ];
+  };
+
   const getDrawDateTimeStr = () => {
-    const drawDateObj = drawInfo?.drawTime || drawInfo?.closeTime;
+    const targetDraw = ticket?.draw || drawInfo;
+    const drawDateObj = targetDraw?.drawTime || targetDraw?.closeTime;
     if (drawDateObj) {
       const dt = new Date(drawDateObj);
       const vnDate = dt.toLocaleDateString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
       const vnTime = dt.toLocaleTimeString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false, hour: '2-digit', minute: '2-digit' });
-      return `${vnTime} - ${vnDate}`;
+      if (!ticket?.drawDate || ticket.drawDate === vnDate) {
+        return `${vnTime} - ${vnDate}`;
+      }
     }
     if (ticket?.drawDate) {
       return ticket.drawTime ? `${ticket.drawTime} - ${ticket.drawDate}` : ticket.drawDate;
@@ -331,7 +471,17 @@ export default function HistoryDetailScreen() {
 
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Kỳ QSMT</Text>
-            <Text style={styles.infoValue}>{ticket?.drawId || 'Đang cập nhật'}</Text>
+            {(() => {
+              const rawCode = ticket?.drawCode || ticket?.draw?.drawCode || drawInfo?.drawCode || (ticket?.drawId && ticket?.drawId !== ticket?.drawDate && !ticket.drawId.match(/^[0-9a-f]{24}$/i) ? ticket.drawId : '');
+              const drawCodeStr = rawCode ? (String(rawCode).startsWith('#') ? rawCode : `#${rawCode}`) : '';
+              return (
+                <Text style={styles.infoValue}>
+                  {ticket?.drawDate
+                    ? (drawCodeStr ? `${ticket.drawDate} (${drawCodeStr})` : ticket.drawDate)
+                    : (drawCodeStr || ticket?.drawId || 'Đang cập nhật')}
+                </Text>
+              );
+            })()}
           </View>
 
           {ticket?.playType ? (
@@ -382,30 +532,61 @@ export default function HistoryDetailScreen() {
 
             {winningNumbersList.length > 0 ? (
               <View style={styles.resultNumbersContainer}>
-                {(isLode || isKienThiet) && winningNumbersList.length >= 8 ? (
-                  <View style={{ width: '100%', marginBottom: 6 }}>
-                    <View style={styles.specialPrizeBox}>
-                      <Text style={styles.specialPrizeLabel}>GIẢI ĐẶC BIỆT</Text>
-                      <Text style={styles.specialPrizeNum}>{winningNumbersList[0]}</Text>
-                    </View>
-                    <Text style={styles.subPrizesTitle}>Các số mở thưởng:</Text>
-                    <View style={styles.winningGrid}>
-                      {winningNumbersList.slice(1).map((num: string, idx: number) => {
-                        const isMatch = isMatchNumber(num);
-                        return (
-                          <View key={idx} style={[styles.winningTag, isMatch && styles.winningTagMatch]}>
-                            <Text style={[styles.winningTagText, isMatch && styles.winningTagTextMatch]}>
-                              {num}
+                {(isLode || isKienThiet || ['loto_235', 'loto_cap', 'bao_loto_2', 'truot_loto'].includes(ticket?.gameType)) && winningNumbersList.length >= 8 ? (
+                  <View style={styles.prizeTableContainer}>
+                    {getPrizeRows(
+                      winningNumbersList,
+                      ticket?.gameType,
+                      ticket?.provinceName || drawInfo?.province?.name || drawInfo?.game?.code
+                    ).map((row, rIdx, arr) => {
+                      const isSpecialRow = row.isSpecial;
+                      return (
+                        <View
+                          key={rIdx}
+                          style={[
+                            styles.prizeTableRow,
+                            isSpecialRow && styles.prizeTableRowSpecial,
+                            rIdx === arr.length - 1 && { borderBottomWidth: 0 }
+                          ]}
+                        >
+                          <View style={[styles.prizeLabelCol, isSpecialRow && styles.prizeLabelColSpecial]}>
+                            <Text style={[styles.prizeLabelText, isSpecialRow && styles.prizeLabelTextSpecial]}>
+                              {row.label}
                             </Text>
-                            {isMatch && (
-                              <View style={styles.matchBadge}>
-                                <Text style={styles.matchBadgeText}>Trúng</Text>
-                              </View>
-                            )}
                           </View>
-                        );
-                      })}
-                    </View>
+                          <View style={styles.prizeNumbersCol}>
+                            {row.numbers.map((num, nIdx) => {
+                              const isMatch = isMatchNumber(num);
+                              return (
+                                <View
+                                  key={nIdx}
+                                  style={[
+                                    styles.winningTag,
+                                    isSpecialRow && styles.winningTagSpecial,
+                                    isMatch && styles.winningTagMatch
+                                  ]}
+                                >
+                                  <Text
+                                    style={[
+                                      styles.winningTagText,
+                                      isSpecialRow && styles.winningTagTextSpecial,
+                                      isMatch && styles.winningTagTextMatch
+                                    ]}
+                                  >
+                                    {num}
+                                  </Text>
+                                  {isMatch && (
+                                    <View style={styles.matchBadge}>
+                                      <Text style={styles.matchBadgeText}>Trúng</Text>
+                                    </View>
+                                  )}
+                                </View>
+                              );
+                            })}
+                          </View>
+                        </View>
+                      );
+                    })}
                   </View>
                 ) : (
                   <View style={styles.winningGrid}>
@@ -712,6 +893,67 @@ const styles = StyleSheet.create({
   },
   resultNumbersContainer: {
     marginTop: 4,
+  },
+  prizeTableContainer: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginTop: 4,
+  },
+  prizeTableRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+    minHeight: 46,
+  },
+  prizeTableRowSpecial: {
+    backgroundColor: '#FFF5F5',
+  },
+  prizeLabelCol: {
+    width: 86,
+    paddingVertical: 8,
+    paddingHorizontal: 6,
+    borderRightWidth: 1,
+    borderRightColor: '#E2E8F0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+  },
+  prizeLabelColSpecial: {
+    backgroundColor: '#FEE2E2',
+    borderRightColor: '#FECACA',
+  },
+  prizeLabelText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#334155',
+    textAlign: 'center',
+  },
+  prizeLabelTextSpecial: {
+    color: '#DC2626',
+    fontWeight: '800',
+    fontSize: 13,
+  },
+  prizeNumbersCol: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    gap: 6,
+  },
+  winningTagSpecial: {
+    borderColor: '#FCA5A5',
+    backgroundColor: '#FEF2F2',
+  },
+  winningTagTextSpecial: {
+    color: '#DC2626',
+    fontWeight: '900',
+    fontSize: 17,
+    letterSpacing: 2,
   },
   specialPrizeBox: {
     backgroundColor: '#FEF2F2',

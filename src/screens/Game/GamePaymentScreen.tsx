@@ -86,12 +86,13 @@ export default function GamePaymentScreen({ route, navigation }: any) {
         gameType: gameId,
         playType: playType,
         drawId: drawId,
+        drawCode: route.params?.drawCode,
         provinceName: route.params?.provinceName,
         drawDate: drawDate,
         items: itemsPayload
       }));
 
-      await api.post('/orders/checkout', { orders: ordersPayload });
+      await api.post('/orders/checkout', { orders: ordersPayload, clearCart: false });
 
       await fetchProfile();
 
@@ -240,7 +241,7 @@ export default function GamePaymentScreen({ route, navigation }: any) {
                         </View>
                       ) : (
                         <Text style={styles.boardDetailNumbers}>
-                          {gameId === 'lotto_535'
+                          {(gameId === 'lotto_535' || gameId === 'lotto_570')
                             ? `${board.numbers.join(' ')} | ${board.specialNumbers ? board.specialNumbers.join(' ') : ''}`
                             : ((gameId === 'loto_235' && playType?.includes('Bao 2 số')) || (gameId === 'dientoan_636' && playType?.includes('Bao')))
                               ? `Danh sách bộ số: ${board.numbers.join(', ')}`
@@ -322,7 +323,7 @@ export default function GamePaymentScreen({ route, navigation }: any) {
                   <Text style={{ fontSize: 16, color: '#0F2942', fontWeight: '500' }}>
                     {board.isTC
                       ? 'Tự chọn (TC)'
-                      : gameId === 'lotto_535'
+                      : (gameId === 'lotto_535' || gameId === 'lotto_570')
                         ? `${board.numbers.join(' ')} | ${board.specialNumbers ? board.specialNumbers.join(' ') : ''}`
                         : ((gameId === 'loto_235' && playType.includes('Bao 2 số')) || (gameId === 'dientoan_636' && playType.includes('Bao')))
                           ? `Danh sách bộ số: ${board.numbers.join(', ')}`
