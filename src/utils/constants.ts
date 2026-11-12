@@ -18,6 +18,7 @@ export interface DaySchedule {
   isToday: boolean;
   isTomorrow: boolean;
   isDayAfterTomorrow: boolean;
+  offset?: number;
   mb: ProvinceItem[];
   mt: ProvinceItem[];
   mn: ProvinceItem[];
@@ -38,6 +39,17 @@ const getDaysData = (): DaySchedule[] => {
   const daysOfWeek = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
   const today = new Date();
   
+  const vnTimeStr = today.toLocaleTimeString('en-US', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false, hour: '2-digit', minute: '2-digit' });
+  const [hour, min] = vnTimeStr.split(':').map(Number);
+  const currentMinutes = hour * 60 + min;
+
+  let baseOffset = 0;
+  // 18h15 auto chuyển sang ngày bán vé kế tiếp của 3 miền
+  if (hour > 18 || (hour === 18 && min >= 15)) {
+    baseOffset = 1;
+    today.setDate(today.getDate() + 1);
+  }
+
   const formatDate = (date: Date) => {
     const dayName = daysOfWeek[date.getDay()];
     const day = String(date.getDate()).padStart(2, '0');
@@ -83,10 +95,41 @@ const getDaysData = (): DaySchedule[] => {
     else return [{ id: 'BT', name: 'Bến Tre', code: 'B.Tre', region: 'MN' }, { id: 'VT', name: 'Vũng Tàu', code: 'V.Tàu', region: 'MN' }, { id: 'BL', name: 'Bạc Liêu', code: 'B.Liêu', region: 'MN' }];
   };
 
+  const isMNClosedToday = baseOffset === 0 && currentMinutes >= 16 * 60 + 10;
+  const isMTClosedToday = baseOffset === 0 && currentMinutes >= 17 * 60 + 10;
+  const isMBClosedToday = baseOffset === 0 && currentMinutes >= 18 * 60 + 10;
+
   return [
-    { dateString: formatDate(today) + " (Hôm nay)", isToday: true, isTomorrow: false, isDayAfterTomorrow: false, mb: getMBForDay(today), mt: getMTForDay(today), mn: getMNForDay(today) },
-    { dateString: formatDate(tomorrow) + " (Ngày mai)", isToday: false, isTomorrow: true, isDayAfterTomorrow: false, mb: getMBForDay(tomorrow), mt: getMTForDay(tomorrow), mn: getMNForDay(tomorrow) },
-    { dateString: formatDate(dayAfter) + " (Ngày kia)", isToday: false, isTomorrow: false, isDayAfterTomorrow: true, mb: getMBForDay(dayAfter), mt: getMTForDay(dayAfter), mn: getMNForDay(dayAfter) }
+    {
+      dateString: formatDate(today) + (baseOffset === 0 ? " (Hôm nay)" : " (Ngày mai)"),
+      isToday: baseOffset === 0,
+      isTomorrow: baseOffset === 1,
+      isDayAfterTomorrow: baseOffset === 2,
+      offset: baseOffset,
+      mb: isMBClosedToday ? [] : getMBForDay(today),
+      mt: isMTClosedToday ? [] : getMTForDay(today),
+      mn: isMNClosedToday ? [] : getMNForDay(today)
+    },
+    {
+      dateString: formatDate(tomorrow) + (baseOffset === 0 ? " (Ngày mai)" : " (Ngày kia)"),
+      isToday: false,
+      isTomorrow: baseOffset === 0,
+      isDayAfterTomorrow: baseOffset === 1,
+      offset: baseOffset + 1,
+      mb: getMBForDay(tomorrow),
+      mt: getMTForDay(tomorrow),
+      mn: getMNForDay(tomorrow)
+    },
+    {
+      dateString: formatDate(dayAfter) + (baseOffset === 0 ? " (Ngày kia)" : ""),
+      isToday: false,
+      isTomorrow: false,
+      isDayAfterTomorrow: baseOffset === 0,
+      offset: baseOffset + 2,
+      mb: getMBForDay(dayAfter),
+      mt: getMTForDay(dayAfter),
+      mn: getMNForDay(dayAfter)
+    }
   ];
 };
 

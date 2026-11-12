@@ -15,6 +15,7 @@ import { ChevronLeft, ShoppingBag, Trophy, Wallet } from 'lucide-react-native';
 import { useAppStore } from '../../store/useAppStore';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
 import api from '../../services/api';
+import { useMyNotificationsQuery } from '../../hooks/queries';
 
 interface NotificationItem {
   id: string;
@@ -70,63 +71,51 @@ export default function NotificationsScreen() {
     return Object.keys(groups).map((k) => ({ title: k, data: groups[k] }));
   };
 
-  const fetchNotifications = async (pageNum = 1, isRefresh = false) => {
-    try {
-      if (isRefresh) {
-        setRefreshing(true);
-      } else if (pageNum === 1) {
-        setLoading(true);
-      } else {
-        setLoadingMore(true);
-      }
+  const {
+    data: rawNotifsData,
+    isLoading,
+    isFetching,
+    refetch,
+  } = useMyNotificationsQuery(page, 10);
 
-      const res = await api.get('/notifications/my-notifications', {
-        params: { page: pageNum, limit: 10 }
-      });
-      let notifications = res.data;
-      
-      // Handle potential wrapped response or non-array
-      if (res.data && Array.isArray(res.data.data)) {
-        notifications = res.data.data;
-      } else if (!Array.isArray(notifications)) {
-        notifications = [];
-      }
-
-      let combined: any[] = [];
-      if (pageNum === 1) {
-        combined = notifications;
-      } else {
-        combined = [...allNotifications, ...notifications];
-      }
-
-      setAllNotifications(combined);
-      setNotificationData(groupNotifications(combined));
-      setHasMore(notifications.length === 10);
-      setPage(pageNum);
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-      setLoadingMore(false);
+  useEffect(() => {
+    let notifications = rawNotifsData;
+    if (rawNotifsData && Array.isArray(rawNotifsData.data)) {
+      notifications = rawNotifsData.data;
+    } else if (!Array.isArray(notifications)) {
+      notifications = [];
     }
-  };
+
+    if (page === 1) {
+      setAllNotifications(notifications);
+      setNotificationData(groupNotifications(notifications));
+    } else if (notifications.length > 0) {
+      setAllNotifications((prev) => {
+        const combined = [...prev, ...notifications];
+        setNotificationData(groupNotifications(combined));
+        return combined;
+      });
+    }
+    setHasMore(notifications.length === 10);
+  }, [rawNotifsData, page]);
 
   useFocusEffect(
     React.useCallback(() => {
-      fetchNotifications(1);
+      setPage(1);
+      refetch();
       markAllNotificationsAsRead();
-    }, [markAllNotificationsAsRead])
+    }, [markAllNotificationsAsRead, refetch])
   );
 
   const onRefresh = React.useCallback(() => {
-    fetchNotifications(1, true);
+    setPage(1);
+    refetch();
     markAllNotificationsAsRead();
-  }, [markAllNotificationsAsRead]);
+  }, [markAllNotificationsAsRead, refetch]);
 
   const handleLoadMore = () => {
-    if (!loading && !loadingMore && !refreshing && hasMore) {
-      fetchNotifications(page + 1);
+    if (!isFetching && hasMore) {
+      setPage((prev) => prev + 1);
     }
   };
 
@@ -216,7 +205,7 @@ export default function NotificationsScreen() {
       <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
       {renderHeader()}
 
-      {loading && !refreshing ? (
+      {isLoading && page === 1 ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color="#0A3B7C" />
         </View>
@@ -235,7 +224,7 @@ export default function NotificationsScreen() {
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.3}
           ListFooterComponent={
-            loadingMore ? (
+            isFetching && page > 1 ? (
               <View style={{ paddingVertical: 14, alignItems: 'center' }}>
                 <ActivityIndicator size="small" color="#0A3B7C" />
               </View>
@@ -248,7 +237,7 @@ export default function NotificationsScreen() {
             ) : null
           }
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+            <RefreshControl refreshing={isFetching && page === 1} onRefresh={onRefresh} colors={[COLORS.primary]} />
           }
         />
       )}

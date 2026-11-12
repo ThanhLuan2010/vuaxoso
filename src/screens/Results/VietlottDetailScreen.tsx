@@ -1,5 +1,6 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import api from '../../services/api';
+import { usePaginatedResultsQuery } from '../../hooks/queries';
 import { ActivityIndicator, FlatList } from 'react-native';
 import {
   StyleSheet,
@@ -90,47 +91,44 @@ export default function VietlottDetailScreen() {
 
   const [pastDraws, setPastDraws] = useState<any[]>([]);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
 
-  const fetchDraws = async (pageNum: number, isRefresh = false) => {
-    // Nếu không có code thì không thể fetch
-    if (!code || loading || (!hasMore && pageNum > 1 && !isRefresh)) return;
-    try {
-      if (isRefresh) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
-      const res = await api.get(`/draws/results?code=${code}&page=${pageNum}&limit=10`);
-      const data = res.data;
-      if (pageNum === 1) {
-        setPastDraws(data);
-      } else {
-        setPastDraws(prev => [...prev, ...data]);
-      }
-      setHasMore(data.length === 10);
-      setPage(pageNum);
-    } catch (err) {
-      console.log('Error fetching draws', err);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
+  const {
+    data: newDraws = [],
+    isLoading,
+    isFetching,
+    refetch,
+  } = usePaginatedResultsQuery(undefined, code, page, 10);
+
+  const loading = isLoading;
+  const refreshing = isFetching && page === 1;
 
   useEffect(() => {
-    fetchDraws(1);
-  }, [code]);
+    if (page === 1) {
+      setPastDraws(newDraws);
+    } else if (newDraws.length > 0) {
+      setPastDraws((prev) => {
+        const existingIds = new Set(prev.map((d) => d._id));
+        const filtered = newDraws.filter((d) => !existingIds.has(d._id));
+        return [...prev, ...filtered];
+      });
+    }
+  }, [newDraws, page]);
+
+  useEffect(() => {
+    setPage(1);
+    refetch();
+  }, [code, refetch]);
 
   const onRefresh = () => {
-    fetchDraws(1, true);
+    setPage(1);
+    refetch();
   };
 
+  const hasMore = newDraws.length === 10;
+
   const handleLoadMore = () => {
-    if (!loading && !refreshing && hasMore) {
-      fetchDraws(page + 1);
+    if (!isFetching && hasMore) {
+      setPage((prev) => prev + 1);
     }
   };
 

@@ -1,20 +1,21 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  StyleSheet,
   Text,
   View,
-  TouchableOpacity,
-  ScrollView,
   StatusBar,
   ActivityIndicator,
   RefreshControl,
   FlatList,
+  ScrollView,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { Timer } from 'lucide-react-native';
-import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
-import api from '../../services/api';
+import { useFocusEffect } from '@react-navigation/native';
+import { COLORS } from '../../theme/theme';
+import { useMyOrdersQuery } from '../../hooks/queries';
+import { styles } from './historyStyles';
+import HistoryTabs from './components/HistoryTabs';
+import HistoryFilters from './components/HistoryFilters';
+import HistoryTicketCard from './components/HistoryTicketCard';
 
 const TAB_STATUS_MAP: Record<string, string> = {
   'Chờ in': 'pending',
@@ -23,304 +24,74 @@ const TAB_STATUS_MAP: Record<string, string> = {
 };
 
 const FILTER_MAP: Record<string, string[]> = {
-  'Vietlott': ['keno', 'bao_keno', 'power_655', 'mega_645', 'max_3d', 'max_3d_pro', 'max_4d', 'lotto_535', 'lotto_570'],
+  Vietlott: ['keno', 'bao_keno', 'power_655', 'mega_645', 'max_3d', 'max_3d_pro', 'max_4d', 'lotto_535', 'lotto_570'],
   'Điện toán': ['loto_235', 'loto_cap', 'dientoan_636', 'bao_loto_2', 'than_tai_4', 'bao_636', 'truot_loto'],
   'Kiến Thiết': ['kienthiet', 'kienthiet_MB', 'kienthiet_MN', 'kienthiet_MT'],
   'Lô Đề': ['xoso_3mien', 'lode', 'MB', 'MT', 'MN', 'mb', 'mt', 'mn', 'lode_3mien'],
 };
 
-export default function HistoryScreen() {
+export default function HistoryScreen({ route }: any) {
   const insets = useSafeAreaInsets();
-  const navigation = useNavigation<any>();
+  const initialTab = route?.params?.initialTab || 'Chờ in';
 
-  const [activeTab, setActiveTab] = useState('Chờ in');
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [activeFilter, setActiveFilter] = useState('Tất cả');
-  const [orders, setOrders] = useState<any[]>([]);
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
+  const [accumulatedOrders, setAccumulatedOrders] = useState<any[]>([]);
 
-  const fetchOrders = async (pageNum: number, isRefresh = false) => {
-    try {
-      if (isRefresh) {
-        setRefreshing(true);
-      } else if (pageNum === 1) {
-        setLoading(true);
-      } else {
-        setLoadingMore(true);
-      }
+  const status = TAB_STATUS_MAP[activeTab];
+  const gameType = activeFilter !== 'Tất cả' ? FILTER_MAP[activeFilter]?.join(',') : undefined;
 
-      const params: any = {
-        page: pageNum,
-        limit: 10,
-        status: TAB_STATUS_MAP[activeTab],
-      };
+  // React Query cached query
+  const {
+    data: ordersData,
+    isLoading,
+    isFetching,
+    refetch,
+  } = useMyOrdersQuery({
+    status,
+    gameType,
+    page,
+    limit: 10,
+  });
 
-      if (activeFilter !== 'Tất cả') {
-        const allowed = FILTER_MAP[activeFilter];
-        if (allowed) {
-          params.gameType = allowed.join(',');
-        }
-      }
-
-      const res = await api.get('/orders/my-orders', { params });
-      const newOrders = Array.isArray(res.data) ? res.data : [];
-
-      if (pageNum === 1) {
-        setOrders(newOrders);
-      } else {
-        setOrders((prev) => [...prev, ...newOrders]);
-      }
-
-      setHasMore(newOrders.length === 10);
-      setPage(pageNum);
-    } catch (error) {
-      console.log('Error fetching orders:', error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-      setLoadingMore(false);
+  // Handle pagination accumulation
+  useEffect(() => {
+    if (!ordersData) return;
+    if (page === 1) {
+      setAccumulatedOrders(ordersData);
+    } else if (ordersData.length > 0) {
+      setAccumulatedOrders((prev) => {
+        const existingIds = new Set(prev.map((o) => o._id || o.orderId));
+        const filteredNew = ordersData.filter((o) => !existingIds.has(o._id || o.orderId));
+        if (filteredNew.length === 0) return prev;
+        return [...prev, ...filteredNew];
+      });
     }
-  };
+  }, [ordersData, page]);
 
   useFocusEffect(
     useCallback(() => {
-      fetchOrders(1);
-    }, [activeTab, activeFilter])
+      refetch();
+    }, [refetch])
   );
 
   const onRefresh = useCallback(() => {
-    fetchOrders(1, true);
-  }, [activeTab, activeFilter]);
+    setPage(1);
+    refetch();
+  }, [refetch]);
 
   const handleLoadMore = () => {
-    if (!loading && !loadingMore && !refreshing && hasMore) {
-      fetchOrders(page + 1);
+    if (!isFetching && ordersData && ordersData.length === 10) {
+      setPage((prev) => prev + 1);
     }
   };
 
-  const renderTabs = () => (
-    <View style={styles.tabContainer}>
-      {['Chờ in', 'Hoàn thành', 'Vé huỷ'].map((tab) => (
-        <TouchableOpacity
-          key={tab}
-          style={[styles.tabItem, activeTab === tab && styles.tabItemActive]}
-          onPress={() => {
-            if (activeTab !== tab) {
-              setActiveTab(tab);
-              setPage(1);
-              setOrders([]);
-              setHasMore(true);
-            }
-          }}
-        >
-          <Text style={[styles.tabText, activeTab === tab && styles.tabTextActive]}>{tab}</Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-
-  const renderFilters = () => (
-    <View>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={{ flexGrow: 0 }}
-        contentContainerStyle={styles.filterContainer}
-      >
-        {['Tất cả', 'Vietlott', 'Điện toán', 'Kiến Thiết', 'Lô Đề'].map((filter) => (
-          <TouchableOpacity
-            key={filter}
-            style={[styles.filterItem, activeFilter === filter && styles.filterItemActive]}
-            onPress={() => {
-              if (activeFilter !== filter) {
-                setActiveFilter(filter);
-                setPage(1);
-                setOrders([]);
-                setHasMore(true);
-              }
-            }}
-          >
-            <Text style={[styles.filterText, activeFilter === filter && styles.filterTextActive]}>
-              {filter}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-    </View>
-  );
-
-  const getDateGroupLabel = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return `Ngày ${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
-  };
-
-  const renderOrderItem = ({ item: ticket, index }: { item: any; index: number }) => {
-    const isKienThiet = ticket.gameType?.startsWith('kienthiet');
-    const isLode = ['xoso_3mien', 'lode', 'MB', 'MT', 'MN', 'mb', 'mt', 'mn', 'lode_3mien'].includes(ticket.gameType);
-    let ticketTypeStr = ticket.gameType ? ticket.gameType.toUpperCase() : 'VÉ SỐ';
-    if (isKienThiet) {
-      const parts = ticket.gameType.split('_');
-      ticketTypeStr = parts[1] ? `K.THIẾT ${parts[1].toUpperCase()}` : 'KIẾN THIẾT';
-    } else if (isLode) {
-      if (['MB', 'mb'].includes(ticket.gameType)) {
-        ticketTypeStr = 'LÔ ĐỀ MB';
-      } else if (['MT', 'mt'].includes(ticket.gameType)) {
-        ticketTypeStr = 'LÔ ĐỀ MT';
-      } else if (['MN', 'mn'].includes(ticket.gameType)) {
-        ticketTypeStr = 'LÔ ĐỀ MN';
-      } else {
-        ticketTypeStr = 'LÔ ĐỀ';
-      }
-    } else {
-      switch (ticket.gameType) {
-        case 'max_3d': ticketTypeStr = 'MAX 3D'; break;
-        case 'max_4d': ticketTypeStr = 'MAX 4D'; break;
-        case 'lotto_535': ticketTypeStr = 'LOTTO 5/35'; break;
-        case 'lotto_570': ticketTypeStr = 'LOTTO 5/70'; break;
-        case 'loto_235': ticketTypeStr = 'LÔ TÔ 235'; break;
-        case 'loto_cap': ticketTypeStr = 'LÔ TÔ CẶP'; break;
-        case 'than_tai_4': ticketTypeStr = 'THẦN TÀI 4'; break;
-        case 'dientoan_636': ticketTypeStr = 'ĐIỆN TOÁN 636'; break;
-        default: ticketTypeStr = ticket.gameType ? ticket.gameType.replace(/_/g, ' ').toUpperCase() : 'VÉ SỐ'; break;
-      }
-    }
-
-    const isWinning = ticket.isWinner === true || (ticket.prizeAmount != null && Number(ticket.prizeAmount) > 0);
-    const formattedPrice = (ticket.totalCost || 0).toLocaleString('vi-VN') + 'đ';
-    const dateObj = new Date(ticket.createdAt || Date.now());
-    const timeStr = `${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}:${String(dateObj.getSeconds()).padStart(2, '0')} - ${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${dateObj.getFullYear()}`;
-
-    // Date grouping header check
-    const currentGroup = getDateGroupLabel(ticket.createdAt);
-    const prevGroup = index > 0 ? getDateGroupLabel(orders[index - 1]?.createdAt) : null;
-    const showDateHeader = currentGroup !== prevGroup;
-
-    return (
-      <View key={ticket._id || index}>
-        {showDateHeader && (
-          <Text style={styles.groupTitle}>{currentGroup}</Text>
-        )}
-
-        <TouchableOpacity
-          style={[styles.ticketCard, isWinning && styles.ticketCardWinning]}
-          activeOpacity={0.8}
-          onPress={() => navigation.navigate('HistoryDetail', { ticket })}
-        >
-          <View style={[styles.ticketLeft, isWinning && styles.ticketLeftWinning]}>
-            <Text style={[styles.ticketType, isWinning && { color: '#E11D48' }]}>{ticketTypeStr}</Text>
-            {isWinning && (
-              <View style={styles.winPill}>
-                <Text style={styles.winPillText}>THẮNG</Text>
-              </View>
-            )}
-          </View>
-
-          {/* Dotted border line */}
-          <View style={styles.ticketDivider}>
-            <View style={[styles.dottedLine, isWinning && { borderColor: '#FECDD3' }]} />
-            <View style={[styles.halfCircleTop, isWinning && { borderColor: '#FECDD3', backgroundColor: '#FFF1F2' }]} />
-            <View style={[styles.halfCircleBottom, isWinning && { borderColor: '#FECDD3', backgroundColor: '#FFF1F2' }]} />
-          </View>
-
-          <View style={styles.ticketRight}>
-            <View style={styles.ticketHeaderRow}>
-              <Text style={styles.ticketIdLabel} numberOfLines={1} ellipsizeMode="tail">
-                Mã đơn:<Text style={styles.ticketIdVal}> {ticket.orderId}</Text>
-              </Text>
-              {isWinning && (
-                <View style={styles.winningBadge}>
-                  <Text style={styles.winningBadgeText}>TRÚNG THƯỞNG</Text>
-                </View>
-              )}
-            </View>
-
-            {ticket.playType ? (
-              <View style={styles.playTypeContainer}>
-                <Text style={styles.playTypeLabel}>Cách chơi: <Text style={styles.playTypeVal}>{ticket.playType}</Text></Text>
-                {ticket.provinceName ? (
-                  <Text style={styles.provinceNameText}>({ticket.provinceName})</Text>
-                ) : null}
-              </View>
-            ) : null}
-
-            {ticket.items && ticket.items.length > 0 ? (
-              <>
-                {ticket.items.slice(0, 3).map((item: any, idx: number) => {
-                  const hasMoreNumbers = item.numbers && item.numbers.length > 10;
-                  const displayNumbers = hasMoreNumbers ? item.numbers.slice(0, 10) : (item.numbers || []);
-                  return (
-                    <View key={idx} style={styles.ticketBallsRow}>
-                      <Text style={styles.ticketRowLabel}>{item.id || String.fromCharCode(65 + idx)}</Text>
-                      {displayNumbers.map((n: string, i: number) => (
-                        <View key={i} style={[styles.ticketBall, isWinning && styles.ticketBallWinning]}>
-                          <Text style={styles.ticketBallText}>{n}</Text>
-                        </View>
-                      ))}
-                      {hasMoreNumbers && (
-                        <TouchableOpacity
-                          style={styles.moreBallBtn}
-                          onPress={() => navigation.navigate('HistoryDetail', { ticket })}
-                        >
-                          <Text style={styles.moreBallText}>+{item.numbers.length - 10} Xem thêm</Text>
-                        </TouchableOpacity>
-                      )}
-                    </View>
-                  );
-                })}
-                {ticket.items.length > 3 && (
-                  <Text style={{ fontSize: 13, color: '#0066FF', marginBottom: 8, fontStyle: 'italic' }}>
-                    + {ticket.items.length - 3} dãy số khác (xem chi tiết)
-                  </Text>
-                )}
-              </>
-            ) : (
-              <View style={styles.ticketBallsRow}>
-                <Text style={styles.ticketRowLabel}>A</Text>
-                {((ticket.numbers && ticket.numbers.length > 10) ? ticket.numbers.slice(0, 10) : (ticket.numbers || [])).map((n: string, i: number) => (
-                  <View key={i} style={[styles.ticketBall, isWinning && styles.ticketBallWinning]}>
-                    <Text style={styles.ticketBallText}>{n}</Text>
-                  </View>
-                ))}
-                {ticket.numbers && ticket.numbers.length > 10 && (
-                  <TouchableOpacity
-                    style={styles.moreBallBtn}
-                    onPress={() => navigation.navigate('HistoryDetail', { ticket })}
-                  >
-                    <Text style={styles.moreBallText}>+{ticket.numbers.length - 10} Xem thêm</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            )}
-
-            <Text style={styles.ticketKy}>
-              Kỳ QSMT: {ticket.drawDate ? `${ticket.drawDate} (${ticket.drawId || 'Kỳ mở thưởng'})` : (ticket.drawId || 'Đang cập nhật')}
-            </Text>
-
-            <View style={styles.ticketBottomRow}>
-              <View style={styles.timeRow}>
-                <Timer size={14} color={isWinning ? '#E11D48' : COLORS.gray500} />
-                <Text style={[styles.timeText, isWinning && { color: '#BE123C' }]}>{timeStr}</Text>
-              </View>
-              {isWinning && ticket.prizeAmount && Number(ticket.prizeAmount) > 0 ? (
-                <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={styles.winningPrizeText}>+{Number(ticket.prizeAmount).toLocaleString('vi-VN')}đ</Text>
-                  <Text style={styles.originalPriceSub}>{formattedPrice}</Text>
-                </View>
-              ) : (
-                <Text style={styles.priceText}>{formattedPrice}</Text>
-              )}
-            </View>
-          </View>
-        </TouchableOpacity>
-      </View>
-    );
-  };
+  const hasMore = ordersData ? ordersData.length === 10 : false;
+  const displayedOrders = (page === 1 && ordersData) ? ordersData : accumulatedOrders;
 
   const renderFooter = () => {
-    if (loadingMore) {
+    if (isFetching && page > 1) {
       return (
         <View style={{ paddingVertical: 16, alignItems: 'center' }}>
           <ActivityIndicator size="small" color={COLORS.primary} />
@@ -328,7 +99,7 @@ export default function HistoryScreen() {
         </View>
       );
     }
-    if (!hasMore && orders.length > 0) {
+    if (!hasMore && displayedOrders.length > 0) {
       return (
         <View style={{ paddingVertical: 16, alignItems: 'center' }}>
           <Text style={{ color: COLORS.gray400, fontSize: 12 }}>Đã hiển thị tất cả đơn hàng</Text>
@@ -342,329 +113,63 @@ export default function HistoryScreen() {
     <View style={[styles.container, { paddingTop: Math.max(insets.top, 16) }]}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
       <Text style={styles.headerTitle}>Lịch sử</Text>
-      {renderTabs()}
-      <View style={{ height: 8, backgroundColor: '#F1F5F9' }} />
-      {renderFilters()}
 
-      {loading && !refreshing ? (
+      <HistoryTabs
+        activeTab={activeTab}
+        onSelectTab={(tab) => {
+          if (activeTab !== tab) {
+            setActiveTab(tab);
+            setPage(1);
+            setAccumulatedOrders([]);
+          }
+        }}
+      />
+
+      <View style={{ height: 8, backgroundColor: '#F1F5F9' }} />
+
+      <HistoryFilters
+        activeFilter={activeFilter}
+        onSelectFilter={(filter) => {
+          if (activeFilter !== filter) {
+            setActiveFilter(filter);
+            setPage(1);
+            setAccumulatedOrders([]);
+          }
+        }}
+      />
+
+      {isLoading && page === 1 && displayedOrders.length === 0 ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
-      ) : orders.length === 0 ? (
+      ) : displayedOrders.length === 0 ? (
         <ScrollView
           contentContainerStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />}
+          refreshControl={<RefreshControl refreshing={isFetching && page === 1} onRefresh={onRefresh} colors={[COLORS.primary]} />}
         >
           <Text style={{ color: COLORS.gray500, fontSize: 14 }}>Không có dữ liệu</Text>
         </ScrollView>
       ) : (
         <FlatList
-          data={orders}
+          data={displayedOrders}
           keyExtractor={(item, index) => item._id || item.orderId || `${index}`}
-          renderItem={renderOrderItem}
+          renderItem={({ item, index }) => (
+            <HistoryTicketCard
+              ticket={item}
+              index={index}
+              prevTicket={index > 0 ? displayedOrders[index - 1] : undefined}
+            />
+          )}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.3}
           ListFooterComponent={renderFooter}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+            <RefreshControl refreshing={isFetching && page === 1} onRefresh={onRefresh} colors={[COLORS.primary]} />
           }
         />
       )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF',
-  },
-  headerTitle: {
-    fontSize: TYPOGRAPHY.fontSize.lg,
-    fontWeight: TYPOGRAPHY.fontWeight.bold,
-    color: '#0A3B7C',
-    textAlign: 'center',
-    marginBottom: SPACING.md,
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  tabItem: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: SPACING.md,
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-  },
-  tabItemActive: {
-    borderBottomColor: '#0066FF',
-  },
-  tabText: {
-    fontSize: 14,
-    color: COLORS.gray500,
-    fontWeight: 'bold',
-  },
-  tabTextActive: {
-    color: '#0066FF',
-  },
-  filterContainer: {
-    padding: SPACING.md,
-    gap: 12,
-    alignItems: 'center',
-    height: 64,
-  },
-  filterItem: {
-    paddingHorizontal: 16,
-    height: 36,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: BORDER_RADIUS.sm,
-    backgroundColor: '#FFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    ...SHADOWS.light,
-  },
-  filterItemActive: {
-    backgroundColor: '#0066FF',
-    borderColor: '#0066FF',
-  },
-  filterText: {
-    fontSize: 14,
-    color: COLORS.gray600,
-  },
-  filterTextActive: {
-    color: '#FFF',
-    fontWeight: 'bold',
-  },
-  listContainer: {
-    padding: SPACING.md,
-    backgroundColor: '#F8FAFC',
-    flexGrow: 1,
-  },
-  groupContainer: {
-    marginBottom: SPACING.md,
-  },
-  groupTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: COLORS.textDark,
-    marginBottom: SPACING.sm,
-  },
-  ticketCard: {
-    flexDirection: 'row',
-    backgroundColor: '#FFF',
-    borderRadius: BORDER_RADIUS.md,
-    marginBottom: SPACING.sm,
-    ...SHADOWS.light,
-    minHeight: 100,
-  },
-  ticketCardWinning: {
-    backgroundColor: '#FFF1F2',
-    borderColor: '#FECDD3',
-    borderWidth: 1.5,
-  },
-  ticketLeft: {
-    width: 70,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: SPACING.md,
-  },
-  ticketLeftWinning: {
-    backgroundColor: '#FFE4E6',
-    borderTopLeftRadius: BORDER_RADIUS.md - 1.5,
-    borderBottomLeftRadius: BORDER_RADIUS.md - 1.5,
-  },
-  ticketBac: {
-    color: '#0A3B7C',
-    fontWeight: 'bold',
-    fontSize: 13,
-    marginBottom: 8,
-  },
-  ticketType: {
-    color: '#FF5C00',
-    fontWeight: '900',
-    fontStyle: 'italic',
-    fontSize: 16,
-  },
-  ticketDivider: {
-    width: 2,
-    alignItems: 'center',
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  dottedLine: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    width: 1,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderStyle: 'dashed',
-    borderRadius: 1,
-  },
-  halfCircleTop: {
-    position: 'absolute',
-    top: -8,
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: '#F8FAFC',
-  },
-  halfCircleBottom: {
-    position: 'absolute',
-    bottom: -8,
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: '#F8FAFC',
-  },
-  ticketRight: {
-    flex: 1,
-    padding: SPACING.md,
-    overflow: 'hidden',
-  },
-  ticketHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
-    gap: 6,
-  },
-  ticketIdLabel: {
-    fontSize: 12,
-    color: COLORS.gray600,
-    flex: 1,
-    marginRight: 6,
-  },
-  ticketIdVal: {
-    color: '#0066FF',
-    fontWeight: 'bold',
-  },
-  ticketBallsRow: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  ticketRowLabel: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: COLORS.gray600,
-  },
-  ticketBall: {
-    minWidth: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#FF5C00',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 4,
-  },
-  ticketBallText: {
-    color: '#FFF',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  moreBallBtn: {
-    backgroundColor: '#FFF0E6',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 12,
-    alignSelf: 'center',
-    marginLeft: 4,
-  },
-  moreBallText: {
-    fontSize: 11,
-    color: '#FF5C00',
-    fontWeight: 'bold',
-  },
-  ticketKy: {
-    fontSize: 12,
-    color: COLORS.gray600,
-    marginBottom: 8,
-  },
-  ticketBottomRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  timeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  timeText: {
-    fontSize: 12,
-    color: COLORS.gray500,
-  },
-  priceText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: COLORS.success,
-  },
-  winPill: {
-    backgroundColor: '#E11D48',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 8,
-    marginTop: 6,
-  },
-  winPillText: {
-    color: '#FFF',
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-  winningBadge: {
-    backgroundColor: '#FEE2E2',
-    borderColor: '#FECDD3',
-    borderWidth: 1,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-    flexShrink: 0,
-    alignSelf: 'center',
-  },
-  winningBadgeText: {
-    color: '#E11D48',
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-  winningPrizeText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#E11D48',
-  },
-  originalPriceSub: {
-    fontSize: 11,
-    color: COLORS.gray500,
-    textDecorationLine: 'line-through',
-  },
-  ticketBallWinning: {
-    backgroundColor: '#E11D48',
-  },
-  playTypeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 6,
-  },
-  playTypeLabel: {
-    fontSize: 12,
-    color: COLORS.gray600,
-  },
-  playTypeVal: {
-    fontWeight: '600',
-    color: '#0A3B7C',
-  },
-  provinceNameText: {
-    fontSize: 12,
-    color: '#E51F27',
-    fontWeight: '500',
-  },
-});

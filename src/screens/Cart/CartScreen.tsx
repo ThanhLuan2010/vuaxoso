@@ -40,18 +40,15 @@ export default function CartScreen({ navigation }: any) {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedNumbers, setSelectedNumbers] = useState<string[]>([]);
 
-  const handleCheckout = async () => {
-    if (isCheckoutLoading) return;
-    setIsCheckoutLoading(true);
-    const res = await checkout();
-    setIsCheckoutLoading(false);
-
-    if (res.success) {
-      Toast.show({ type: 'success', text1: 'Thành công', text2: res.message });
-      navigation.navigate('MainTabs');
-    } else {
-      Toast.show({ type: 'error', text1: 'Thất bại', text2: res.message });
+  const handleCheckout = () => {
+    if (cart.length === 0) {
+      Toast.show({ type: 'error', text1: 'Giỏ hàng trống', text2: 'Vui lòng chọn vé trước khi thanh toán' });
+      return;
     }
+    navigation.navigate('GamePayment', {
+      isCartCheckout: true,
+      totalCost,
+    });
   };
 
   const renderItem = ({ item }: { item: CartItem }) => (
@@ -64,7 +61,12 @@ export default function CartScreen({ navigation }: any) {
               <Text style={styles.provinceName}>{item.provinceName}</Text>
             ) : null}
             {item.drawDate ? (
-              <Text style={[styles.provinceName, { color: '#666' }]}>• {item.drawDate}</Text>
+              <Text style={[styles.provinceName, { color: '#666' }]}>
+                • {item.drawDate}{(() => {
+                  const raw = item.drawCode || (item.drawId && item.drawId !== item.drawDate ? item.drawId : '');
+                  return raw ? ` (${String(raw).startsWith('#') ? raw : '#' + raw})` : '';
+                })()}
+              </Text>
             ) : null}
           </View>
         </View>

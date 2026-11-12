@@ -7,11 +7,15 @@ import GameCard from '../../components/GameCard';
 import KienThietMatrix from '../../components/KienThietMatrix';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
 import { useAppStore } from '../../store/useAppStore';
-import { ShoppingCart } from 'lucide-react-native';
+import { useGamesQuery, useActiveDrawsQuery } from '../../hooks/queries';
 
 export default function HomeScreen({ navigation }: any) {
-  const { cart, games, activeDraws, fetchGames, fetchActiveDraws, fetchDrawResults, fetchBanners, fetchKienThietSchedule, fetchUnreadNotificationsCount, fetchCart } = useAppStore();
-  const cartCount = cart.length;
+  const { games: storeGames, activeDraws: storeActiveDraws, fetchGames, fetchActiveDraws, fetchDrawResults, fetchBanners, fetchKienThietSchedule, fetchUnreadNotificationsCount, fetchCart } = useAppStore();
+
+  const { data: queryGames } = useGamesQuery();
+  const { data: queryActiveDraws } = useActiveDrawsQuery();
+  const games = (queryGames && queryGames.length > 0) ? queryGames : storeGames;
+  const activeDraws = (queryActiveDraws && queryActiveDraws.length > 0) ? queryActiveDraws : storeActiveDraws;
 
   useEffect(() => {
     fetchGames();
@@ -25,7 +29,9 @@ export default function HomeScreen({ navigation }: any) {
     React.useCallback(() => {
       fetchUnreadNotificationsCount();
       fetchCart();
-    }, [fetchUnreadNotificationsCount, fetchCart])
+      fetchKienThietSchedule();
+      fetchActiveDraws();
+    }, [fetchUnreadNotificationsCount, fetchCart, fetchKienThietSchedule, fetchActiveDraws])
   );
 
   const vietlottGames = games.filter(g => (g.type === 'vietlott' || g.code === 'bingo18') && g.code !== 'max_3d_pro' && g.code !== 'mua_chung' && g.code !== 'clln_keno');
@@ -179,19 +185,6 @@ export default function HomeScreen({ navigation }: any) {
           <KienThietMatrix />
         </View>
       </ScrollView>
-
-      {/* Floating Shopping Cart Button */}
-      {cartCount > 0 && (
-        <TouchableOpacity 
-          style={styles.floatingCart}
-          onPress={() => navigation.navigate('Cart')}
-        >
-          <ShoppingCart size={24} color={COLORS.textLight} />
-          <View style={styles.cartBadge}>
-            <Text style={styles.cartBadgeText}>{cartCount}</Text>
-          </View>
-        </TouchableOpacity>
-      )}
     </View>
   );
 }
@@ -230,36 +223,5 @@ const styles = StyleSheet.create({
   },
   horizontalCardWrapper: {
     marginTop: SPACING.sm,
-  },
-  floatingCart: {
-    position: 'absolute',
-    bottom: SPACING.lg,
-    right: SPACING.lg,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: COLORS.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    ...SHADOWS.dark,
-  },
-  cartBadge: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    backgroundColor: COLORS.secondary,
-    minWidth: 20,
-    height: 20,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 4,
-    borderWidth: 2,
-    borderColor: COLORS.textLight,
-  },
-  cartBadgeText: {
-    color: COLORS.textLight,
-    fontSize: 10,
-    fontWeight: 'bold',
   },
 });

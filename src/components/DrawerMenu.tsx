@@ -23,7 +23,8 @@ import {
   LogOut,
   CreditCard,
   Lock,
-  History
+  History,
+  ShoppingCart
 } from 'lucide-react-native';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../theme/theme';
 import { useAppStore } from '../store/useAppStore';
@@ -42,7 +43,7 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
   const slideAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
   const [showModal, setShowModal] = React.useState(visible);
 
-  const { user, logout, fetchProfile } = useAppStore();
+  const { user, logout, fetchProfile, cart } = useAppStore();
 
   const formatVND = (num: number) => {
     return num.toLocaleString('vi-VN') + 'đ';
@@ -139,6 +140,18 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
             <TouchableOpacity style={styles.menuItem} onPress={() => handleNavigate('AccountInfo')}>
               <UserCircle size={24} color="#0066FF" />
               <Text style={styles.menuText}>Thông tin cá nhân</Text>
+              <View style={styles.flex1} />
+              <Text style={styles.chevron}>›</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.menuItem} onPress={() => handleNavigate('Cart')}>
+              <ShoppingCart size={24} color="#E51F27" />
+              <Text style={styles.menuText}>Giỏ hàng</Text>
+              {cart && cart.length > 0 && (
+                <View style={styles.cartBadge}>
+                  <Text style={styles.cartBadgeText}>{cart.length}</Text>
+                </View>
+              )}
               <View style={styles.flex1} />
               <Text style={styles.chevron}>›</Text>
             </TouchableOpacity>
@@ -319,6 +332,22 @@ const styles = StyleSheet.create({
   chevron: {
     fontSize: 20,
     color: COLORS.gray400,
+  },
+  cartBadge: {
+    backgroundColor: '#E51F27',
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    marginLeft: 8,
+    minWidth: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cartBadgeText: {
+    color: '#FFF',
+    fontSize: 11,
+    fontWeight: 'bold',
   },
   footer: {
     flexDirection: 'row',

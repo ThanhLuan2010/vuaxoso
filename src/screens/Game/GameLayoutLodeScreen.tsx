@@ -319,6 +319,71 @@ const getVnDateDetails = (dateInput: Date | string | number) => {
   };
 };
 
+const isDrawForRegion = (draw: any, r: Region, provincesList: any[] = []): boolean => {
+  if (!draw) return false;
+  const targetRegion = r.toLowerCase(); // 'mb', 'mt', 'mn'
+
+  // 1. Direct region field on draw
+  const directRegion = (draw.region || '').toLowerCase();
+  if (directRegion) {
+    if (directRegion === targetRegion || directRegion.includes(targetRegion)) return true;
+  }
+
+  // 2. Province region
+  const provRegion = (draw.province?.region || (typeof draw.provinceId === 'object' ? draw.provinceId?.region : '') || '').toLowerCase();
+  if (provRegion) {
+    if (provRegion === targetRegion || provRegion.includes(targetRegion)) return true;
+  }
+
+  // 3. Game code
+  const gCode = (draw.game?.code || (typeof draw.game === 'string' ? draw.game : '') || '').toLowerCase();
+  if (gCode) {
+    if (gCode === targetRegion || gCode === 'xs' + targetRegion || gCode.endsWith('_' + targetRegion)) return true;
+    if (targetRegion === 'mb' && (gCode.includes('mb') || gCode.includes('mien_bac') || gCode.includes('bac'))) return true;
+    if (targetRegion === 'mt' && (gCode.includes('mt') || gCode.includes('mien_trung') || gCode.includes('trung'))) return true;
+    if (targetRegion === 'mn' && (gCode.includes('mn') || gCode.includes('mien_nam') || gCode.includes('nam'))) return true;
+  }
+
+  // 4. Game name
+  const gName = (draw.game?.name || '').toLowerCase();
+  if (gName) {
+    if (targetRegion === 'mb' && (gName.includes('bắc') || gName.includes('bac'))) return true;
+    if (targetRegion === 'mt' && gName.includes('trung')) return true;
+    if (targetRegion === 'mn' && gName.includes('nam')) return true;
+  }
+
+  // 5. Province ID check
+  const pId = (typeof draw.provinceId === 'string'
+    ? draw.provinceId
+    : (draw.provinceId?.provinceId || draw.provinceId?._id || draw.province?.provinceId || draw.province?.id || draw.province?.code || '')).toUpperCase();
+  if (pId) {
+    if (targetRegion === 'mb' && pId === 'MB') return true;
+    if (targetRegion === 'mt' && pId === 'MT') return true;
+    if (targetRegion === 'mn' && pId === 'MN') return true;
+
+    if (provincesList && provincesList.length > 0) {
+      const matchedP = provincesList.find(p =>
+        (p.provinceId && p.provinceId.toUpperCase() === pId) ||
+        (p._id && String(p._id) === pId) ||
+        (p.id && p.id.toUpperCase() === pId) ||
+        (p.code && p.code.toUpperCase() === pId)
+      );
+      if (matchedP && matchedP.region?.toLowerCase() === targetRegion) return true;
+    }
+  }
+
+  return false;
+};
+
+const extractDrawCode = (draw: any): string => {
+  if (!draw) return '';
+  const val = draw.drawCode || draw.code || draw.drawId || draw.drawNumber || '';
+  if (!val) return '';
+  const s = String(val).trim();
+  if (s.includes('/') || s.includes('-') || s.startsWith('sched_')) return '';
+  return s.startsWith('#') ? s : `#${s}`;
+};
+
 export default function GameLayoutLodeScreen({ route, navigation }: any) {
   const insets = useSafeAreaInsets();
   const { addToCart } = useAppStore();
@@ -351,7 +416,18 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
           api.get('/games'),
           api.get('/draws/active').catch(() => ({ data: [] }))
         ]);
-        if (provRes?.data) setAllProvinces(provRes.data);
+        if (provRes?.data && Array.isArray(provRes.data)) {
+          const normalized = provRes.data.map((p: any) => {
+            if (p.provinceId === 'TTH' || p.code === 'T.T.Huế' || p.name?.includes('Huế')) {
+              const days = Array.isArray(p.drawDays) ? [...p.drawDays] : [];
+              if (!days.includes(0)) days.push(0);
+              if (!days.includes(1)) days.push(1);
+              return { ...p, drawDays: days };
+            }
+            return p;
+          });
+          setAllProvinces(normalized);
+        }
         if (Array.isArray(drawsRes?.data)) setActiveDraws(drawsRes.data);
         if (Array.isArray(gamesRes?.data)) {
           const ratesMap: Record<string, Record<string, number>> = {};
@@ -409,8 +485,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
 
     // 1. ƯU TIÊN HIỂN THỊ TẤT CẢ CÁC KỲ QUAY ĐƯỢC TẠO TRÊN CMS (/draws/active)
     const matchedApiDraws = activeDraws.filter(draw => {
-      const gCode = (draw.game?.code || '').toLowerCase();
-      const isRegionMatch = gCode === region || gCode === 'xoso_3mien' || gCode === 'xs' + region;
+      const isRegionMatch = isDrawForRegion(draw, region, allProvinces);
       if (!isRegionMatch) return false;
 
       const closeTimeMs = new Date(draw.closeTime).getTime();
@@ -436,9 +511,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
         badgeText = 'Ngày kia';
       }
 
-      const drawCodeStr = draw.drawCode
-        ? (draw.drawCode.startsWith('#') ? draw.drawCode : `#${draw.drawCode}`)
-        : '';
+      const drawCodeStr = extractDrawCode(draw);
 
       const pId = typeof draw.provinceId === 'string'
         ? draw.provinceId
@@ -467,6 +540,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
         isPastCutoff: isTodayPastCutoff,
         provincesText: provName,
         provinceId: pId || undefined,
+        gameCode: region ? region.toUpperCase() : 'MB',
         isFromApi: true,
       });
     });
@@ -503,8 +577,12 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
 
         const provs = allProvinces.filter(p => {
           if (p.region.toLowerCase() !== region) return false;
-          if (p.drawDays && Array.isArray(p.drawDays)) {
-            return p.drawDays.includes(targetDay);
+          let drawDays = p.drawDays;
+          if (p.provinceId === 'TTH' || p.code === 'T.T.Huế' || p.name?.includes('Huế')) {
+            drawDays = [0, 1];
+          }
+          if (drawDays && Array.isArray(drawDays)) {
+            return drawDays.includes(targetDay);
           }
           return true;
         });
@@ -515,7 +593,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
 
         options.push({
           id: `sched_${dateKey}`,
-          drawId: '',
+          drawId: formattedDate,
           drawCode: '',
           closeTimeMs: targetDate.getTime(),
           closeTimeStr: region === 'mn' ? '16:10' : (region === 'mt' ? '17:10' : '18:10'),
@@ -531,6 +609,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
           isToday: offset === 0,
           isPastCutoff: isTodayPastCutoff,
           provincesText,
+          gameCode: region ? region.toUpperCase() : 'MB',
           isFromApi: false,
         });
       }
@@ -572,8 +651,12 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
     const { targetDay, provinceId: targetProvinceId } = targetDateInfo;
     const filtered = allProvinces.filter(p => {
       if (p.region.toLowerCase() !== region) return false;
-      if (p.drawDays && Array.isArray(p.drawDays)) {
-        return p.drawDays.includes(targetDay);
+      let drawDays = p.drawDays;
+      if (p.provinceId === 'TTH' || p.code === 'T.T.Huế' || p.name?.includes('Huế')) {
+        drawDays = [0, 1];
+      }
+      if (drawDays && Array.isArray(drawDays)) {
+        return drawDays.includes(targetDay);
       }
       return true;
     });
@@ -645,6 +728,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
 
   const handleRegionSelect = (r: Region) => {
     setRegion(r);
+    setSelectedDrawId(null);
     const dataSet = r === 'mb' ? (apiRates['MB'] ? currentDataSet : BET_DATA.mb) : (apiRates['MN'] ? currentDataSet : BET_DATA.mn_mt);
     setSelectedSub(dataSet[selectedCategory][0]);
     setInputNumbers('');
@@ -672,10 +756,84 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
     setConfirmModalVisible(true);
   };
 
+  // Helper lấy thông tin kỳ quay chính xác tuyệt đối theo kỳ người dùng đã chọn
+  const getResolvedDrawInfo = () => {
+    let matchedDraw: any = null;
+
+    // 1. Nếu kỳ được chọn là một kỳ API cụ thể từ CMS, ưu tiên hàng đầu theo ID kỳ đã chọn
+    if (targetDateInfo.isFromApi && targetDateInfo.id && !targetDateInfo.id.startsWith('sched_')) {
+      matchedDraw = activeDraws.find(d => String(d._id) === String(targetDateInfo.id) || String(d.id) === String(targetDateInfo.id));
+    }
+
+    // 2. Nếu không tìm thấy hoặc người dùng đã chủ động đổi đài sang đài khác với kỳ đã chọn:
+    if (!matchedDraw || (region !== 'mb' && provinceValue && matchedDraw.provinceId && String(matchedDraw.provinceId).toLowerCase() !== String(provinceValue).toLowerCase())) {
+      const foundByProv = activeDraws.find(d => {
+        if (!isDrawForRegion(d, region, allProvinces)) return false;
+        const vnDetails = getVnDateDetails(d.closeTime);
+        if (vnDetails.dateKey !== targetDateInfo.dateKey) return false;
+        if (region === 'mb') return true;
+        const pId = typeof d.provinceId === 'string' ? d.provinceId : (d.provinceId?.provinceId || d.provinceId?._id);
+        return provinceValue && pId && pId.toLowerCase() === provinceValue.toLowerCase();
+      });
+      if (foundByProv) {
+        matchedDraw = foundByProv;
+      }
+    }
+
+    const drawCode = extractDrawCode(matchedDraw) || targetDateInfo.drawCode;
+    const drawId = matchedDraw?._id
+      ? String(matchedDraw._id)
+      : (targetDateInfo.isFromApi && targetDateInfo.id && !targetDateInfo.id.startsWith('sched_')
+          ? targetDateInfo.id
+          : (drawCode || targetDateInfo.formattedDate || targetDateInfo.id));
+
+    return {
+      matchedDraw,
+      drawId,
+      drawCode,
+      drawDate: targetDateInfo.formattedDate,
+      dayName: targetDateInfo.dayName,
+      dayMonth: targetDateInfo.dayMonth,
+      dateLabel: `${drawCode ? `${drawCode} • ` : ''}${targetDateInfo.dayName}, ${targetDateInfo.dayMonth}`,
+    };
+  };
+
   const confirmAddToCart = () => {
     const selectedProv = provinceItems.find(p => p.value === provinceValue);
+    const resolvedProvinceName = selectedProv?.label || (region === 'mb' ? 'Miền Bắc' : undefined);
+    const resolvedGameType = region ? region.toUpperCase() : 'MB';
+
+    const resolved = getResolvedDrawInfo();
+    const resolvedDrawId = resolved.drawId;
+    const resolvedDrawCode = resolved.drawCode || undefined;
+    const resolvedDrawDate = resolved.drawDate;
+
+    if (isBuyNow) {
+      setConfirmModalVisible(false);
+      navigation.navigate('GamePayment', {
+        gameId: resolvedGameType,
+        gameName: `XỔ SỐ 3 MIỀN - ${region.toUpperCase()}`,
+        playType: selectedSub.name,
+        boards: [{
+          id: 'A',
+          numbers: currentParsed.numbers,
+          cost: calculateTotal(),
+          baseCost: parseInt(baseAmount) || 0,
+          unitAmount: parseInt(baseAmount) || 0,
+          multiplier: selectedSub.multiplier,
+        }],
+        totalCost: calculateTotal(),
+        cost: calculateTotal(),
+        drawIds: [resolvedDrawId],
+        drawCode: resolvedDrawCode,
+        drawDate: resolvedDrawDate,
+        provinceName: resolvedProvinceName,
+      });
+      return;
+    }
+
     addToCart({
-      gameId,
+      gameId: resolvedGameType,
       gameName: `XỔ SỐ 3 MIỀN - ${region.toUpperCase()}`,
       playType: selectedSub.name,
       numbers: currentParsed.numbers,
@@ -684,9 +842,10 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
       winAmount: calculateWinAmount(),
       region,
       provinceId: provinceValue ?? undefined,
-      provinceName: selectedProv?.label || (region === 'mb' ? 'Miền Bắc' : undefined),
-      drawId: targetDateInfo.drawCode || targetDateInfo.drawId || targetDateInfo.id,
-      drawDate: targetDateInfo.formattedDate,
+      provinceName: resolvedProvinceName,
+      drawId: resolvedDrawId,
+      drawCode: resolvedDrawCode,
+      drawDate: resolvedDrawDate,
       category: selectedCategory,
       subCategory: selectedSub.name,
       multiplier: selectedSub.multiplier,
@@ -694,11 +853,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
       quantity: 1,
     });
     setConfirmModalVisible(false);
-    if (isBuyNow) {
-      navigation.navigate('Cart');
-    } else {
-      Toast.show({ type: 'success', text1: 'Thành công', text2: 'Đã thêm vào giỏ hàng' });
-    }
+    Toast.show({ type: 'success', text1: 'Thành công', text2: 'Đã thêm vào giỏ hàng' });
   };
   // Các loại cược này BẮT BUỘC dùng NumberPicker (Không cho nhập tay)
   const isManualDisabled = ['đề đầu', 'đề đuôi', 'xiên đb', 'xiên giải 1', 'xiên 3 càng đb', 'xiên 4 càng đb'].includes(selectedSub.name.toLowerCase());
@@ -763,7 +918,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
                 <Calendar size={13} color={COLORS.primary} style={{ marginRight: 4 }} />
                 <Text style={styles.drawDateSelectorLabel}>Kỳ quay:</Text>
                 <Text style={styles.drawDateSelectorVal} numberOfLines={1}>
-                  {targetDateInfo.drawCode ? `${targetDateInfo.drawCode} • ` : ''}{targetDateInfo.dayName}, {targetDateInfo.dayMonth}{targetDateInfo.badgeText ? ` (${targetDateInfo.badgeText})` : ''}
+                  {getResolvedDrawInfo().dateLabel}
                 </Text>
                 <ChevronDown size={14} color={COLORS.primary} style={{ marginLeft: 3 }} />
               </TouchableOpacity>
@@ -774,6 +929,20 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
               items={provinceItems}
               setOpen={setProvinceOpen}
               setValue={setProvinceValue}
+              onChangeValue={(val) => {
+                if (val && region !== 'mb') {
+                  const provDraw = activeDraws.find(d => {
+                    if (!isDrawForRegion(d, region, allProvinces)) return false;
+                    const vnDetails = getVnDateDetails(d.closeTime);
+                    if (vnDetails.dateKey !== targetDateInfo.dateKey) return false;
+                    const pId = typeof d.provinceId === 'string' ? d.provinceId : (d.provinceId?.provinceId || d.provinceId?._id);
+                    return pId && pId.toLowerCase() === val.toLowerCase();
+                  });
+                  if (provDraw) {
+                    setSelectedDrawId(String(provDraw._id || provDraw.id));
+                  }
+                }
+              }}
               setItems={setProvinceItems}
               placeholder="Chọn đài"
               style={styles.dropdown}
@@ -986,7 +1155,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
                     ]}
                     onPress={() => {
                       setSelectedDrawId(item.id);
-                      if (item.provinceId && provinceItems.some(p => p.value === item.provinceId)) {
+                      if (item.provinceId) {
                         setProvinceValue(item.provinceId);
                       }
                       setIsDrawPickerVisible(false);
@@ -1056,11 +1225,14 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Xác Nhận Đặt Cược</Text>
+            <Text style={styles.modalTitle}>{isBuyNow ? 'Xác Nhận Mua Ngay' : 'Xác Nhận Đặt Cược'}</Text>
             <View style={styles.modalRow}>
               <Text style={styles.modalLabel}>Kỳ quay:</Text>
               <Text style={styles.modalValue}>
-                {targetDateInfo.drawCode ? `${targetDateInfo.drawCode} • ` : ''}{targetDateInfo.dayName}, {targetDateInfo.formattedDate}
+                {(() => {
+                  const resolved = getResolvedDrawInfo();
+                  return `${resolved.drawCode ? `${resolved.drawCode} • ` : ''}${resolved.dayName}, ${resolved.drawDate || resolved.dayMonth}`;
+                })()}
               </Text>
             </View>
             <View style={styles.modalRow}>
@@ -1098,7 +1270,7 @@ export default function GameLayoutLodeScreen({ route, navigation }: any) {
                 <Text style={styles.modalCancelText}>Hủy</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.modalConfirmBtn} onPress={confirmAddToCart}>
-                <Text style={styles.modalConfirmText}>Xác Nhận</Text>
+                <Text style={styles.modalConfirmText}>{isBuyNow ? 'Mua Ngay' : 'Xác Nhận'}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -1190,7 +1362,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 16,
-    maxWidth: '65%',
+    maxWidth: '70%',
   },
   drawDateSelectorLabel: {
     fontSize: 11,
@@ -1202,6 +1374,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: COLORS.primary,
+    flexShrink: 1,
   },
   datePickerModalOverlay: {
     flex: 1,

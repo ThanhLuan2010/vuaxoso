@@ -7,7 +7,6 @@ const MAIN_API_URL = 'https://api-vuaxoso.vipmarts.com/api';
 export const DOMAIN_URL = 'https://api-vuaxoso.vipmarts.com';
 // Android Emulator requires 10.0.2.2 instead of localhost
 import { Platform } from 'react-native';
-const LOCAL_API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5001/api' : 'http://localhost:5001/api';
 
 const api = axios.create({
   baseURL: MAIN_API_URL,

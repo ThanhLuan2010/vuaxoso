@@ -312,6 +312,10 @@
 	[
 		{
 			"backtrace" : 4,
+			"id" : "react_codegen_AsyncStorageSpec::@15af80695a6281ecf900"
+		},
+		{
+			"backtrace" : 4,
 			"id" : "react_codegen_RNFBAppTurboModules::@a0d44c1163aba7af3ea1"
 		},
 		{
@@ -329,10 +333,6 @@
 		{
 			"backtrace" : 4,
 			"id" : "react_codegen_rnscreens::@25bcbd507e98d3a854ad"
-		},
-		{
-			"backtrace" : 4,
-			"id" : "react_codegen_AsyncStorageSpec::@15af80695a6281ecf900"
 		},
 		{
 			"backtrace" : 4,

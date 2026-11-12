@@ -45,6 +45,7 @@ export interface CartItem {
   provinceName?: string;
   drawDate?: string;
   drawId?: string;
+  drawCode?: string;
   winAmount?: number;
   region?: string;
   provinceId?: string;
@@ -441,6 +442,7 @@ export const useAppStore = create<AppState>()(
               gameType: targetGameType,
               playType: itemPlayType,
               drawId: item.drawId || 'DUMMY_DRAW_ID',
+              drawCode: item.drawCode,
               provinceName: item.provinceName,
               drawDate: item.drawDate,
               items: itemBoards
@@ -448,7 +450,7 @@ export const useAppStore = create<AppState>()(
           });
 
           // Gửi toàn bộ 200+ vé trong 1 request duy nhất cực nhanh
-          const res = await api.post('/orders/checkout', { orders: ordersPayload });
+          const res = await api.post('/orders/checkout', { orders: ordersPayload, clearCart: true });
 
           // Cập nhật lại số dư và làm trống giỏ hàng
           await get().fetchProfile();

@@ -51,11 +51,16 @@ export type RootStackParamList = {
     gameType: string;
   };
   GamePayment: {
-    gameId: string;
-    gameName: string;
-    playType: string;
-    boards: Array<{ id: string; numbers: string[]; isTC: boolean }>;
-    totalCost: number;
+    gameId?: string;
+    gameName?: string;
+    playType?: string;
+    boards?: Array<{ id: string; numbers: string[]; isTC?: boolean; cost?: number; baseCost?: number; unitAmount?: number; multiplier?: number; specialNumbers?: string[] }>;
+    totalCost?: number;
+    cost?: number;
+    drawIds?: string[];
+    drawDate?: string;
+    provinceName?: string;
+    isCartCheckout?: boolean;
   };
   Guide: undefined;
   Login: undefined;
