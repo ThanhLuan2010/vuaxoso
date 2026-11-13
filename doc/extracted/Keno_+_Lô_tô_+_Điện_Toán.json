@@ -1,0 +1,6205 @@
+{
+  "sheet": "Keno + Lô tô + Điện Toán",
+  "rows": [
+    {
+      "row": "1",
+      "cells": {
+        "A1": "Kiểu chơi",
+        "C1": "Loại",
+        "D1": "Loại con",
+        "E1": "Tiền xác",
+        "F1": "Cấp nhân",
+        "G1": "Tỉ lệ thắng",
+        "I1": "Tạm tính",
+        "J1": "Thắng tạm tính\n(Đã bao gồm tiền xác)",
+        "K1": "GIẢI THÍCH",
+        "V1": "Lô Đề\nMiền Nam",
+        "W1": "Lô Đề\nMiền Trung",
+        "X1": "Lô Đề\nMiền Bắc",
+        "Y1": "Keno",
+        "Z1": "Power 6/55",
+        "AA1": "Mega 6/45",
+        "AB1": "Lotto 5/35",
+        "AC1": "Lotto 5/70\nMega Millions (USA)",
+        "AD1": "Max3D",
+        "AE1": "Max3D+",
+        "AF1": "Max3D Pro",
+        "AG1": "Max 4D",
+        "AH1": "Bingo18",
+        "AI1": "ĐIỆN TOÁN\nLÔ TÔ 2,3,5",
+        "AJ1": "ĐIỆN TOÁN\nLÔ TÔ 2,3,4 CẶP",
+        "AK1": "XỔ SỐ ĐIỆN TOÁN\n6X36",
+        "AL1": "XỔ SỐ ĐIỆN TOÁN \n1*2*3",
+        "AM1": "XỔ SỐ ĐIỆN TOÁN\nThần Tài"
+      }
+    },
+    {
+      "row": "2",
+      "cells": {
+        "A2": "Keno\n01-80",
+        "B2": "Keno Thường",
+        "C2": "Cơ bản",
+        "D2": "Bậc 1",
+        "E2": "10000.0",
+        "F2": "1.0",
+        "G2": "Trúng 1 số",
+        "H2": "3.0",
+        "I2": "10000",
+        "J2": "30000",
+        "K2": "Có dãy số tự chọn từ 01 đến 80. Người chơi chọn bất kỳ 1 đến 10 số (gọi là Bậc 1 đến Bậc 10) trong tập hợp số từ 01 đến 80.",
+        "L2": "Chọn 1 số bất kỳ từ 01 đến 80. Nếu có trong kỳ quay thì thắng.",
+        "N2": "Keno thường là hình thức xổ số quay nhanh (8-10 phút/kỳ) - Trong mỗi kỳ quay thưởng của Vietlott Keno, hệ thống sẽ tự động rút ngẫu nhiên 20 con số từ tập hợp tổng cộng 80 con số (từ 01 đến 80). Quay thưởng liên tục từ 06:00 đến 21:55 hàng ngày.\n\nNgười chơi chọn 1 đến 10 số (gọi là Bậc 1 đến Bậc 10) trong tập hợp số từ 01 đến 80.\n\nBao Keno là tập hợp nhiều vé xổ số Keno mà các vé xổ số này có bộ số dự thưởng được tổ hợp từ các con số mà quý khách đã lựa chọn. Đây chỉ là cách chọn số giúp quý khách giảm thời gian mua vé, không phải sản phẩm xổ số do Vuaxoso.vn tự phát hành.\n\nĐặc thù sản phẩm Keno quay thưởng liên tục (*08 phút/kỳ*), Xổ Số King quy định:\n\nThời gian nhận đơn: Hệ thống dừng nhận đơn trước giờ quay số 02 phút.\nTrường hợp không kịp xử lý: Nếu hệ thống chưa hoàn tất mua hộ và cập nhật ảnh vé trước giờ quay, đơn hàng sẽ bị hủy và hoàn tiền 100%.\nTrách nhiệm: Quý khách cam kết không khiếu nại, đòi bồi thường hoặc quy đổi giá trị giải thưởng đối với các đơn hàng bị hủy nêu trên.\nGiới hạn số: Max 60 số/1 khách/1 ngày.\nIP/Device: Giải thưởng kỳ quay được xem như huỷ nếu IP/thiết bị device trùng với bất kỳ tài khoản khác hoặc chơi đối nghịch với các tài khoản khác hoặc với bất kỳ hành vi gian lận mà hệ thống phát hiện.\n\nTối đa trả thưởng 1 kỳ quay: 10.000.000.000 VNĐ. Nếu có nhiều vé cùng trúng 10 số trong 1 kỳ quay thì 10 tỷ chia đều các vé. Tiền thưởng nhận được cần -10% thuế thu nhập cá nhân theo quy định pháp luật VN.",
+        "U2": "Số chơi",
+        "V2": "00-99",
+        "W2": "00-99",
+        "X2": "00-99",
+        "Y2": "01-80",
+        "Z2": "01-55",
+        "AA2": "01-45",
+        "AB2": "5 (01-35) + 1 (01-12)",
+        "AC2": "5 (01-70) + 1 (01-24)",
+        "AD2": "000-999",
+        "AE2": "000-999",
+        "AF2": "000-999",
+        "AG2": "0000-9999",
+        "AH2": "16*16*16",
+        "AI2": "00-99, 000-999, 00000-99999",
+        "AJ2": "00-99",
+        "AK2": "01-36",
+        "AL2": "0-9 * 00-99 * 000-999",
+        "AM2": "0000-9999"
+      }
+    },
+    {
+      "row": "3",
+      "cells": {
+        "D3": "Bậc 2",
+        "E3": "10000.0",
+        "F3": "1.0",
+        "G3": "Trúng 2 số",
+        "H3": "10.0",
+        "I3": "10000",
+        "J3": "100000",
+        "L3": "Chọn 2 số bất kỳ từ 01 đến 80. Nếu có trong kỳ quay thì thắng.",
+        "U3": "Số hàng chục + đơn vị",
+        "V3": "✅",
+        "W3": "✅",
+        "X3": "✅",
+        "Y3": "✅",
+        "Z3": "✅",
+        "AA3": "✅",
+        "AB3": "✅",
+        "AC3": "✅",
+        "AD3": "-",
+        "AE3": "-",
+        "AF3": "-",
+        "AH3": "-",
+        "AI3": "-",
+        "AJ3": "-",
+        "AK3": "✅",
+        "AL3": "-",
+        "AM3": "-"
+      }
+    },
+    {
+      "row": "4",
+      "cells": {
+        "D4": "Bậc 3",
+        "E4": "10000.0",
+        "F4": "1.0",
+        "G4": "Trúng 3 số",
+        "H4": "20.0",
+        "I4": "10000",
+        "J4": "200000",
+        "L4": "Chọn 3 số bất kỳ từ 01 đến 80. Nếu có trong kỳ quay thì thắng.",
+        "U4": "Số đơn vị",
+        "V4": "-",
+        "W4": "-",
+        "X4": "-",
+        "Y4": "-",
+        "Z4": "-",
+        "AA4": "-",
+        "AB4": "-",
+        "AC4": "-",
+        "AD4": "✅",
+        "AE4": "✅",
+        "AF4": "✅",
+        "AG4": "✅",
+        "AH4": "✅",
+        "AI4": "✅",
+        "AJ4": "✅",
+        "AK4": "-",
+        "AL4": "✅",
+        "AM4": "✅"
+      }
+    },
+    {
+      "row": "5",
+      "cells": {
+        "G5": "Trúng 2 số",
+        "H5": "3.0",
+        "I5": "10000",
+        "J5": "30000",
+        "U5": "Số giải",
+        "V5": "18.0",
+        "W5": "18.0",
+        "X5": "27.0",
+        "Y5": "20.0",
+        "Z5": "7.0",
+        "AA5": "6.0",
+        "AB5": "6.0",
+        "AC5": "6.0",
+        "AD5": "20.0",
+        "AE5": "20.0",
+        "AF5": "20.0",
+        "AG5": "6.0",
+        "AH5": "3.0",
+        "AI5": "27.0",
+        "AJ5": "27.0",
+        "AK5": "6.0",
+        "AL5": "3.0",
+        "AM5": "4.0"
+      }
+    },
+    {
+      "row": "6",
+      "cells": {
+        "D6": "Bậc 4",
+        "E6": "10000.0",
+        "F6": "1.0",
+        "G6": "Trúng 4 số",
+        "H6": "41.0",
+        "I6": "10000",
+        "J6": "410000",
+        "L6": "Chọn 4 số bất kỳ từ 01 đến 80. Nếu có trong kỳ quay thì thắng.",
+        "U6": "Ngày xổ",
+        "V6": "Daily",
+        "W6": "Daily",
+        "X6": "Daily",
+        "Y6": "Daily",
+        "Z6": "Thứ 3,5,7 ✅",
+        "AA6": "Thứ 4,6,CN ✅",
+        "AB6": "Daily ✅",
+        "AC6": "Daily",
+        "AD6": "Thứ 2,4,6 ✅",
+        "AE6": "Thứ 2,4,6 ✅",
+        "AF6": "Thứ 3,5,7 ✅",
+        "AG6": "Daily",
+        "AH6": "Daily",
+        "AI6": "Daily",
+        "AJ6": "Daily",
+        "AK6": "Thứ 4,7",
+        "AL6": "Daily",
+        "AM6": "Daily"
+      }
+    },
+    {
+      "row": "7",
+      "cells": {
+        "G7": "Trúng 3 số",
+        "H7": "6.0",
+        "I7": "10000",
+        "J7": "60000",
+        "U7": "Chốt vé",
+        "V7": "16h10",
+        "W7": "17h10",
+        "X7": "18h10",
+        "Y7": "8min",
+        "Z7": "17h20",
+        "AA7": "17h20",
+        "AB7": "12h00 + 20h00",
+        "AC7": "17h",
+        "AD7": "17h20",
+        "AE7": "17h20",
+        "AF7": "17h20",
+        "AG7": "17h20",
+        "AH7": "8min",
+        "AI7": "17h20",
+        "AJ7": "17h20",
+        "AK7": "17h20",
+        "AL7": "17h20",
+        "AM7": "17h20"
+      }
+    },
+    {
+      "row": "8",
+      "cells": {
+        "G8": "Trúng 2 số",
+        "H8": "2.0",
+        "I8": "10000",
+        "J8": "20000",
+        "U8": "Thời gian quay",
+        "V8": "16h15",
+        "W8": "17h15",
+        "X8": "18h15",
+        "Y8": "06:00 - 21:55",
+        "Z8": "18h00",
+        "AA8": "18h00",
+        "AB8": "13h + 21h",
+        "AC8": "17h20",
+        "AD8": "18h00",
+        "AE8": "18h00",
+        "AF8": "18h00",
+        "AG8": "18h00",
+        "AH8": "06:00 - 21:55",
+        "AI8": "18h15",
+        "AJ8": "18h15",
+        "AK8": "18h15",
+        "AL8": "18h15",
+        "AM8": "18h15"
+      }
+    },
+    {
+      "row": "9",
+      "cells": {
+        "D9": "Bậc 5",
+        "E9": "10000.0",
+        "F9": "1.0",
+        "G9": "Trúng 5 số",
+        "H9": "441.0",
+        "I9": "10000",
+        "J9": "4410000",
+        "L9": "Chọn 5 số bất kỳ từ 01 đến 80. Nếu có trong kỳ quay thì thắng.",
+        "U9": "Kỳ quay",
+        "V9": "-",
+        "W9": "-",
+        "X9": "-",
+        "Y9": "8min",
+        "Z9": "-",
+        "AA9": "-",
+        "AB9": "-",
+        "AC9": "-",
+        "AD9": "-",
+        "AE9": "-",
+        "AF9": "-",
+        "AG9": "-",
+        "AH9": "10min",
+        "AI9": "-",
+        "AJ9": "-",
+        "AK9": "-",
+        "AL9": "-",
+        "AM9": "-"
+      }
+    },
+    {
+      "row": "10",
+      "cells": {
+        "G10": "Trúng 4 số",
+        "H10": "16.0",
+        "I10": "10000",
+        "J10": "160000",
+        "U10": "Lấy kết quả Miền Bắc",
+        "V10": "-",
+        "W10": "-",
+        "X10": "-",
+        "Y10": "MAX 60 số/1khách/1 kỳ quay",
+        "Z10": "-",
+        "AA10": "-",
+        "AB10": "-",
+        "AC10": "-",
+        "AD10": "-",
+        "AE10": "-",
+        "AF10": "-",
+        "AG10": "-",
+        "AH10": "-",
+        "AI10": "✅",
+        "AJ10": "✅",
+        "AK10": "-",
+        "AL10": "-",
+        "AM10": "-"
+      }
+    },
+    {
+      "row": "11",
+      "cells": {
+        "G11": "Trúng 3 số",
+        "H11": "2.0",
+        "I11": "10000",
+        "J11": "20000",
+        "U11": "Hình ảnh minh hoạ",
+        "V11": "https://ibb.co/7dmtM3MQ",
+        "W11": "https://ibb.co/gbTvb6r3",
+        "X11": "https://ibb.co/1GhtfYjs",
+        "Y11": "https://ibb.co/MxLVhjLK",
+        "Z11": "https://ibb.co/v6v7H0nq",
+        "AA11": "https://ibb.co/b0DLNMj",
+        "AB11": "https://ibb.co/qLXwF3w7",
+        "AC11": "https://ibb.co/YFrYBdHH",
+        "AD11": "https://ibb.co/Q3YN2HqT",
+        "AE11": "https://ibb.co/Q3YN2HqT",
+        "AF11": "https://ibb.co/ZRz3z0zC",
+        "AG11": "https://ibb.co/QFtDLBdq",
+        "AH11": "https://ibb.co/zwZ4P0s",
+        "AI11": "https://ibb.co/1GhtfYjs",
+        "AJ11": "https://ibb.co/1GhtfYjs",
+        "AK11": "https://ibb.co/hxF0PHvK",
+        "AL11": "https://ibb.co/LXh2mzPL",
+        "AM11": "https://ibb.co/mrB2SbTD"
+      }
+    },
+    {
+      "row": "12",
+      "cells": {
+        "D12": "Bậc 6",
+        "E12": "10000.0",
+        "F12": "1.0",
+        "G12": "Trúng 6 số",
+        "H12": "1251.0",
+        "I12": "10000",
+        "J12": "12510000",
+        "L12": "Chọn 6 số bất kỳ từ 01 đến 80. Nếu có trong kỳ quay thì thắng."
+      }
+    },
+    {
+      "row": "13",
+      "cells": {
+        "G13": "Trúng 5 số",
+        "H13": "46.0",
+        "I13": "10000",
+        "J13": "460000"
+      }
+    },
+    {
+      "row": "14",
+      "cells": {
+        "G14": "Trúng 4 số",
+        "H14": "5.0",
+        "I14": "10000",
+        "J14": "50000"
+      }
+    },
+    {
+      "row": "15",
+      "cells": {
+        "G15": "Trúng 3 số",
+        "H15": "2.0",
+        "I15": "10000",
+        "J15": "20000"
+      }
+    },
+    {
+      "row": "16",
+      "cells": {
+        "D16": "Bậc 7",
+        "E16": "10000.0",
+        "F16": "1.0",
+        "G16": "Trúng 7 số",
+        "H16": "4001.0",
+        "I16": "10000",
+        "J16": "40010000",
+        "L16": "Chọn 7 số bất kỳ từ 01 đến 80. Nếu có trong kỳ quay thì thắng."
+      }
+    },
+    {
+      "row": "17",
+      "cells": {
+        "G17": "Trúng 6 số",
+        "H17": "121.0",
+        "I17": "10000",
+        "J17": "1210000"
+      }
+    },
+    {
+      "row": "18",
+      "cells": {
+        "G18": "Trúng 5 số",
+        "H18": "11.0",
+        "I18": "10000",
+        "J18": "110000"
+      }
+    },
+    {
+      "row": "19",
+      "cells": {
+        "G19": "Trúng 4 số",
+        "H19": "3.0",
+        "I19": "10000",
+        "J19": "30000"
+      }
+    },
+    {
+      "row": "20",
+      "cells": {
+        "D20": "Bậc 8",
+        "E20": "10000.0",
+        "F20": "1.0",
+        "G20": "Trúng 8 số",
+        "H20": "20001.0",
+        "I20": "10000",
+        "J20": "200010000",
+        "L20": "Chọn 8 số bất kỳ từ 01 đến 80. Nếu có trong kỳ quay thì thắng."
+      }
+    },
+    {
+      "row": "21",
+      "cells": {
+        "G21": "Trúng 7 số",
+        "H21": "501.0",
+        "I21": "10000",
+        "J21": "5010000"
+      }
+    },
+    {
+      "row": "22",
+      "cells": {
+        "G22": "Trúng 6 số",
+        "H22": "51.0",
+        "I22": "10000",
+        "J22": "510000"
+      }
+    },
+    {
+      "row": "23",
+      "cells": {
+        "G23": "Trúng 5 số",
+        "H23": "6.0",
+        "I23": "10000",
+        "J23": "60000",
+        "Z23": "Power 6/55",
+        "AA23": "Thứ 3,5,7 - 17h20 chốt, 18h xổ",
+        "AB23": "6 số + 1 số ĐB",
+        "AC23": "(Số cặp)"
+      }
+    },
+    {
+      "row": "24",
+      "cells": {
+        "G24": "Không trúng số nào (0 số)",
+        "H24": "1.0",
+        "I24": "10000",
+        "J24": "10000",
+        "Z24": "Mega 6/45",
+        "AA24": "Thứ 4,6,chủ nhật - 17h20 chốt, 18h xổ",
+        "AB24": "6 số",
+        "AC24": "(Số cặp)"
+      }
+    },
+    {
+      "row": "25",
+      "cells": {
+        "D25": "Bậc 9",
+        "E25": "10000.0",
+        "F25": "1.0",
+        "G25": "Trúng 9 số",
+        "H25": "80001.0",
+        "I25": "10000",
+        "J25": "800010000",
+        "L25": "Chọn 9 số bất kỳ từ 01 đến 80. Nếu có trong kỳ quay thì thắng.",
+        "Z25": "Max3D/3D+",
+        "AA25": "Thứ 2,4,6 - 17h20 chốt, 18h xổ",
+        "AB25": "4 giải"
+      }
+    },
+    {
+      "row": "26",
+      "cells": {
+        "G26": "Trúng 8 số",
+        "H26": "1201.0",
+        "I26": "10000",
+        "J26": "12010000",
+        "Z26": "Max3D Pro",
+        "AA26": "Thứ 3,5,7 - 17h20 chốt, 18h xổ",
+        "AB26": "4 giải"
+      }
+    },
+    {
+      "row": "27",
+      "cells": {
+        "G27": "Trúng 7 số",
+        "H27": "151.0",
+        "I27": "10000",
+        "J27": "1510000",
+        "Z27": "Max 4D",
+        "AA27": "Mỗi ngày - 17h20 chốt, 18h xổ",
+        "AB27": "5 giải"
+      }
+    },
+    {
+      "row": "28",
+      "cells": {
+        "G28": "Trúng 6 số",
+        "H28": "16.0",
+        "I28": "10000",
+        "J28": "160000",
+        "Z28": "Bingo18",
+        "AA28": "Mỗi ngày - 8p xổ 1 lần, 6h-22h",
+        "AB28": "3 số",
+        "AC28": "(Số lẻ)"
+      }
+    },
+    {
+      "row": "29",
+      "cells": {
+        "G29": "Trúng 5 số",
+        "H29": "2.0",
+        "I29": "10000",
+        "J29": "20000",
+        "Z29": "ĐIỆN TOÁN 6X36",
+        "AA29": "Thứ 4,7 - 17h20 chốt, 18h15 xổ",
+        "AB29": "6 số",
+        "AC29": "(Số cặp)"
+      }
+    },
+    {
+      "row": "30",
+      "cells": {
+        "G30": "Không trúng số nào (0 số)",
+        "H30": "1.0",
+        "I30": "10000",
+        "J30": "10000",
+        "Z30": "ĐIỆN TOÁN 1*2*3",
+        "AA30": "Mỗi ngày - 17h20 chốt, 18h15 xổ",
+        "AB30": "6 số",
+        "AC30": "(Số lẻ)"
+      }
+    },
+    {
+      "row": "31",
+      "cells": {
+        "D31": "Bậc 10",
+        "E31": "10000.0",
+        "F31": "1.0",
+        "G31": "Trúng 10 số",
+        "H31": "100001.0",
+        "I31": "10000",
+        "J31": "1000010000",
+        "L31": "Chọn 10 số bất kỳ từ 01 đến 80. Nếu có trong kỳ quay thì thắng.",
+        "Z31": "ĐIỆN TOÁN Thần Tài",
+        "AA31": "Mỗi ngày - 17h20 chốt, 18h xổ",
+        "AB31": "4 số",
+        "AC31": "(Số lẻ)"
+      }
+    },
+    {
+      "row": "32",
+      "cells": {
+        "G32": "Trúng 9 số",
+        "H32": "10001.0",
+        "I32": "10000",
+        "J32": "100010000",
+        "Z32": "Lotto 5/35",
+        "AA32": "Mỗi ngày - 12h+20 chốt, 13h+21h xổ",
+        "AB32": "5 số + 1 số ĐB",
+        "AC32": "(Số cặp)"
+      }
+    },
+    {
+      "row": "33",
+      "cells": {
+        "G33": "Trúng 8 số",
+        "H33": "100.0",
+        "I33": "10000",
+        "J33": "1000000",
+        "Z33": "Loto 5/70",
+        "AA33": "Mỗi ngày - 17h chốt, 17h20 xổ",
+        "AB33": "5 số + 1 số ĐB",
+        "AC33": "(Số cặp)"
+      }
+    },
+    {
+      "row": "34",
+      "cells": {
+        "G34": "Trúng 7 số",
+        "H34": "5.0",
+        "I34": "10000",
+        "J34": "50000",
+        "Z34": "LÔ ĐỀ MIỀN NAM",
+        "AA34": "Mỗi ngày - 16h10 chốt, 16h15 xổ"
+      }
+    },
+    {
+      "row": "35",
+      "cells": {
+        "G35": "Trúng 6 số",
+        "H35": "3.0",
+        "I35": "10000",
+        "J35": "30000",
+        "Z35": "LÔ ĐỀ MIỀN TRUNG",
+        "AA35": "Mỗi ngày - 17h10 chốt, 17h15 xổ"
+      }
+    },
+    {
+      "row": "36",
+      "cells": {
+        "G36": "Trúng 5 số",
+        "H36": "2.0",
+        "I36": "10000",
+        "J36": "20000",
+        "Z36": "LÔ ĐỀ MIỀN BẮC",
+        "AA36": "Mỗi ngày - 18h10 chốt, 18h15 xổ"
+      }
+    },
+    {
+      "row": "37",
+      "cells": {
+        "G37": "Không trúng số nào (0 số)",
+        "H37": "1.0",
+        "I37": "10000",
+        "J37": "10000"
+      }
+    },
+    {
+      "row": "38",
+      "cells": {
+        "C38": "Lớn nhỏ",
+        "D38": "Lớn",
+        "E38": "10000.0",
+        "F38": "1.0",
+        "G38": ">= 15 số lớn",
+        "H38": "20.0",
+        "I38": "10000",
+        "J38": "200000",
+        "K38": "Lớn:\nKQ có 15 số lớn trở lên, tỉ lệ thắng x20\nKQ có 13 hoặc 14 số lớn, tỉ lệ thắng x4\n\nHòa:\nKQ có 10 số lớn và 10 số nhỏ hơn, tỉ lệ thắng x2.6\n\nNhỏ:\nKQ có 15 số nhỏ trở lên, tỉ lệ thắng x20\nKQ có 13 hoặc 14 số nhỏ, tỉ lệ thắng x4",
+        "L38": "Lớn là có 13 đến 20 số thuộc vùng Lớn (41-80, 40 số)."
+      }
+    },
+    {
+      "row": "39",
+      "cells": {
+        "E39": "10000.0",
+        "F39": "1.0",
+        "G39": "13 hoặc 14 số lớn",
+        "H39": "4.0",
+        "I39": "10000",
+        "J39": "40000"
+      }
+    },
+    {
+      "row": "40",
+      "cells": {
+        "D40": "Hoà",
+        "E40": "10000.0",
+        "F40": "1.0",
+        "H40": "2.6",
+        "I40": "10000",
+        "J40": "26000",
+        "L40": "Hoà là đúng 10 số Lớn và 10 số Nhỏ."
+      }
+    },
+    {
+      "row": "41",
+      "cells": {
+        "D41": "Nhỏ",
+        "E41": "10000.0",
+        "F41": "1.0",
+        "G41": ">= 15 số nhỏ",
+        "H41": "20.0",
+        "I41": "10000",
+        "J41": "200000",
+        "L41": "Nhỏ là có 13 đến 20 số thuộc vùng Nhỏ (01-40, 40 số)."
+      }
+    },
+    {
+      "row": "42",
+      "cells": {
+        "E42": "10000.0",
+        "F42": "1.0",
+        "G42": "13 hoặc 14 số nhỏ",
+        "H42": "4.0",
+        "I42": "10000",
+        "J42": "40000"
+      }
+    },
+    {
+      "row": "43",
+      "cells": {
+        "D43": "Lớn 11-12",
+        "E43": "10000.0",
+        "F43": "1.0",
+        "H43": "2.0",
+        "I43": "10000",
+        "J43": "20000",
+        "L43": "Lớn 11-12 là có đúng 11 hoặc 12 số lớn."
+      }
+    },
+    {
+      "row": "44",
+      "cells": {
+        "D44": "Nhỏ 11-12",
+        "E44": "10000.0",
+        "F44": "1.0",
+        "H44": "2.0",
+        "I44": "10000",
+        "J44": "20000",
+        "L44": "Nhỏ 11-12 là có đúng 11 hoặc 12 số nhỏ."
+      }
+    },
+    {
+      "row": "45",
+      "cells": {
+        "C45": "Chẵn lẻ",
+        "D45": "Chẵn",
+        "E45": "10000.0",
+        "F45": "1.0",
+        "G45": ">= 15 số chẵn",
+        "H45": "20.0",
+        "I45": "10000",
+        "J45": "200000",
+        "K45": "Chẵn:\nKQ có 15 số Chẵn trở lên, tỉ lệ thắng x20\nKQ có 13 hoặc 14 số Chẵn, tỉ lệ thắng x4\n\nChẵn 11-12:\nKQ có 11 hoặc 12 số Chẵn, tỉ lệ thắng x2\n\nHòa:\nKQ có 10 số Chẵn và 10 số Lẻ, tỉ lệ thắng x2\n\nLẻ 11-12:\nKQ có 11 hoặc 12 số Lẻ, tỉ lệ thắng x2\n\nLẻ:\nKQ có 13 hoặc 14 số Lẻ, tỉ lệ thắng x4\nKQ có 15 số Lẻ trở lên, tỉ lệ thắng x20",
+        "L45": "Chẵn là trong 20 số được rút ngẫu nhiên từ tập hợp 80 số, hệ thống sẽ đếm tổng số lượng con số Chẵn (02, 04, 06... 80) có 13 đến 20 số Chẵn."
+      }
+    },
+    {
+      "row": "46",
+      "cells": {
+        "E46": "10000.0",
+        "F46": "1.0",
+        "G46": "13 hoặc 14 số Chẵn",
+        "H46": "4.0",
+        "I46": "10000",
+        "J46": "40000"
+      }
+    },
+    {
+      "row": "47",
+      "cells": {
+        "D47": "Hoà",
+        "E47": "10000.0",
+        "F47": "1.0",
+        "H47": "2.6",
+        "I47": "10000",
+        "J47": "26000",
+        "L47": "Hoà là đúng 10 số Chẵn và 10 số Lẻ."
+      }
+    },
+    {
+      "row": "48",
+      "cells": {
+        "D48": "Lẻ",
+        "E48": "10000.0",
+        "F48": "1.0",
+        "G48": ">= 15 số lẻ",
+        "H48": "20.0",
+        "I48": "10000",
+        "J48": "200000",
+        "L48": "Lẻ là trong 20 số được rút ngẫu nhiên từ tập hợp 80 số, hệ thống sẽ đếm tổng số lượng con số Lẻ (01, 03, 05... 79) có 13 đến 20 số Lẻ."
+      }
+    },
+    {
+      "row": "49",
+      "cells": {
+        "E49": "10000.0",
+        "F49": "1.0",
+        "G49": "13 hoặc 14 số lẻ",
+        "H49": "4.0",
+        "I49": "10000",
+        "J49": "40000"
+      }
+    },
+    {
+      "row": "50",
+      "cells": {
+        "D50": "Chẵn 11-12",
+        "E50": "10000.0",
+        "F50": "1.0",
+        "H50": "2.0",
+        "I50": "10000",
+        "J50": "20000",
+        "L50": "Chẵn 11-12 là có đúng 11 hoặc 12 số Chẵn."
+      }
+    },
+    {
+      "row": "51",
+      "cells": {
+        "D51": "Lẻ 11-12",
+        "E51": "10000.0",
+        "F51": "1.0",
+        "H51": "2.0",
+        "I51": "10000",
+        "J51": "20000",
+        "L51": "Lẻ 11-12 là có đúng 11 hoặc 12 số Lẻ."
+      }
+    },
+    {
+      "row": "52",
+      "cells": {
+        "B52": "Bao Keno",
+        "C52": "Bao 3",
+        "D52": "Bậc 2",
+        "E52": "10000.0",
+        "F52": "3.0",
+        "G52": "Trúng 1 cặp: 1 ăn 9",
+        "H52": "9.0",
+        "I52": "30000",
+        "J52": "90000",
+        "K52": "Bao Keno là dạng chơi xiên từ 01 đến 80. Bậc 2 là xiên 2 số, bậc 3 là xiên 3 số... tương tự bậc 10 là xiên 10 số.",
+        "L52": "Chọn 3 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 2. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "53",
+      "cells": {
+        "C53": "Bao 4",
+        "E53": "10000.0",
+        "F53": "6.0",
+        "G53": "Trúng 1 cặp: 1 ăn 9",
+        "H53": "9.0",
+        "I53": "60000",
+        "J53": "90000",
+        "L53": "Chọn 4 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 2. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "54",
+      "cells": {
+        "C54": "Bao 5",
+        "E54": "10000.0",
+        "F54": "10.0",
+        "G54": "Trúng 1 cặp: 1 ăn 9",
+        "H54": "9.0",
+        "I54": "100000",
+        "J54": "90000",
+        "L54": "Chọn 5 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 2. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "55",
+      "cells": {
+        "C55": "Bao 6",
+        "E55": "10000.0",
+        "F55": "15.0",
+        "G55": "Trúng 1 cặp: 1 ăn 9",
+        "H55": "9.0",
+        "I55": "150000",
+        "J55": "90000",
+        "L55": "Chọn 6 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 2. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "56",
+      "cells": {
+        "C56": "Bao 7",
+        "E56": "10000.0",
+        "F56": "21.0",
+        "G56": "Trúng 1 cặp: 1 ăn 9",
+        "H56": "9.0",
+        "I56": "210000",
+        "J56": "90000",
+        "L56": "Chọn 7 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 2. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "57",
+      "cells": {
+        "C57": "Bao 8",
+        "E57": "10000.0",
+        "F57": "28.0",
+        "G57": "Trúng 1 cặp: 1 ăn 9",
+        "H57": "9.0",
+        "I57": "280000",
+        "J57": "90000",
+        "L57": "Chọn 8 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 2. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "58",
+      "cells": {
+        "C58": "Bao 9",
+        "E58": "10000.0",
+        "F58": "36.0",
+        "G58": "Trúng 1 cặp: 1 ăn 9",
+        "H58": "9.0",
+        "I58": "360000",
+        "J58": "90000",
+        "L58": "Chọn 9 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 2. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "59",
+      "cells": {
+        "C59": "Bao 10",
+        "E59": "10000.0",
+        "F59": "45.0",
+        "G59": "Trúng 1 cặp: 1 ăn 9",
+        "H59": "9.0",
+        "I59": "450000",
+        "J59": "90000",
+        "L59": "Chọn 10 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 2. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "60",
+      "cells": {
+        "C60": "Bao 11",
+        "E60": "10000.0",
+        "F60": "55.0",
+        "G60": "Trúng 1 cặp: 1 ăn 9",
+        "H60": "9.0",
+        "I60": "550000",
+        "J60": "90000",
+        "L60": "Chọn 11 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 2. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "61",
+      "cells": {
+        "C61": "Bao 12",
+        "E61": "10000.0",
+        "F61": "66.0",
+        "G61": "Trúng 1 cặp: 1 ăn 9",
+        "H61": "9.0",
+        "I61": "660000",
+        "J61": "90000",
+        "L61": "Chọn 12 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 2. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "62",
+      "cells": {
+        "C62": "Bao 4",
+        "D62": "Bậc 3",
+        "E62": "10000.0",
+        "F62": "4.0",
+        "G62": "Trúng 1 cặp: 1 ăn 30",
+        "H62": "30.0",
+        "I62": "40000",
+        "J62": "300000",
+        "L62": "Chọn 4 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 3. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "63",
+      "cells": {
+        "C63": "Bao 5",
+        "E63": "10000.0",
+        "F63": "10.0",
+        "G63": "Trúng 1 cặp: 1 ăn 30",
+        "H63": "30.0",
+        "I63": "100000",
+        "J63": "300000",
+        "L63": "Chọn 5 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 3. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "64",
+      "cells": {
+        "C64": "Bao 6",
+        "E64": "10000.0",
+        "F64": "20.0",
+        "G64": "Trúng 1 cặp: 1 ăn 30",
+        "H64": "30.0",
+        "I64": "200000",
+        "J64": "300000",
+        "L64": "Chọn 6 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 3. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "65",
+      "cells": {
+        "C65": "Bao 7",
+        "E65": "10000.0",
+        "F65": "35.0",
+        "G65": "Trúng 1 cặp: 1 ăn 30",
+        "H65": "30.0",
+        "I65": "350000",
+        "J65": "300000",
+        "L65": "Chọn 7 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 3. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "66",
+      "cells": {
+        "C66": "Bao 8",
+        "E66": "10000.0",
+        "F66": "56.0",
+        "G66": "Trúng 1 cặp: 1 ăn 30",
+        "H66": "30.0",
+        "I66": "560000",
+        "J66": "300000",
+        "L66": "Chọn 8 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 3. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "67",
+      "cells": {
+        "C67": "Bao 9",
+        "E67": "10000.0",
+        "F67": "84.0",
+        "G67": "Trúng 1 cặp: 1 ăn 30",
+        "H67": "30.0",
+        "I67": "840000",
+        "J67": "300000",
+        "L67": "Chọn 9 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 3. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "68",
+      "cells": {
+        "C68": "Bao 10",
+        "E68": "10000.0",
+        "F68": "120.0",
+        "G68": "Trúng 1 cặp: 1 ăn 30",
+        "H68": "30.0",
+        "I68": "1200000",
+        "J68": "300000",
+        "L68": "Chọn 10 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 3. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "69",
+      "cells": {
+        "C69": "Bao 11",
+        "E69": "10000.0",
+        "F69": "165.0",
+        "G69": "Trúng 1 cặp: 1 ăn 30",
+        "H69": "30.0",
+        "I69": "1650000",
+        "J69": "300000",
+        "L69": "Chọn 11 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 3. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "70",
+      "cells": {
+        "C70": "Bao 12",
+        "E70": "10000.0",
+        "F70": "220.0",
+        "G70": "Trúng 1 cặp: 1 ăn 30",
+        "H70": "30.0",
+        "I70": "2200000",
+        "J70": "300000",
+        "L70": "Chọn 12 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 3. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "71",
+      "cells": {
+        "C71": "Bao 5",
+        "D71": "Bậc 4",
+        "E71": "10000.0",
+        "F71": "5.0",
+        "G71": "Trúng 1 cặp: 1 ăn 150",
+        "H71": "150.0",
+        "I71": "50000",
+        "J71": "1500000",
+        "L71": "Chọn 5 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 4. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "72",
+      "cells": {
+        "C72": "Bao 6",
+        "E72": "10000.0",
+        "F72": "15.0",
+        "G72": "Trúng 1 cặp: 1 ăn 150",
+        "H72": "150.0",
+        "I72": "150000",
+        "J72": "1500000",
+        "L72": "Chọn 6 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 4. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "73",
+      "cells": {
+        "C73": "Bao 7",
+        "E73": "10000.0",
+        "F73": "35.0",
+        "G73": "Trúng 1 cặp: 1 ăn 150",
+        "H73": "150.0",
+        "I73": "350000",
+        "J73": "1500000",
+        "L73": "Chọn 7 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 4. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "74",
+      "cells": {
+        "C74": "Bao 8",
+        "E74": "10000.0",
+        "F74": "70.0",
+        "G74": "Trúng 1 cặp: 1 ăn 150",
+        "H74": "150.0",
+        "I74": "700000",
+        "J74": "1500000",
+        "L74": "Chọn 8 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 4. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "75",
+      "cells": {
+        "C75": "Bao 9",
+        "E75": "10000.0",
+        "F75": "126.0",
+        "G75": "Trúng 1 cặp: 1 ăn 150",
+        "H75": "150.0",
+        "I75": "1260000",
+        "J75": "1500000",
+        "L75": "Chọn 9 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 4. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "76",
+      "cells": {
+        "C76": "Bao 10",
+        "E76": "10000.0",
+        "F76": "210.0",
+        "G76": "Trúng 1 cặp: 1 ăn 150",
+        "H76": "150.0",
+        "I76": "2100000",
+        "J76": "1500000",
+        "L76": "Chọn 10 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 4. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "77",
+      "cells": {
+        "C77": "Bao 11",
+        "E77": "10000.0",
+        "F77": "330.0",
+        "G77": "Trúng 1 cặp: 1 ăn 150",
+        "H77": "150.0",
+        "I77": "3300000",
+        "J77": "1500000",
+        "L77": "Chọn 11 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 4. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "78",
+      "cells": {
+        "C78": "Bao 12",
+        "E78": "10000.0",
+        "F78": "495.0",
+        "G78": "Trúng 1 cặp: 1 ăn 150",
+        "H78": "150.0",
+        "I78": "4950000",
+        "J78": "1500000",
+        "L78": "Chọn 12 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 4. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "79",
+      "cells": {
+        "C79": "Bao 6",
+        "D79": "Bậc 5",
+        "E79": "10000.0",
+        "F79": "6.0",
+        "G79": "Trúng 1 cặp: 1 ăn 350",
+        "H79": "350.0",
+        "I79": "60000",
+        "J79": "3500000",
+        "L79": "Chọn 6 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 5. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "80",
+      "cells": {
+        "C80": "Bao 7",
+        "E80": "10000.0",
+        "F80": "21.0",
+        "G80": "Trúng 1 cặp: 1 ăn 350",
+        "H80": "350.0",
+        "I80": "210000",
+        "J80": "3500000",
+        "L80": "Chọn 7 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 5. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "81",
+      "cells": {
+        "C81": "Bao 8",
+        "E81": "10000.0",
+        "F81": "56.0",
+        "G81": "Trúng 1 cặp: 1 ăn 350",
+        "H81": "350.0",
+        "I81": "560000",
+        "J81": "3500000",
+        "L81": "Chọn 8 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 5. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "82",
+      "cells": {
+        "C82": "Bao 9",
+        "E82": "10000.0",
+        "F82": "126.0",
+        "G82": "Trúng 1 cặp: 1 ăn 350",
+        "H82": "350.0",
+        "I82": "1260000",
+        "J82": "3500000",
+        "L82": "Chọn 9 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 5. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "83",
+      "cells": {
+        "C83": "Bao 10",
+        "E83": "10000.0",
+        "F83": "252.0",
+        "G83": "Trúng 1 cặp: 1 ăn 350",
+        "H83": "350.0",
+        "I83": "2520000",
+        "J83": "3500000",
+        "L83": "Chọn 10 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 5. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "84",
+      "cells": {
+        "C84": "Bao 11",
+        "E84": "10000.0",
+        "F84": "462.0",
+        "G84": "Trúng 1 cặp: 1 ăn 350",
+        "H84": "350.0",
+        "I84": "4620000",
+        "J84": "3500000",
+        "L84": "Chọn 11 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 5. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "85",
+      "cells": {
+        "C85": "Bao 12",
+        "E85": "10000.0",
+        "F85": "792.0",
+        "G85": "Trúng 1 cặp: 1 ăn 350",
+        "H85": "350.0",
+        "I85": "7920000",
+        "J85": "3500000",
+        "L85": "Chọn 12 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 5. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "86",
+      "cells": {
+        "C86": "Bao 7",
+        "D86": "Bậc 6",
+        "E86": "10000.0",
+        "F86": "7.0",
+        "G86": "Trúng 1 cặp: 1 ăn 650",
+        "H86": "650.0",
+        "I86": "70000",
+        "J86": "6500000",
+        "L86": "Chọn 7 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 6. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "87",
+      "cells": {
+        "C87": "Bao 8",
+        "E87": "10000.0",
+        "F87": "28.0",
+        "G87": "Trúng 1 cặp: 1 ăn 650",
+        "H87": "650.0",
+        "I87": "280000",
+        "J87": "6500000",
+        "L87": "Chọn 8 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 6. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "88",
+      "cells": {
+        "C88": "Bao 9",
+        "E88": "10000.0",
+        "F88": "84.0",
+        "G88": "Trúng 1 cặp: 1 ăn 650",
+        "H88": "650.0",
+        "I88": "840000",
+        "J88": "6500000",
+        "L88": "Chọn 9 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 6. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "89",
+      "cells": {
+        "C89": "Bao 10",
+        "E89": "10000.0",
+        "F89": "210.0",
+        "G89": "Trúng 1 cặp: 1 ăn 650",
+        "H89": "650.0",
+        "I89": "2100000",
+        "J89": "6500000",
+        "L89": "Chọn 10 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 6. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "90",
+      "cells": {
+        "C90": "Bao 11",
+        "E90": "10000.0",
+        "F90": "462.0",
+        "G90": "Trúng 1 cặp: 1 ăn 650",
+        "H90": "650.0",
+        "I90": "4620000",
+        "J90": "6500000",
+        "L90": "Chọn 11 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 6. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "91",
+      "cells": {
+        "C91": "Bao 12",
+        "E91": "10000.0",
+        "F91": "924.0",
+        "G91": "Trúng 1 cặp: 1 ăn 650",
+        "H91": "650.0",
+        "I91": "9240000",
+        "J91": "6500000",
+        "L91": "Chọn 12 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 6. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "92",
+      "cells": {
+        "C92": "Bao 8",
+        "D92": "Bậc 7",
+        "E92": "10000.0",
+        "F92": "8.0",
+        "G92": "Trúng 1 cặp: 1 ăn 950",
+        "H92": "950.0",
+        "I92": "80000",
+        "J92": "9500000",
+        "L92": "Chọn 8 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 7. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "93",
+      "cells": {
+        "C93": "Bao 9",
+        "E93": "10000.0",
+        "F93": "36.0",
+        "G93": "Trúng 1 cặp: 1 ăn 950",
+        "H93": "950.0",
+        "I93": "360000",
+        "J93": "9500000",
+        "L93": "Chọn 9 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 7. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "94",
+      "cells": {
+        "C94": "Bao 10",
+        "E94": "10000.0",
+        "F94": "120.0",
+        "G94": "Trúng 1 cặp: 1 ăn 950",
+        "H94": "950.0",
+        "I94": "1200000",
+        "J94": "9500000",
+        "L94": "Chọn 10 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 7. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "95",
+      "cells": {
+        "C95": "Bao 11",
+        "E95": "10000.0",
+        "F95": "330.0",
+        "G95": "Trúng 1 cặp: 1 ăn 950",
+        "H95": "950.0",
+        "I95": "3300000",
+        "J95": "9500000",
+        "L95": "Chọn 11 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 7. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "96",
+      "cells": {
+        "C96": "Bao 12",
+        "E96": "10000.0",
+        "F96": "792.0",
+        "G96": "Trúng 1 cặp: 1 ăn 950",
+        "H96": "950.0",
+        "I96": "7920000",
+        "J96": "9500000",
+        "L96": "Chọn 12 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 7. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "97",
+      "cells": {
+        "C97": "Bao 9",
+        "D97": "Bậc 8",
+        "E97": "10000.0",
+        "F97": "9.0",
+        "G97": "Trúng 1 cặp: 1 ăn 1950",
+        "H97": "1950.0",
+        "I97": "90000",
+        "J97": "19500000",
+        "L97": "Chọn 9 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 8. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "98",
+      "cells": {
+        "C98": "Bao 10",
+        "E98": "10000.0",
+        "F98": "45.0",
+        "G98": "Trúng 1 cặp: 1 ăn 1950",
+        "H98": "1950.0",
+        "I98": "450000",
+        "J98": "19500000",
+        "L98": "Chọn 10 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 8. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "99",
+      "cells": {
+        "C99": "Bao 11",
+        "E99": "10000.0",
+        "F99": "165.0",
+        "G99": "Trúng 1 cặp: 1 ăn 1950",
+        "H99": "1950.0",
+        "I99": "1650000",
+        "J99": "19500000",
+        "L99": "Chọn 11 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 8. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "100",
+      "cells": {
+        "C100": "Bao 12",
+        "E100": "10000.0",
+        "F100": "495.0",
+        "G100": "Trúng 1 cặp: 1 ăn 1950",
+        "H100": "1950.0",
+        "I100": "4950000",
+        "J100": "19500000",
+        "L100": "Chọn 12 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 8. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "101",
+      "cells": {
+        "C101": "Bao 10",
+        "D101": "Bậc 9",
+        "E101": "10000.0",
+        "F101": "10.0",
+        "G101": "Trúng 1 cặp: 1 ăn 2950",
+        "H101": "2950.0",
+        "I101": "100000",
+        "J101": "29500000",
+        "L101": "Chọn 10 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 9. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "102",
+      "cells": {
+        "C102": "Bao 11",
+        "E102": "10000.0",
+        "F102": "55.0",
+        "G102": "Trúng 1 cặp: 1 ăn 2950",
+        "H102": "2950.0",
+        "I102": "550000",
+        "J102": "29500000",
+        "L102": "Chọn 11 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 9. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "103",
+      "cells": {
+        "C103": "Bao 12",
+        "E103": "10000.0",
+        "F103": "220.0",
+        "G103": "Trúng 1 cặp: 1 ăn 2950",
+        "H103": "2950.0",
+        "I103": "2200000",
+        "J103": "29500000",
+        "L103": "Chọn 12 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 9. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "104",
+      "cells": {
+        "C104": "Bao 11",
+        "D104": "Bậc 10",
+        "E104": "10000.0",
+        "F104": "11.0",
+        "G104": "Trúng 1 cặp: 1 ăn 4500",
+        "H104": "4500.0",
+        "I104": "110000",
+        "J104": "45000000",
+        "L104": "Chọn 11 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 10. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "105",
+      "cells": {
+        "C105": "Bao 12",
+        "E105": "10000.0",
+        "F105": "66.0",
+        "G105": "Trúng 1 cặp: 1 ăn 4500",
+        "H105": "4500.0",
+        "I105": "660000",
+        "J105": "45000000",
+        "L105": "Chọn 12 số bất kỳ từ 01 đến 80, hệ thống tự tạo xiên 10. Nếu có 1 cặp xiên bất kỳ trong kỳ quay thì thắng. Nếu có đủ n cặp thì nhân số n lên. "
+      }
+    },
+    {
+      "row": "106",
+      "cells": {
+        "A106": "POWER 6/55\n(01-55)",
+        "D106": "Cơ bản",
+        "E106": "10000.0",
+        "F106": "1.0",
+        "G106": "Jackpot 1: Trúng cả 6 số chính trong kết quả quay.",
+        "H106": "200000.0",
+        "I106": "10000",
+        "J106": "2000000000",
+        "K106": "Power 6/55 là một loại hình xổ số điện toán tự chọn do Công ty Xổ số Điện toán Việt Nam (Vietlott) phát hành. Từ 01 đến 55.\nVào các kỳ quay thưởng (diễn ra vào lúc 18h00 các ngày Thứ 3, Thứ 5 và Thứ 7 hàng tuần), hệ thống sẽ quay ngẫu nhiên để chọn ra 6 số chính và 1 số đặc biệt từ 55 quả bóng.\n\nJackpot 1: Trúng cả 6 số chính trong kết quả quay. Giá trị khởi điểm tối thiểu là 30 tỷ đồng và được cộng dồn liên tục qua các kỳ quay nếu chưa tìm được người trúng.\nJackpot 2: Trúng 5 số chính và trùng với số đặc biệt (số thứ 7 được quay thêm). Giá trị khởi điểm tối thiểu là 3 tỷ đồng và cũng được cộng dồn.\n\nGiải Nhất: Trúng 5 số trong 6 số chính (Nhận 40.000.000 VNĐ).\n\nGiải Nhì: Trúng 4 số trong 6 số chính (Nhận 500.000 VNĐ).\n\nGiải Ba: Trúng 3 số trong 6 số chính (Nhận 50.000 VNĐ).",
+        "L106": "Cơ bản là người chơi chọn 6 con số không trùng nhau trong khoảng từ 01 đến 55 để tạo thành một bộ số tham gia dự thưởng (mỗi vé cơ bản có giá 10.000 VNĐ)."
+      }
+    },
+    {
+      "row": "107",
+      "cells": {
+        "G107": "Jackpot 2: Trúng 5 số chính và trùng với số đặc biệt (số thứ 7 được quay thêm).",
+        "H107": "150000.0",
+        "J107": "1500000000"
+      }
+    },
+    {
+      "row": "108",
+      "cells": {
+        "G108": "Giải Nhất: Trúng 5 số trong 6 số chính.",
+        "H108": "4000.0",
+        "J108": "40000000"
+      }
+    },
+    {
+      "row": "109",
+      "cells": {
+        "G109": "Giải Nhì: Trúng 4 số trong 6 số chính.",
+        "H109": "50.0",
+        "J109": "500000"
+      }
+    },
+    {
+      "row": "110",
+      "cells": {
+        "G110": "Giải Ba: Trúng 3 số trong 6 số chính.",
+        "H110": "5.0",
+        "J110": "50000"
+      }
+    },
+    {
+      "row": "111",
+      "cells": {
+        "D111": "Bao 5",
+        "E111": "10000.0",
+        "F111": "50.0",
+        "G111": "Trúng 2 số",
+        "H111": "20.0",
+        "I111": "500000",
+        "J111": "200000",
+        "L111": "Bạn chọn 5 số tự nhiên. Hệ thống sẽ tự động kết hợp 5 số này với 50 số còn lại trong tập hợp 55 số để tạo thành 50 vé dự thưởng (mỗi vé gồm 5 số của bạn + 1 số bất kỳ khác)."
+      }
+    },
+    {
+      "row": "112",
+      "cells": {
+        "G112": "Trúng 3 số",
+        "H112": "385.0",
+        "J112": "3850000"
+      }
+    },
+    {
+      "row": "113",
+      "cells": {
+        "G113": "Trúng 4 số",
+        "H113": "10400.0",
+        "J113": "104000000"
+      }
+    },
+    {
+      "row": "114",
+      "cells": {
+        "G114": "Trúng 5 số (trọn vẹn 5 số bạn chọn đều nằm trong 6 số trúng thưởng)",
+        "H114": "122000.0",
+        "J114": "1220000000"
+      }
+    },
+    {
+      "row": "115",
+      "cells": {
+        "D115": "Bao 7",
+        "E115": "10000.0",
+        "F115": "7.0",
+        "G115": "Trúng 3 số",
+        "H115": "20.0",
+        "I115": "70000",
+        "J115": "200000",
+        "L115": "Bạn chọn 7 số tự nhiên. Hệ thống sẽ lọc và tạo ra tất cả các tổ hợp 6 số (có từ 7 số bạn đã chọn)."
+      }
+    },
+    {
+      "row": "116",
+      "cells": {
+        "G116": "Trúng 4 số",
+        "H116": "170.0",
+        "J116": "1700000"
+      }
+    },
+    {
+      "row": "117",
+      "cells": {
+        "G117": "Trúng 5 số",
+        "H117": "8250.0",
+        "J117": "82500000"
+      }
+    },
+    {
+      "row": "118",
+      "cells": {
+        "G118": "Trúng 5 số + Số đặc biệt",
+        "H118": "126250",
+        "J118": "1262500000"
+      }
+    },
+    {
+      "row": "119",
+      "cells": {
+        "G119": "Trúng 6 số",
+        "H119": "146000",
+        "J119": "1460000000"
+      }
+    },
+    {
+      "row": "120",
+      "cells": {
+        "G120": "Trúng 6 số + Số đặc biệt",
+        "H120": "200000",
+        "J120": "2000000000"
+      }
+    },
+    {
+      "row": "121",
+      "cells": {
+        "D121": "Bao 8",
+        "E121": "10000.0",
+        "F121": "28.0",
+        "G121": "Trúng 3 số",
+        "H121": "100.0",
+        "I121": "280000",
+        "J121": "1000000",
+        "L121": "Bạn chọn 8 số tự nhiên. Hệ thống sẽ lọc và tạo ra tất cả các tổ hợp 6 số (có từ 8 số bạn đã chọn)."
+      }
+    },
+    {
+      "row": "122",
+      "cells": {
+        "G122": "Trúng 4 số",
+        "H122": "590.0",
+        "J122": "5900000"
+      }
+    },
+    {
+      "row": "123",
+      "cells": {
+        "G123": "Trúng 5 số",
+        "H123": "12800.0",
+        "J123": "128000000"
+      }
+    },
+    {
+      "row": "124",
+      "cells": {
+        "G124": "Trúng 5 số + Số đặc biệt",
+        "H124": "130800",
+        "J124": "1308000000"
+      }
+    },
+    {
+      "row": "125",
+      "cells": {
+        "G125": "Trúng 6 số",
+        "H125": "170750",
+        "J125": "1707500000"
+      }
+    },
+    {
+      "row": "126",
+      "cells": {
+        "G126": "Trúng 6 số + Số đặc biệt",
+        "H126": "224750",
+        "J126": "2247500000"
+      }
+    },
+    {
+      "row": "127",
+      "cells": {
+        "D127": "Bao 9",
+        "E127": "10000.0",
+        "F127": "84.0",
+        "G127": "Trúng 3 số",
+        "H127": "280.0",
+        "I127": "840000",
+        "J127": "2800000",
+        "L127": "Bạn chọn 9 số tự nhiên. Hệ thống sẽ lọc và tạo ra tất cả các tổ hợp 6 số (có từ 9 số bạn đã chọn)."
+      }
+    },
+    {
+      "row": "128",
+      "cells": {
+        "G128": "Trúng 4 số",
+        "H128": "1430.0",
+        "J128": "14300000"
+      }
+    },
+    {
+      "row": "129",
+      "cells": {
+        "G129": "Trúng 5 số",
+        "H129": "17700.0",
+        "J129": "177000000"
+      }
+    },
+    {
+      "row": "130",
+      "cells": {
+        "G130": "Trúng 5 số + Số đặc biệt",
+        "H130": "135700",
+        "J130": "1357000000"
+      }
+    },
+    {
+      "row": "131",
+      "cells": {
+        "G131": "Trúng 6 số",
+        "H131": "196350",
+        "J131": "1963500000"
+      }
+    },
+    {
+      "row": "132",
+      "cells": {
+        "G132": "Trúng 6 số + Số đặc biệt",
+        "H132": "250350",
+        "J132": "2503500000"
+      }
+    },
+    {
+      "row": "133",
+      "cells": {
+        "D133": "Bao 10",
+        "E133": "10000.0",
+        "F133": "210.0",
+        "G133": "Trúng 3 số",
+        "H133": "630.0",
+        "I133": "2100000",
+        "J133": "6300000",
+        "L133": "Bạn chọn 10 số tự nhiên. Hệ thống sẽ lọc và tạo ra tất cả các tổ hợp 6 số (có từ 10 số bạn đã chọn)."
+      }
+    },
+    {
+      "row": "134",
+      "cells": {
+        "G134": "Trúng 4 số",
+        "H134": "2870.0",
+        "J134": "28700000"
+      }
+    },
+    {
+      "row": "135",
+      "cells": {
+        "G135": "Trúng 5 số",
+        "H135": "23000.0",
+        "J135": "230000000"
+      }
+    },
+    {
+      "row": "136",
+      "cells": {
+        "G136": "Trúng 5 số + Số đặc biệt",
+        "H136": "141000",
+        "J136": "1410000000"
+      }
+    },
+    {
+      "row": "137",
+      "cells": {
+        "G137": "Trúng 6 số",
+        "H137": "222000",
+        "J137": "2220000000"
+      }
+    },
+    {
+      "row": "138",
+      "cells": {
+        "G138": "Trúng 6 số + Số đặc biệt",
+        "H138": "276900",
+        "J138": "2769000000"
+      }
+    },
+    {
+      "row": "139",
+      "cells": {
+        "D139": "Bao 11",
+        "E139": "10000.0",
+        "F139": "462.0",
+        "G139": "Trúng 3 số",
+        "H139": "1260.0",
+        "I139": "4620000",
+        "J139": "12600000",
+        "L139": "Bạn chọn 11 số tự nhiên. Hệ thống sẽ lọc và tạo ra tất cả các tổ hợp 6 số (có từ 11 số bạn đã chọn)."
+      }
+    },
+    {
+      "row": "140",
+      "cells": {
+        "G140": "Trúng 4 số",
+        "H140": "5250.0",
+        "J140": "52500000"
+      }
+    },
+    {
+      "row": "141",
+      "cells": {
+        "G141": "Trúng 5 số",
+        "H141": "28750.0",
+        "J141": "287500000"
+      }
+    },
+    {
+      "row": "142",
+      "cells": {
+        "G142": "Trúng 5 số + Số đặc biệt",
+        "H142": "146750",
+        "J142": "1467500000"
+      }
+    },
+    {
+      "row": "143",
+      "cells": {
+        "G143": "Trúng 6 số",
+        "H143": "250000",
+        "J143": "2500000000"
+      }
+    },
+    {
+      "row": "144",
+      "cells": {
+        "G144": "Trúng 6 số + Số đặc biệt",
+        "H144": "304000",
+        "J144": "3040000000"
+      }
+    },
+    {
+      "row": "145",
+      "cells": {
+        "D145": "Bao 12",
+        "E145": "10000.0",
+        "F145": "924.0",
+        "G145": "Trúng 3 số",
+        "H145": "420.0",
+        "I145": "9240000",
+        "J145": "4200000",
+        "L145": "Bạn chọn 12 số tự nhiên. Hệ thống sẽ lọc và tạo ra tất cả các tổ hợp 6 số (có từ 12 số bạn đã chọn)."
+      }
+    },
+    {
+      "row": "146",
+      "cells": {
+        "G146": "Trúng 4 số",
+        "H146": "1400.0",
+        "J146": "14000000"
+      }
+    },
+    {
+      "row": "147",
+      "cells": {
+        "G147": "Trúng 5 số",
+        "H147": "28000.0",
+        "J147": "280000000"
+      }
+    },
+    {
+      "row": "148",
+      "cells": {
+        "G148": "Trúng Jackpot 1: Trúng cả 6 số chính trong kết quả quay.",
+        "H148": "159000.0",
+        "J148": "1590000000"
+      }
+    },
+    {
+      "row": "149",
+      "cells": {
+        "D149": "Bao 13",
+        "E149": "10000.0",
+        "F149": "1716.0",
+        "G149": "Trúng 3 số",
+        "H149": "600.0",
+        "I149": "17160000",
+        "J149": "6000000",
+        "L149": "Bạn chọn 13 số tự nhiên. Hệ thống sẽ lọc và tạo ra tất cả các tổ hợp 6 số (có từ 13 số bạn đã chọn)."
+      }
+    },
+    {
+      "row": "150",
+      "cells": {
+        "G150": "Trúng 4 số",
+        "H150": "1800.0",
+        "J150": "18000000"
+      }
+    },
+    {
+      "row": "151",
+      "cells": {
+        "G151": "Trúng 5 số",
+        "H151": "32000.0",
+        "J151": "320000000"
+      }
+    },
+    {
+      "row": "152",
+      "cells": {
+        "G152": "Trúng Jackpot 1: Trúng cả 6 số chính trong kết quả quay.",
+        "H152": "194000.0",
+        "J152": "1940000000"
+      }
+    },
+    {
+      "row": "153",
+      "cells": {
+        "D153": "Bao 14",
+        "E153": "10000.0",
+        "F153": "3003.0",
+        "G153": "Trúng 3 số",
+        "H153": "825.0",
+        "I153": "30030000",
+        "J153": "8250000",
+        "L153": "Bạn chọn 14 số tự nhiên. Hệ thống sẽ lọc và tạo ra tất cả các tổ hợp 6 số (có từ 14 số bạn đã chọn)."
+      }
+    },
+    {
+      "row": "154",
+      "cells": {
+        "G154": "Trúng 4 số",
+        "H154": "2250.0",
+        "J154": "22500000"
+      }
+    },
+    {
+      "row": "155",
+      "cells": {
+        "G155": "Trúng 5 số",
+        "H155": "36000.0",
+        "J155": "360000000"
+      }
+    },
+    {
+      "row": "156",
+      "cells": {
+        "G156": "Trúng Jackpot 1: Trúng cả 6 số chính trong kết quả quay.",
+        "H156": "234000.0",
+        "J156": "2340000000"
+      }
+    },
+    {
+      "row": "157",
+      "cells": {
+        "D157": "Bao 15",
+        "E157": "10000.0",
+        "F157": "5005.0",
+        "G157": "Trúng 3 số",
+        "H157": "1100.0",
+        "I157": "50050000",
+        "J157": "11000000",
+        "L157": "Bạn chọn 15 số tự nhiên. Hệ thống sẽ lọc và tạo ra tất cả các tổ hợp 6 số (có từ 15 số bạn đã chọn)."
+      }
+    },
+    {
+      "row": "158",
+      "cells": {
+        "G158": "Trúng 4 số",
+        "H158": "2750.0",
+        "J158": "27500000"
+      }
+    },
+    {
+      "row": "159",
+      "cells": {
+        "G159": "Trúng 5 số",
+        "H159": "40000.0",
+        "J159": "400000000"
+      }
+    },
+    {
+      "row": "160",
+      "cells": {
+        "G160": "Trúng Jackpot 1: Trúng cả 6 số chính trong kết quả quay.",
+        "H160": "278000.0",
+        "J160": "2780000000"
+      }
+    },
+    {
+      "row": "161",
+      "cells": {
+        "D161": "Bao 18",
+        "E161": "10000.0",
+        "F161": "18564.0",
+        "G161": "Trúng 3 số",
+        "H161": "2275.0",
+        "I161": "185640000",
+        "J161": "22750000",
+        "L161": "Bạn chọn 18 số tự nhiên. Hệ thống sẽ lọc và tạo ra tất cả các tổ hợp 6 số (có từ 18 số bạn đã chọn)."
+      }
+    },
+    {
+      "row": "162",
+      "cells": {
+        "G162": "Trúng 4 số",
+        "H162": "4550.0",
+        "J162": "45500000"
+      }
+    },
+    {
+      "row": "163",
+      "cells": {
+        "G163": "Trúng 5 số",
+        "H163": "52000.0",
+        "J163": "520000000"
+      }
+    },
+    {
+      "row": "164",
+      "cells": {
+        "G164": "Trúng Jackpot 1: Trúng cả 6 số chính trong kết quả quay.",
+        "H164": "473000.0",
+        "J164": "4730000000"
+      }
+    },
+    {
+      "row": "165",
+      "cells": {
+        "A165": "MEGA 6/45\n(01-45)",
+        "D165": "Cơ bản",
+        "E165": "10000.0",
+        "F165": "1.0",
+        "G165": "Jackpot: Trúng cả 6 số chính trong kết quả quay.",
+        "H165": "80000.0",
+        "I165": "10000",
+        "J165": "800000000",
+        "K165": "Mega 6/45 là một trong những loại hình xổ số điện toán tự chọn đầu tiên và phổ biến nhất của Vietlott.\nNgười chơi chọn bộ 6 số trong khoảng từ 01 đến 45. Sẽ quay theo kỳ, không cộng dồn.\nLịch quay thưởng: Lồng quay sẽ quay thưởng vào lúc 18h00 các ngày Thứ 4, Thứ 6 và Chủ Nhật hàng tuần.\nCách xác định trúng thưởng: So sánh 6 số trên vé của bạn với 6 số kết quả (không cần đúng thứ tự).",
+        "L165": "Cơ bản là người chơi chọn 6 con số trong khoảng từ 01 đến 45 để tạo thành 1 bộ số dự thưởng."
+      }
+    },
+    {
+      "row": "166",
+      "cells": {
+        "G166": "Giải Nhất: Trúng 5 số trong 6 số chính.",
+        "H166": "1000.0",
+        "J166": "10000000"
+      }
+    },
+    {
+      "row": "167",
+      "cells": {
+        "G167": "Giải Nhì: Trúng 4 số trong 6 số chính.",
+        "H167": "30.0",
+        "J167": "300000"
+      }
+    },
+    {
+      "row": "168",
+      "cells": {
+        "G168": "Giải Ba: Trúng 3 số trong 6 số chính.",
+        "H168": "3.0",
+        "J168": "30000"
+      }
+    },
+    {
+      "row": "169",
+      "cells": {
+        "D169": "Bao 5",
+        "E169": "10000.0",
+        "F169": "40.0",
+        "G169": "Trúng 2 số",
+        "H169": "12.0",
+        "I169": "400000",
+        "J169": "120000",
+        "L169": "Bạn chọn 5 số tự nhiên. Hệ thống sẽ tự động kết hợp 5 số này với 40 số còn lại trong tập hợp 45 số để tạo thành vé dự thưởng (mỗi vé gồm 5 số của bạn + 1 số bất kỳ khác)."
+      }
+    },
+    {
+      "row": "170",
+      "cells": {
+        "G170": "Trúng 3 số",
+        "H170": "228.0",
+        "J170": "2280000"
+      }
+    },
+    {
+      "row": "171",
+      "cells": {
+        "G171": "Trúng 4 số",
+        "H171": "5880.0",
+        "J171": "58800000"
+      }
+    },
+    {
+      "row": "172",
+      "cells": {
+        "G172": "Trúng 5 số (Trọn vẹn 5 số)",
+        "H172": "119000",
+        "J172": "1190000000"
+      }
+    },
+    {
+      "row": "173",
+      "cells": {
+        "D173": "Bao 7",
+        "E173": "10000.0",
+        "F173": "7.0",
+        "G173": "Trúng 3 số",
+        "H173": "12.0",
+        "I173": "70000",
+        "J173": "120000",
+        "L173": "Bạn chọn 7 số tự nhiên. Hệ thống sẽ lọc và tạo ra tất cả các tổ hợp 6 số (có từ 7 số bạn đã chọn)."
+      }
+    },
+    {
+      "row": "174",
+      "cells": {
+        "G174": "Trúng 4 số",
+        "H174": "120.0",
+        "J174": "1200000"
+      }
+    },
+    {
+      "row": "175",
+      "cells": {
+        "G175": "Trúng 5 số",
+        "H175": "2150.0",
+        "J175": "21500000"
+      }
+    },
+    {
+      "row": "176",
+      "cells": {
+        "G176": "Trúng 6 số",
+        "H176": "86000",
+        "J176": "860000000"
+      }
+    },
+    {
+      "row": "177",
+      "cells": {
+        "D177": "Bao 8",
+        "E177": "10000.0",
+        "F177": "28.0",
+        "G177": "Trúng 3 số",
+        "H177": "60.0",
+        "I177": "280000",
+        "J177": "600000",
+        "L177": "Bạn chọn 8 số tự nhiên. Hệ thống sẽ lọc và tạo ra tất cả các tổ hợp 6 số (có từ 8 số bạn đã chọn)."
+      }
+    },
+    {
+      "row": "178",
+      "cells": {
+        "G178": "Trúng 4 số",
+        "H178": "360.0",
+        "J178": "3600000"
+      }
+    },
+    {
+      "row": "179",
+      "cells": {
+        "G179": "Trúng 5 số",
+        "H179": "3480.0",
+        "J179": "34800000"
+      }
+    },
+    {
+      "row": "180",
+      "cells": {
+        "G180": "Trúng 6 số",
+        "H180": "92480",
+        "J180": "924800000"
+      }
+    },
+    {
+      "row": "181",
+      "cells": {
+        "D181": "Bao 9",
+        "E181": "10000.0",
+        "F181": "84.0",
+        "G181": "Trúng 3 số",
+        "H181": "168.0",
+        "I181": "840000",
+        "J181": "1680000",
+        "L181": "Bạn chọn 9 số tự nhiên. Hệ thống sẽ lọc và tạo ra tất cả các tổ hợp 6 số (có từ 9 số bạn đã chọn)."
+      }
+    },
+    {
+      "row": "182",
+      "cells": {
+        "G182": "Trúng 4 số",
+        "H182": "810.0",
+        "J182": "8100000"
+      }
+    },
+    {
+      "row": "183",
+      "cells": {
+        "G183": "Trúng 5 số",
+        "H183": "5040.0",
+        "J183": "50400000"
+      }
+    },
+    {
+      "row": "184",
+      "cells": {
+        "G184": "Trúng 6 số",
+        "H184": "99260",
+        "J184": "992600000"
+      }
+    },
+    {
+      "row": "185",
+      "cells": {
+        "D185": "Bao 10",
+        "E185": "10000.0",
+        "F185": "210.0",
+        "G185": "Trúng 3 số",
+        "H185": "378.0",
+        "I185": "2100000",
+        "J185": "3780000",
+        "L185": "Bạn chọn 10 số tự nhiên. Hệ thống sẽ lọc và tạo ra tất cả các tổ hợp 6 số (có từ 10 số bạn đã chọn)."
+      }
+    },
+    {
+      "row": "186",
+      "cells": {
+        "G186": "Trúng 4 số",
+        "H186": "1530.0",
+        "J186": "15300000"
+      }
+    },
+    {
+      "row": "187",
+      "cells": {
+        "G187": "Trúng 5 số",
+        "H187": "6850.0",
+        "J187": "68500000"
+      }
+    },
+    {
+      "row": "188",
+      "cells": {
+        "G188": "Trúng 6 số",
+        "H188": "106400",
+        "J188": "1064000000"
+      }
+    },
+    {
+      "row": "189",
+      "cells": {
+        "D189": "Bao 11",
+        "E189": "10000.0",
+        "F189": "462.0",
+        "G189": "Trúng 3 số",
+        "H189": "756.0",
+        "I189": "4620000",
+        "J189": "7560000",
+        "L189": "Bạn chọn 11 số tự nhiên. Hệ thống sẽ lọc và tạo ra tất cả các tổ hợp 6 số (có từ 11 số bạn đã chọn)."
+      }
+    },
+    {
+      "row": "190",
+      "cells": {
+        "G190": "Trúng 4 số",
+        "H190": "2610.0",
+        "J190": "26100000"
+      }
+    },
+    {
+      "row": "191",
+      "cells": {
+        "G191": "Trúng 5 số",
+        "H191": "8910.0",
+        "J191": "89100000"
+      }
+    },
+    {
+      "row": "192",
+      "cells": {
+        "G192": "Trúng 6 số",
+        "H192": "113900",
+        "J192": "1139000000"
+      }
+    },
+    {
+      "row": "193",
+      "cells": {
+        "D193": "Bao 12",
+        "E193": "10000.0",
+        "F193": "924.0",
+        "G193": "Trúng 3 số",
+        "H193": "1386.0",
+        "I193": "9240000",
+        "J193": "13860000",
+        "L193": "Bạn chọn 12 số tự nhiên. Hệ thống sẽ lọc và tạo ra tất cả các tổ hợp 6 số (có từ 12 số bạn đã chọn)."
+      }
+    },
+    {
+      "row": "194",
+      "cells": {
+        "G194": "Trúng 4 số",
+        "H194": "4140.0",
+        "J194": "41400000"
+      }
+    },
+    {
+      "row": "195",
+      "cells": {
+        "G195": "Trúng 5 số",
+        "H195": "11220.0",
+        "J195": "112200000"
+      }
+    },
+    {
+      "row": "196",
+      "cells": {
+        "G196": "Trúng 6 số",
+        "H196": "121760",
+        "J196": "1217600000"
+      }
+    },
+    {
+      "row": "197",
+      "cells": {
+        "D197": "Bao 13",
+        "E197": "10000.0",
+        "F197": "1716.0",
+        "G197": "Trúng 3 số",
+        "H197": "2574.0",
+        "I197": "17160000",
+        "J197": "25740000",
+        "L197": "Bạn chọn 13 số tự nhiên. Hệ thống sẽ lọc và tạo ra tất cả các tổ hợp 6 số (có từ 13 số bạn đã chọn)."
+      }
+    },
+    {
+      "row": "198",
+      "cells": {
+        "G198": "Trúng 4 số",
+        "H198": "7410.0",
+        "J198": "74100000"
+      }
+    },
+    {
+      "row": "199",
+      "cells": {
+        "G199": "Trúng 5 số",
+        "H199": "14040.0",
+        "J199": "140400000"
+      }
+    },
+    {
+      "row": "200",
+      "cells": {
+        "G200": "Trúng 6 số",
+        "H200": "130000",
+        "J200": "1300000000"
+      }
+    },
+    {
+      "row": "201",
+      "cells": {
+        "D201": "Bao 14",
+        "E201": "10000.0",
+        "F201": "3003.0",
+        "G201": "Trúng 3 số",
+        "H201": "4504.0",
+        "I201": "30030000",
+        "J201": "45040000",
+        "L201": "Bạn chọn 14 số tự nhiên. Hệ thống sẽ lọc và tạo ra tất cả các tổ hợp 6 số (có từ 14 số bạn đã chọn)."
+      }
+    },
+    {
+      "row": "202",
+      "cells": {
+        "G202": "Trúng 4 số",
+        "H202": "12390.0",
+        "J202": "123900000"
+      }
+    },
+    {
+      "row": "203",
+      "cells": {
+        "G203": "Trúng 5 số",
+        "H203": "18720.0",
+        "J203": "187200000"
+      }
+    },
+    {
+      "row": "204",
+      "cells": {
+        "G204": "Trúng 6 số",
+        "H204": "138620",
+        "J204": "1386200000"
+      }
+    },
+    {
+      "row": "205",
+      "cells": {
+        "D205": "Bao 15",
+        "E205": "10000.0",
+        "F205": "5005.0",
+        "G205": "Trúng 3 số",
+        "H205": "7507.0",
+        "I205": "50050000",
+        "J205": "75070000",
+        "L205": "Bạn chọn 15 số tự nhiên. Hệ thống sẽ lọc và tạo ra tất cả các tổ hợp 6 số (có từ 15 số bạn đã chọn)."
+      }
+    },
+    {
+      "row": "206",
+      "cells": {
+        "G206": "Trúng 4 số",
+        "H206": "20020.0",
+        "J206": "200200000"
+      }
+    },
+    {
+      "row": "207",
+      "cells": {
+        "G207": "Trúng 5 số",
+        "H207": "24570.0",
+        "J207": "245700000"
+      }
+    },
+    {
+      "row": "208",
+      "cells": {
+        "G208": "Trúng 6 số",
+        "H208": "147620",
+        "J208": "1476200000"
+      }
+    },
+    {
+      "row": "209",
+      "cells": {
+        "D209": "Bao 18",
+        "E209": "10000.0",
+        "F209": "18564.0",
+        "G209": "Trúng 3 số",
+        "H209": "27846.0",
+        "I209": "185640000",
+        "J209": "278460000",
+        "L209": "Bạn chọn 18 số tự nhiên. Hệ thống sẽ lọc và tạo ra tất cả các tổ hợp 6 số (có từ 18 số bạn đã chọn)."
+      }
+    },
+    {
+      "row": "210",
+      "cells": {
+        "G210": "Trúng 4 số",
+        "H210": "70560.0",
+        "J210": "705600000"
+      }
+    },
+    {
+      "row": "211",
+      "cells": {
+        "G211": "Trúng 5 số",
+        "H211": "46800.0",
+        "J211": "468000000"
+      }
+    },
+    {
+      "row": "212",
+      "cells": {
+        "G212": "Trúng 6 số",
+        "H212": "177200",
+        "J212": "1772000000"
+      }
+    },
+    {
+      "row": "213",
+      "cells": {
+        "A213": "MAX3D\n000-999\n(Nhận tối đa 700 số)",
+        "C213": "Max 3D",
+        "D213": "Chọn 3 số đơn",
+        "E213": "10000.0",
+        "F213": "1.0",
+        "G213": "Đặc Biệt: Trúng đúng 1 trong 2 bộ số",
+        "H213": "100.0",
+        "I213": "10000",
+        "J213": "1000000",
+        "K213": "Max 3D là người chơi sẽ lựa chọn các bộ số gồm 3 chữ số (từ 000 đến 999) để tham gia dự thưởng.\nTrúng thưởng nếu 3 chữ số bạn chọn trùng với kết quả theo đúng thứ tự.\nTrong mỗi kỳ quay, hệ thống sẽ quay tổng cộng 20 lần để chọn ra 20 bộ số trúng thưởng chia thành 4 hạng giải (yêu cầu trùng đúng thứ tự).",
+        "L213": "Chọn 1 bộ 3 chữ số từ 000 - 999. Số xổ ra có trong kết quả được xem là thắng."
+      }
+    },
+    {
+      "row": "214",
+      "cells": {
+        "G214": "Giải Nhất: Trúng đúng 1 trong 4 bộ số",
+        "H214": "35.0",
+        "J214": "350000"
+      }
+    },
+    {
+      "row": "215",
+      "cells": {
+        "G215": "Giải Nhì: Trúng đúng 1 trong 6 bộ số",
+        "H215": "21.0",
+        "J215": "210000"
+      }
+    },
+    {
+      "row": "216",
+      "cells": {
+        "G216": "Giải Ba: Trúng đúng 1 trong 8 bộ số",
+        "H216": "10.0",
+        "J216": "100000"
+      }
+    },
+    {
+      "row": "217",
+      "cells": {
+        "C217": "Max 3D+",
+        "D217": "Chọn 6 số đơn",
+        "E217": "10000.0",
+        "F217": "1.0",
+        "G217": "Đặc Biệt: Trúng cả 2 bộ số ở hạng Giải Đặc biệt.",
+        "H217": "100000.0",
+        "I217": "10000",
+        "J217": "1000000000",
+        "L217": "Chọn 2 bộ 3 chữ số từ 000 - 999. Số xổ ra có trong kết quả được xem là thắng."
+      }
+    },
+    {
+      "row": "218",
+      "cells": {
+        "G218": "Giải Nhất: Trúng cả 2 bộ số ở hạng Giải Nhất.",
+        "H218": "4000.0",
+        "J218": "40000000"
+      }
+    },
+    {
+      "row": "219",
+      "cells": {
+        "G219": "Giải Nhì: Trúng cả 2 bộ số ở hạng Giải Nhì.",
+        "H219": "1000.0",
+        "J219": "10000000"
+      }
+    },
+    {
+      "row": "220",
+      "cells": {
+        "G220": "Giải Ba: Trúng cả 2 bộ số ở hạng Giải Ba.",
+        "H220": "500.0",
+        "J220": "5000000"
+      }
+    },
+    {
+      "row": "221",
+      "cells": {
+        "G221": "Trúng 1 bộ ở Giải Đặc biệt + 1 bộ ở Giải bất kỳ khác.",
+        "H221": "10.0",
+        "J221": "100000"
+      }
+    },
+    {
+      "row": "222",
+      "cells": {
+        "G222": "Trúng bất kỳ 2 bộ thuộc nhóm Giải Nhất, Nhì, Ba.",
+        "H222": "4.0",
+        "J222": "40000"
+      }
+    },
+    {
+      "row": "223",
+      "cells": {
+        "G223": "Trúng 1 bộ thuộc giải Nhất, Nhì, Ba",
+        "H223": "4.0",
+        "J223": "40000"
+      }
+    },
+    {
+      "row": "224",
+      "cells": {
+        "C224": "Max 3D Pro",
+        "D224": "Chọn 6 số đơn",
+        "E224": "10000.0",
+        "F224": "1.0",
+        "G224": "Đặc Biệt: Trúng đúng thứ tự 2 bộ số Đặc Biệt",
+        "H224": "200000.0",
+        "I224": "10000",
+        "J224": "2000000000",
+        "L224": "Chọn 2 bộ 3 chữ số từ 000 - 999. Số xổ ra có trong kết quả được xem là thắng."
+      }
+    },
+    {
+      "row": "225",
+      "cells": {
+        "G225": "Giải Phụ Đặc biệt: Trúng sai thứ tự 2 bộ số Đặc Biệt",
+        "H225": "40000.0",
+        "J225": "400000000"
+      }
+    },
+    {
+      "row": "226",
+      "cells": {
+        "G226": "Giải Nhất",
+        "H226": "3000.0",
+        "J226": "30000000"
+      }
+    },
+    {
+      "row": "227",
+      "cells": {
+        "G227": "Giải Nhì",
+        "H227": "1000.0",
+        "J227": "10000000"
+      }
+    },
+    {
+      "row": "228",
+      "cells": {
+        "G228": "Giải Ba",
+        "H228": "400.0",
+        "J228": "4000000"
+      }
+    },
+    {
+      "row": "229",
+      "cells": {
+        "G229": "Giải Tư",
+        "H229": "100.0",
+        "J229": "1000000"
+      }
+    },
+    {
+      "row": "230",
+      "cells": {
+        "G230": "Giải Năm",
+        "H230": "10.0",
+        "J230": "100000"
+      }
+    },
+    {
+      "row": "231",
+      "cells": {
+        "G231": "Giải Sáu",
+        "H231": "4.0",
+        "J231": "40000"
+      }
+    },
+    {
+      "row": "232",
+      "cells": {
+        "A232": "MAX4D\n0000-9999\n(Nhận tối đa 7000 số)",
+        "C232": "Max 4D",
+        "D232": "Chọn 4 số đơn",
+        "E232": "10000.0",
+        "F232": "1.0",
+        "G232": "Giải Nhất: Trúng đúng 4 chữ số",
+        "H232": "1500.0",
+        "I232": "10000",
+        "J232": "15000000",
+        "K232": "Max4D là chọn một bộ gồm 4 chữ số (từ 0000 đến 9999) để tham gia dự thưởng.\nNgày quay: Vào các ngày Thứ Ba, Thứ Năm và Thứ Bảy hàng tuần.\nThời gian quay: Bắt đầu lúc 18h00 (cùng khung giờ với các sản phẩm Mega 6/45, Power 6/55 hoặc Max 3D Pro tùy ngày).\nThời gian dừng bán vé: Đến 17h45 của ngày có lịch quay thưởng.",
+        "L232": "Chọn 1 bộ 4 chữ số từ 0000 - 9999. Số xổ ra có trong kết quả được xem là thắng."
+      }
+    },
+    {
+      "row": "233",
+      "cells": {
+        "G233": "Giải Nhì: Trúng đúng 4 chữ số",
+        "H233": "650.0",
+        "J233": "6500000"
+      }
+    },
+    {
+      "row": "234",
+      "cells": {
+        "G234": "Giải Ba: Trúng đúng 4 chữ số",
+        "H234": "300.0",
+        "J234": "3000000"
+      }
+    },
+    {
+      "row": "235",
+      "cells": {
+        "G235": "Giải Khuyến khích 1: Trúng đúng 3 chữ số cuối của Giải Nhất",
+        "H235": "100.0",
+        "J235": "1000000"
+      }
+    },
+    {
+      "row": "236",
+      "cells": {
+        "G236": "Giải Khuyến khích 2: Trúng đúng 2 chữ số cuối của Giải Nhất",
+        "H236": "10.0",
+        "J236": "100000"
+      }
+    },
+    {
+      "row": "237",
+      "cells": {
+        "A237": "LOTTO 5/35\n(Số cơ bản: 01-35\nSố đặc biệt: 01-12)",
+        "C237": "Cơ bản",
+        "E237": "10000.0",
+        "F237": "1.0",
+        "G237": "Jackpot: Trúng 5 số + 1 số ĐB",
+        "H237": "300000.0",
+        "I237": "10000",
+        "J237": "3000000000",
+        "K237": "Lotto 5/35 là chọn 5 số chính (từ 01 đến 35) và 1 số đặc biệt (từ 01 đến 12) để tạo thành một bộ số dự thưởng.\nNgoài cách chơi cơ bản, bạn có thể tham gia các hình thức \"Bao\" (bao 4 số chính, bao 6-15 số chính, bao số đặc biệt) để gia tăng cơ hội trúng thưởng.\nMỗi bộ số dự thưởng chuẩn gồm tổng cộng 6 con số (5 số chính + 1 số đặc biệt).\nLịch quay số mở thưởng: Diễn ra 2 lần/ngày vào lúc 13:00 và 21:00 tất cả các ngày trong tuần (từ Thứ Hai đến Chủ Nhật).\nGiải Độc Đắc (Jackpot): Giá trị khởi điểm tích lũy tối thiểu từ 6.000.000.000 đồng (dành cho vé trùng khớp cả 5 số chính và 1 số đặc biệt).",
+        "L237": "Chọn 5 số chính (từ 01 đến 35) + 1 số đặc biệt (từ 01 đến 12). Số xổ ra có trong kết quả thì thắng.",
+        "M237": ".",
+        "N237": "."
+      }
+    },
+    {
+      "row": "238",
+      "cells": {
+        "G238": "Giải Nhất: Trúng 5 số + 0 số ĐB",
+        "H238": "1000.0",
+        "J238": "10000000",
+        "L238": "Số xổ ra có trong kết quả là 5 số chính (từ 01 đến 35) + 0 số đặc biệt (từ 01 đến 12) thì thắng.",
+        "M238": "."
+      }
+    },
+    {
+      "row": "239",
+      "cells": {
+        "G239": "Giải Nhì: Trúng 4 số + 1 số ĐB",
+        "H239": "500.0",
+        "J239": "5000000",
+        "L239": "Số xổ ra có trong kết quả là 4 số chính (từ 01 đến 35) + 1 số đặc biệt (từ 01 đến 12) thì thắng.",
+        "M239": "."
+      }
+    },
+    {
+      "row": "240",
+      "cells": {
+        "G240": "Giải Ba: Trúng 4 số + 0 số ĐB",
+        "H240": "50.0",
+        "J240": "500000",
+        "L240": "Số xổ ra có trong kết quả là 4 số chính (từ 01 đến 35) + 0 số đặc biệt (từ 01 đến 12) thì thắng.",
+        "M240": "."
+      }
+    },
+    {
+      "row": "241",
+      "cells": {
+        "G241": "Giải Tư: Trúng 3 số + 1 số ĐB",
+        "H241": "10.0",
+        "J241": "100000",
+        "L241": "Số xổ ra có trong kết quả là 3 số chính (từ 01 đến 35) + 1 số đặc biệt (từ 01 đến 12) thì thắng.",
+        "M241": "."
+      }
+    },
+    {
+      "row": "242",
+      "cells": {
+        "G242": "Giải Năm: Trúng 3 số + 0 số ĐB",
+        "H242": "3.0",
+        "J242": "30000",
+        "L242": "Số xổ ra có trong kết quả là 3 số chính (từ 01 đến 35) + 0 số đặc biệt (từ 01 đến 12) thì thắng.",
+        "M242": "."
+      }
+    },
+    {
+      "row": "243",
+      "cells": {
+        "G243": "Giải Khuyến Khích: 0 - 2 số + 1 số ĐB",
+        "H243": "1.0",
+        "J243": "10000",
+        "L243": "Số xổ ra có trong kết quả là 0-2 số chính (từ 01 đến 35) + 1 số đặc biệt (từ 01 đến 12) thì thắng.",
+        "M243": "."
+      }
+    },
+    {
+      "row": "244",
+      "cells": {
+        "C244": "Bao số chính",
+        "D244": "Bao 4",
+        "E244": "10000.0",
+        "F244": "31.0",
+        "G244": "Trúng 4 số + 1 số ĐB",
+        "H244": "564",
+        "I244": "310000",
+        "J244": "5640000",
+        "K244": "Bao số chính là cách chơi chọn nhiều số chính từ 01 đến 35: 4,6,7,8,9,10,11,12,13,14,15 số và 1 số ĐB (bất kỳ từ 01 đến 12). Kết quả xổ ra có thì được tính là thắng.",
+        "L244": "Bao 4 là chọn 4 số chính + 1 số ĐB. Số xổ ra có trong kết quả thì thắng.",
+        "M244": "."
+      }
+    },
+    {
+      "row": "245",
+      "cells": {
+        "G245": "Trúng 1-3 số + 1 số ĐB",
+        "H245": "10.0",
+        "J245": "100000",
+        "M245": "."
+      }
+    },
+    {
+      "row": "246",
+      "cells": {
+        "D246": "Bao 6",
+        "E246": "10000.0",
+        "F246": "6.0",
+        "G246": "Trúng 5 số + 1 số ĐB",
+        "H246": "302500",
+        "I246": "60000",
+        "J246": "3025000000",
+        "L246": "Bao 6 là chọn 6 số chính + 1 số ĐB. Số xổ ra có trong kết quả thì thắng.",
+        "M246": "."
+      }
+    },
+    {
+      "row": "247",
+      "cells": {
+        "G247": "Trúng 5 số + 0 số ĐB",
+        "H247": "1260.0",
+        "J247": "12600000",
+        "M247": "."
+      }
+    },
+    {
+      "row": "248",
+      "cells": {
+        "G248": "Trúng 4 số + 1 số ĐB",
+        "H248": "1050.0",
+        "J248": "10500000",
+        "M248": "."
+      }
+    },
+    {
+      "row": "249",
+      "cells": {
+        "G249": "Trúng 1-3 số + 1 số ĐB",
+        "H249": "11.0",
+        "J249": "110000",
+        "M249": "."
+      }
+    },
+    {
+      "row": "250",
+      "cells": {
+        "D250": "Bao 7",
+        "E250": "10000.0",
+        "F250": "21.0",
+        "G250": "Trúng 5 số + 1 số ĐB",
+        "H250": "305100",
+        "I250": "210000",
+        "J250": "3051000000",
+        "L250": "Bao 7 là chọn 7 số chính + 1 số ĐB. Số xổ ra có trong kết quả thì thắng.",
+        "M250": "."
+      }
+    },
+    {
+      "row": "251",
+      "cells": {
+        "G251": "Trúng 5 số + 0 số ĐB",
+        "H251": "1270.0",
+        "J251": "12700000",
+        "M251": "."
+      }
+    },
+    {
+      "row": "252",
+      "cells": {
+        "G252": "Trúng 4 số + 1 số ĐB",
+        "H252": "1060.0",
+        "J252": "10600000",
+        "M252": "."
+      }
+    },
+    {
+      "row": "253",
+      "cells": {
+        "G253": "Trúng 1-3 số + 1 số ĐB",
+        "H253": "12.0",
+        "J253": "120000",
+        "M253": "."
+      }
+    },
+    {
+      "row": "254",
+      "cells": {
+        "D254": "Bao 8",
+        "E254": "10000.0",
+        "F254": "56.0",
+        "G254": "Trúng 5 số + 1 số ĐB",
+        "H254": "307810",
+        "I254": "560000",
+        "J254": "3078100000",
+        "L254": "Bao 8 là chọn 8 số chính + 1 số ĐB. Số xổ ra có trong kết quả thì thắng.",
+        "M254": "."
+      }
+    },
+    {
+      "row": "255",
+      "cells": {
+        "G255": "Trúng 5 số + 0 số ĐB",
+        "H255": "1280.0",
+        "J255": "12800000",
+        "M255": "."
+      }
+    },
+    {
+      "row": "256",
+      "cells": {
+        "G256": "Trúng 4 số + 1 số ĐB",
+        "H256": "1070.0",
+        "J256": "10700000",
+        "M256": "."
+      }
+    },
+    {
+      "row": "257",
+      "cells": {
+        "G257": "Trúng 1-3 số + 1 số ĐB",
+        "H257": "13.0",
+        "J257": "130000",
+        "M257": "."
+      }
+    },
+    {
+      "row": "258",
+      "cells": {
+        "G258": "Giải Khuyến Khích: 0 số + 1 số ĐB",
+        "H258": "1.0",
+        "J258": "10000",
+        "M258": "."
+      }
+    },
+    {
+      "row": "259",
+      "cells": {
+        "D259": "Bao 9",
+        "E259": "10000.0",
+        "F259": "126.0",
+        "G259": "Trúng 5 số + 1 số ĐB",
+        "H259": "310645",
+        "I259": "1260000",
+        "J259": "3106450000",
+        "L259": "Bao 9 là chọn 9 số chính + 1 số ĐB. Số xổ ra có trong kết quả thì thắng.",
+        "M259": "."
+      }
+    },
+    {
+      "row": "260",
+      "cells": {
+        "G260": "Trúng 5 số + 0 số ĐB",
+        "H260": "1290.0",
+        "J260": "12900000",
+        "M260": "."
+      }
+    },
+    {
+      "row": "261",
+      "cells": {
+        "G261": "Trúng 4 số + 1 số ĐB",
+        "H261": "1080.0",
+        "J261": "10800000",
+        "M261": "."
+      }
+    },
+    {
+      "row": "262",
+      "cells": {
+        "G262": "Trúng 1-3 số + 1 số ĐB",
+        "H262": "14.0",
+        "J262": "140000",
+        "M262": "."
+      }
+    },
+    {
+      "row": "263",
+      "cells": {
+        "G263": "Giải Khuyến Khích: 0 số + 1 số ĐB",
+        "H263": "1.0",
+        "J263": "10000",
+        "M263": "."
+      }
+    },
+    {
+      "row": "264",
+      "cells": {
+        "D264": "Bao 10",
+        "E264": "10000.0",
+        "F264": "252.0",
+        "G264": "Trúng 5 số + 1 số ĐB",
+        "H264": "313626",
+        "I264": "2520000",
+        "J264": "3136260000",
+        "L264": "Bao 10 là chọn 10 số chính + 1 số ĐB. Số xổ ra có trong kết quả thì thắng."
+      }
+    },
+    {
+      "row": "265",
+      "cells": {
+        "G265": "Trúng 5 số + 0 số ĐB",
+        "H265": "1300.0",
+        "J265": "13000000"
+      }
+    },
+    {
+      "row": "266",
+      "cells": {
+        "G266": "Trúng 4 số + 1 số ĐB",
+        "H266": "1090.0",
+        "J266": "10900000"
+      }
+    },
+    {
+      "row": "267",
+      "cells": {
+        "G267": "Trúng 1-3 số + 1 số ĐB",
+        "H267": "15.0",
+        "J267": "150000"
+      }
+    },
+    {
+      "row": "268",
+      "cells": {
+        "G268": "Giải Khuyến Khích: 0 số + 1 số ĐB",
+        "H268": "1.0",
+        "J268": "10000"
+      }
+    },
+    {
+      "row": "269",
+      "cells": {
+        "D269": "Bao 11",
+        "E269": "10000.0",
+        "F269": "462.0",
+        "G269": "Trúng 5 số + 1 số ĐB",
+        "H269": "316781",
+        "I269": "4620000",
+        "J269": "3167810000",
+        "L269": "Bao 11 là chọn 11 số chính + 1 số ĐB. Số xổ ra có trong kết quả thì thắng."
+      }
+    },
+    {
+      "row": "270",
+      "cells": {
+        "G270": "Trúng 5 số + 0 số ĐB",
+        "H270": "1310.0",
+        "J270": "13100000"
+      }
+    },
+    {
+      "row": "271",
+      "cells": {
+        "G271": "Trúng 4 số + 1 số ĐB",
+        "H271": "1100.0",
+        "J271": "11000000"
+      }
+    },
+    {
+      "row": "272",
+      "cells": {
+        "G272": "Trúng 1-3 số + 1 số ĐB",
+        "H272": "16.0",
+        "J272": "160000"
+      }
+    },
+    {
+      "row": "273",
+      "cells": {
+        "G273": "Giải Khuyến Khích: 0 số + 1 số ĐB",
+        "H273": "1.0",
+        "J273": "10000"
+      }
+    },
+    {
+      "row": "274",
+      "cells": {
+        "D274": "Bao 12",
+        "E274": "10000.0",
+        "F274": "792.0",
+        "G274": "Trúng 5 số + 1 số ĐB",
+        "H274": "320146",
+        "I274": "7920000",
+        "J274": "3201460000",
+        "L274": "Bao 12 là chọn 12 số chính + 1 số ĐB. Số xổ ra có trong kết quả thì thắng."
+      }
+    },
+    {
+      "row": "275",
+      "cells": {
+        "G275": "Trúng 5 số + 0 số ĐB",
+        "H275": "1320.0",
+        "J275": "13200000"
+      }
+    },
+    {
+      "row": "276",
+      "cells": {
+        "G276": "Trúng 4 số + 1 số ĐB",
+        "H276": "1110.0",
+        "J276": "11100000"
+      }
+    },
+    {
+      "row": "277",
+      "cells": {
+        "G277": "Trúng 1-3 số + 1 số ĐB",
+        "H277": "17.0",
+        "J277": "170000"
+      }
+    },
+    {
+      "row": "278",
+      "cells": {
+        "G278": "Giải Khuyến Khích: 0 số + 1 số ĐB",
+        "H278": "1.0",
+        "J278": "10000"
+      }
+    },
+    {
+      "row": "279",
+      "cells": {
+        "D279": "Bao 13",
+        "E279": "10000.0",
+        "F279": "1287.0",
+        "G279": "Trúng 5 số + 1 số ĐB",
+        "H279": "323766",
+        "I279": "12870000",
+        "J279": "3237660000",
+        "L279": "Bao 13 là chọn 13 số chính + 1 số ĐB. Số xổ ra có trong kết quả thì thắng."
+      }
+    },
+    {
+      "row": "280",
+      "cells": {
+        "G280": "Trúng 5 số + 0 số ĐB",
+        "H280": "1330.0",
+        "J280": "13300000"
+      }
+    },
+    {
+      "row": "281",
+      "cells": {
+        "G281": "Trúng 4 số + 1 số ĐB",
+        "H281": "1120.0",
+        "J281": "11200000"
+      }
+    },
+    {
+      "row": "282",
+      "cells": {
+        "G282": "Trúng 1-3 số + 1 số ĐB",
+        "H282": "18.0",
+        "J282": "180000"
+      }
+    },
+    {
+      "row": "283",
+      "cells": {
+        "G283": "Giải Khuyến Khích: 0 số + 1 số ĐB",
+        "H283": "1.0",
+        "J283": "10000"
+      }
+    },
+    {
+      "row": "284",
+      "cells": {
+        "D284": "Bao 14",
+        "E284": "10000.0",
+        "F284": "2002.0",
+        "G284": "Trúng 5 số + 1 số ĐB",
+        "H284": "327696",
+        "I284": "20020000",
+        "J284": "3276960000",
+        "L284": "Bao 14 là chọn 14 số chính + 1 số ĐB. Số xổ ra có trong kết quả thì thắng."
+      }
+    },
+    {
+      "row": "285",
+      "cells": {
+        "G285": "Trúng 5 số + 0 số ĐB",
+        "H285": "1340.0",
+        "J285": "13400000"
+      }
+    },
+    {
+      "row": "286",
+      "cells": {
+        "G286": "Trúng 4 số + 1 số ĐB",
+        "H286": "1130.0",
+        "J286": "11300000"
+      }
+    },
+    {
+      "row": "287",
+      "cells": {
+        "G287": "Trúng 1-3 số + 1 số ĐB",
+        "H287": "19.0",
+        "J287": "190000"
+      }
+    },
+    {
+      "row": "288",
+      "cells": {
+        "G288": "Giải Khuyến Khích: 0 số + 1 số ĐB",
+        "H288": "1.0",
+        "J288": "10000"
+      }
+    },
+    {
+      "row": "289",
+      "cells": {
+        "D289": "Bao 15",
+        "E289": "10000.0",
+        "F289": "3003.0",
+        "G289": "Trúng 5 số + 1 số ĐB",
+        "H289": "332002",
+        "I289": "30030000",
+        "J289": "3320020000",
+        "L289": "Bao 15 là chọn 15 số chính + 1 số ĐB. Số xổ ra có trong kết quả thì thắng."
+      }
+    },
+    {
+      "row": "290",
+      "cells": {
+        "G290": "Trúng 5 số + 0 số ĐB",
+        "H290": "1350.0",
+        "J290": "13500000"
+      }
+    },
+    {
+      "row": "291",
+      "cells": {
+        "G291": "Trúng 4 số + 1 số ĐB",
+        "H291": "1140.0",
+        "J291": "11400000"
+      }
+    },
+    {
+      "row": "292",
+      "cells": {
+        "G292": "Trúng 1-3 số + 1 số ĐB",
+        "H292": "20.0",
+        "J292": "200000"
+      }
+    },
+    {
+      "row": "293",
+      "cells": {
+        "G293": "Giải Khuyến Khích: 0 số + 1 số ĐB",
+        "H293": "1.0",
+        "J293": "10000"
+      }
+    },
+    {
+      "row": "294",
+      "cells": {
+        "C294": "Bao số ĐB",
+        "D294": "Bao 2",
+        "E294": "10000.0",
+        "F294": "2.0",
+        "G294": "Trúng 5 số + 1 số ĐB",
+        "H294": "300000",
+        "I294": "20000",
+        "J294": "3000000000",
+        "K294": "Bao số ĐB là cách chơi chọn 5 số chính từ 01 đến 35 số và chọn 2 đến 12 số đặc biệt (bất kỳ từ 01 đến 12). Kết quả xổ ra có thì được tính là thắng.",
+        "L294": "Bao 2: Chọn 5 số chính + 2 số đặc biệt"
+      }
+    },
+    {
+      "row": "295",
+      "cells": {
+        "G295": "Trúng 5 số + 0 số ĐB",
+        "H295": "2000",
+        "J295": "20000000"
+      }
+    },
+    {
+      "row": "296",
+      "cells": {
+        "G296": "Trúng 4 số + 1 số ĐB",
+        "H296": "1000",
+        "J296": "10000000"
+      }
+    },
+    {
+      "row": "297",
+      "cells": {
+        "G297": "Trúng 4 số + 0 số ĐB",
+        "H297": "100",
+        "J297": "1000000"
+      }
+    },
+    {
+      "row": "298",
+      "cells": {
+        "G298": "Trúng 1-3 số + 1 số ĐB",
+        "H298": "20",
+        "J298": "200000"
+      }
+    },
+    {
+      "row": "299",
+      "cells": {
+        "G299": "Giải Khuyến Khích: 0 số + 1 số ĐB",
+        "H299": "2.0",
+        "J299": "20000"
+      }
+    },
+    {
+      "row": "300",
+      "cells": {
+        "D300": "Bao 3",
+        "E300": "10000.0",
+        "F300": "3.0",
+        "G300": "Trúng 5 số + 1 số ĐB",
+        "H300": "300000",
+        "I300": "30000",
+        "J300": "3000000000",
+        "L300": "Bao 3: Chọn 5 số chính + 3 số đặc biệt"
+      }
+    },
+    {
+      "row": "301",
+      "cells": {
+        "G301": "Trúng 5 số + 0 số ĐB",
+        "H301": "3000",
+        "J301": "30000000"
+      }
+    },
+    {
+      "row": "302",
+      "cells": {
+        "G302": "Trúng 4 số + 1 số ĐB",
+        "H302": "1500",
+        "J302": "15000000"
+      }
+    },
+    {
+      "row": "303",
+      "cells": {
+        "G303": "Trúng 4 số + 0 số ĐB",
+        "H303": "150",
+        "J303": "1500000"
+      }
+    },
+    {
+      "row": "304",
+      "cells": {
+        "G304": "Trúng 1-3 số + 1 số ĐB",
+        "H304": "30",
+        "J304": "300000"
+      }
+    },
+    {
+      "row": "305",
+      "cells": {
+        "G305": "Giải Khuyến Khích: 0 số + 1 số ĐB",
+        "H305": "3",
+        "J305": "30000"
+      }
+    },
+    {
+      "row": "306",
+      "cells": {
+        "D306": "Bao 4",
+        "E306": "10000.0",
+        "F306": "4.0",
+        "G306": "Trúng 5 số + 1 số ĐB",
+        "H306": "300000",
+        "I306": "40000",
+        "J306": "3000000000",
+        "L306": "Bao 4: Chọn 5 số chính + 4 số đặc biệt"
+      }
+    },
+    {
+      "row": "307",
+      "cells": {
+        "G307": "Trúng 5 số + 0 số ĐB",
+        "H307": "4500",
+        "J307": "45000000"
+      }
+    },
+    {
+      "row": "308",
+      "cells": {
+        "G308": "Trúng 4 số + 1 số ĐB",
+        "H308": "2250",
+        "J308": "22500000"
+      }
+    },
+    {
+      "row": "309",
+      "cells": {
+        "G309": "Trúng 4 số + 0 số ĐB",
+        "H309": "225",
+        "J309": "2250000"
+      }
+    },
+    {
+      "row": "310",
+      "cells": {
+        "G310": "Trúng 1-3 số + 1 số ĐB",
+        "H310": "45",
+        "J310": "450000"
+      }
+    },
+    {
+      "row": "311",
+      "cells": {
+        "G311": "Giải Khuyến Khích: 0 số + 1 số ĐB",
+        "H311": "4.5",
+        "J311": "45000"
+      }
+    },
+    {
+      "row": "312",
+      "cells": {
+        "D312": "Bao 5",
+        "E312": "10000.0",
+        "F312": "5.0",
+        "G312": "Trúng 5 số + 1 số ĐB",
+        "H312": "300000",
+        "I312": "50000",
+        "J312": "3000000000",
+        "L312": "Bao 5: Chọn 5 số chính + 5 số đặc biệt"
+      }
+    },
+    {
+      "row": "313",
+      "cells": {
+        "G313": "Trúng 5 số + 0 số ĐB",
+        "H313": "6750",
+        "J313": "67500000"
+      }
+    },
+    {
+      "row": "314",
+      "cells": {
+        "G314": "Trúng 4 số + 1 số ĐB",
+        "H314": "3375",
+        "J314": "33750000"
+      }
+    },
+    {
+      "row": "315",
+      "cells": {
+        "G315": "Trúng 4 số + 0 số ĐB",
+        "H315": "337.5",
+        "J315": "3375000"
+      }
+    },
+    {
+      "row": "316",
+      "cells": {
+        "G316": "Trúng 1-3 số + 1 số ĐB",
+        "H316": "67.5",
+        "J316": "675000"
+      }
+    },
+    {
+      "row": "317",
+      "cells": {
+        "G317": "Giải Khuyến Khích: 0 số + 1 số ĐB",
+        "H317": "6.75",
+        "J317": "67500"
+      }
+    },
+    {
+      "row": "318",
+      "cells": {
+        "D318": "Bao 6",
+        "E318": "10000.0",
+        "F318": "6.0",
+        "G318": "Trúng 5 số + 1 số ĐB",
+        "H318": "300000",
+        "I318": "60000",
+        "J318": "3000000000",
+        "L318": "Bao 6: Chọn 5 số chính + 6 số đặc biệt"
+      }
+    },
+    {
+      "row": "319",
+      "cells": {
+        "G319": "Trúng 5 số + 0 số ĐB",
+        "H319": "10125",
+        "J319": "101250000"
+      }
+    },
+    {
+      "row": "320",
+      "cells": {
+        "G320": "Trúng 4 số + 1 số ĐB",
+        "H320": "5062.5",
+        "J320": "50625000"
+      }
+    },
+    {
+      "row": "321",
+      "cells": {
+        "G321": "Trúng 4 số + 0 số ĐB",
+        "H321": "506.25",
+        "J321": "5062500"
+      }
+    },
+    {
+      "row": "322",
+      "cells": {
+        "G322": "Trúng 1-3 số + 1 số ĐB",
+        "H322": "101.25",
+        "J322": "1012500"
+      }
+    },
+    {
+      "row": "323",
+      "cells": {
+        "G323": "Giải Khuyến Khích: 0 số + 1 số ĐB",
+        "H323": "10.125",
+        "J323": "101250"
+      }
+    },
+    {
+      "row": "324",
+      "cells": {
+        "D324": "Bao 7",
+        "E324": "10000.0",
+        "F324": "7.0",
+        "G324": "Trúng 5 số + 1 số ĐB",
+        "H324": "300000",
+        "I324": "70000",
+        "J324": "3000000000",
+        "L324": "Bao 7: Chọn 5 số chính + 7 số đặc biệt"
+      }
+    },
+    {
+      "row": "325",
+      "cells": {
+        "G325": "Trúng 5 số + 0 số ĐB",
+        "H325": "15187.5",
+        "J325": "151875000"
+      }
+    },
+    {
+      "row": "326",
+      "cells": {
+        "G326": "Trúng 4 số + 1 số ĐB",
+        "H326": "7593.75",
+        "J326": "75937500"
+      }
+    },
+    {
+      "row": "327",
+      "cells": {
+        "G327": "Trúng 4 số + 0 số ĐB",
+        "H327": "759.375",
+        "J327": "7593750"
+      }
+    },
+    {
+      "row": "328",
+      "cells": {
+        "G328": "Trúng 1-3 số + 1 số ĐB",
+        "H328": "151.875",
+        "J328": "1518750"
+      }
+    },
+    {
+      "row": "329",
+      "cells": {
+        "G329": "Giải Khuyến Khích: 0 số + 1 số ĐB",
+        "H329": "15.1875",
+        "J329": "151875"
+      }
+    },
+    {
+      "row": "330",
+      "cells": {
+        "D330": "Bao 8",
+        "E330": "10000.0",
+        "F330": "8.0",
+        "G330": "Trúng 5 số + 1 số ĐB",
+        "H330": "300000",
+        "I330": "80000",
+        "J330": "3000000000",
+        "L330": "Bao 8: Chọn 5 số chính + 8 số đặc biệt"
+      }
+    },
+    {
+      "row": "331",
+      "cells": {
+        "G331": "Trúng 5 số + 0 số ĐB",
+        "H331": "22781.25",
+        "J331": "227812500"
+      }
+    },
+    {
+      "row": "332",
+      "cells": {
+        "G332": "Trúng 4 số + 1 số ĐB",
+        "H332": "11390.625",
+        "J332": "113906250"
+      }
+    },
+    {
+      "row": "333",
+      "cells": {
+        "G333": "Trúng 4 số + 0 số ĐB",
+        "H333": "1139.0625",
+        "J333": "11390625"
+      }
+    },
+    {
+      "row": "334",
+      "cells": {
+        "G334": "Trúng 1-3 số + 1 số ĐB",
+        "H334": "227.8125",
+        "J334": "2278125"
+      }
+    },
+    {
+      "row": "335",
+      "cells": {
+        "G335": "Giải Khuyến Khích: 0 số + 1 số ĐB",
+        "H335": "22.78125",
+        "J335": "227812.5"
+      }
+    },
+    {
+      "row": "336",
+      "cells": {
+        "D336": "Bao 9",
+        "E336": "10000.0",
+        "F336": "9.0",
+        "G336": "Trúng 5 số + 1 số ĐB",
+        "H336": "300000",
+        "I336": "90000",
+        "J336": "3000000000",
+        "L336": "Bao 9: Chọn 5 số chính + 9 số đặc biệt"
+      }
+    },
+    {
+      "row": "337",
+      "cells": {
+        "G337": "Trúng 5 số + 0 số ĐB",
+        "H337": "34171.875",
+        "J337": "341718750"
+      }
+    },
+    {
+      "row": "338",
+      "cells": {
+        "G338": "Trúng 4 số + 1 số ĐB",
+        "H338": "17085.9375",
+        "J338": "170859375"
+      }
+    },
+    {
+      "row": "339",
+      "cells": {
+        "G339": "Trúng 4 số + 0 số ĐB",
+        "H339": "1708.59375",
+        "J339": "17085937.5"
+      }
+    },
+    {
+      "row": "340",
+      "cells": {
+        "G340": "Trúng 1-3 số + 1 số ĐB",
+        "H340": "341.71875",
+        "J340": "3417187.5"
+      }
+    },
+    {
+      "row": "341",
+      "cells": {
+        "G341": "Giải Khuyến Khích: 0 số + 1 số ĐB",
+        "H341": "34.171875",
+        "J341": "341718.75"
+      }
+    },
+    {
+      "row": "342",
+      "cells": {
+        "D342": "Bao 10",
+        "E342": "10000.0",
+        "F342": "10.0",
+        "G342": "Trúng 5 số + 1 số ĐB",
+        "H342": "300000",
+        "I342": "100000",
+        "J342": "3000000000",
+        "L342": "Bao 10: Chọn 5 số chính + 10 số đặc biệt"
+      }
+    },
+    {
+      "row": "343",
+      "cells": {
+        "G343": "Trúng 5 số + 0 số ĐB",
+        "H343": "51257.8125",
+        "J343": "512578125"
+      }
+    },
+    {
+      "row": "344",
+      "cells": {
+        "G344": "Trúng 4 số + 1 số ĐB",
+        "H344": "25628.90625",
+        "J344": "256289062.5"
+      }
+    },
+    {
+      "row": "345",
+      "cells": {
+        "G345": "Trúng 4 số + 0 số ĐB",
+        "H345": "2562.890625",
+        "J345": "25628906.25"
+      }
+    },
+    {
+      "row": "346",
+      "cells": {
+        "G346": "Trúng 1-3 số + 1 số ĐB",
+        "H346": "512.578125",
+        "J346": "5125781.25"
+      }
+    },
+    {
+      "row": "347",
+      "cells": {
+        "G347": "Giải Khuyến Khích: 0 số + 1 số ĐB",
+        "H347": "51.2578125",
+        "J347": "512578.125"
+      }
+    },
+    {
+      "row": "348",
+      "cells": {
+        "D348": "Bao 11",
+        "E348": "10000.0",
+        "F348": "11.0",
+        "G348": "Trúng 5 số + 1 số ĐB",
+        "H348": "300000",
+        "I348": "110000",
+        "J348": "3000000000",
+        "L348": "Bao 11: Chọn 5 số chính + 11 số đặc biệt"
+      }
+    },
+    {
+      "row": "349",
+      "cells": {
+        "G349": "Trúng 5 số + 0 số ĐB",
+        "H349": "76886.71875",
+        "J349": "768867187.5"
+      }
+    },
+    {
+      "row": "350",
+      "cells": {
+        "G350": "Trúng 4 số + 1 số ĐB",
+        "H350": "38443.35938",
+        "J350": "384433593.8"
+      }
+    },
+    {
+      "row": "351",
+      "cells": {
+        "G351": "Trúng 4 số + 0 số ĐB",
+        "H351": "3844.335938",
+        "J351": "38443359.38"
+      }
+    },
+    {
+      "row": "352",
+      "cells": {
+        "G352": "Trúng 1-3 số + 1 số ĐB",
+        "H352": "768.8671875",
+        "J352": "7688671.875"
+      }
+    },
+    {
+      "row": "353",
+      "cells": {
+        "G353": "Giải Khuyến Khích: 0 số + 1 số ĐB",
+        "H353": "76.88671875",
+        "J353": "768867.1875"
+      }
+    },
+    {
+      "row": "354",
+      "cells": {
+        "D354": "Bao 12",
+        "E354": "10000.0",
+        "F354": "12.0",
+        "G354": "Trúng 5 số + 1 số ĐB",
+        "H354": "300000",
+        "I354": "120000",
+        "J354": "3000000000",
+        "L354": "Bao 12: Chọn toàn bộ 12 số đặc biệt (Bao toàn bộ)"
+      }
+    },
+    {
+      "row": "355",
+      "cells": {
+        "G355": "Trúng 5 số + 0 số ĐB",
+        "H355": "115330.0781",
+        "J355": "1153300781"
+      }
+    },
+    {
+      "row": "356",
+      "cells": {
+        "G356": "Trúng 4 số + 1 số ĐB",
+        "H356": "57665.03906",
+        "J356": "576650390.6"
+      }
+    },
+    {
+      "row": "357",
+      "cells": {
+        "G357": "Trúng 4 số + 0 số ĐB",
+        "H357": "5766.503906",
+        "J357": "57665039.06"
+      }
+    },
+    {
+      "row": "358",
+      "cells": {
+        "G358": "Trúng 1-3 số + 1 số ĐB",
+        "H358": "1153.300781",
+        "J358": "11533007.81"
+      }
+    },
+    {
+      "row": "359",
+      "cells": {
+        "G359": "Giải Khuyến Khích: 0 số + 1 số ĐB",
+        "H359": "115.3300781",
+        "J359": "1153300.781"
+      }
+    },
+    {
+      "row": "360",
+      "cells": {
+        "A360": "LOTTO 5/70\n(Số cơ bản: 01-70\nSố đặc biệt: 01-24)",
+        "C360": "Cơ bản",
+        "E360": "10000.0",
+        "F360": "1.0",
+        "G360": "Trúng 5 số trắng + 1 Mega Ball",
+        "H360": "600000.0",
+        "I360": "10000",
+        "J360": "6000000000",
+        "K360": "ĐIỆN TOÁN Mega Millions (USA)  là chọn 5 số từ 01 đến 70 (các trái bóng trắng) + 1 số từ 01 đến 24 (được gọi là Mega Ball hoặc bóng vàng) thành vé có 6 số. Nếu kết quả xổ ra đúng 6 số thì thắng.",
+        "L360": "Chọn 5 số trắng + 1 số Mega Ball. Nếu có trong kết quả xổ ra thì thắng."
+      }
+    },
+    {
+      "row": "361",
+      "cells": {
+        "G361": "Trúng 5 số trắng + 0 Mega Ball",
+        "H361": "1000.0",
+        "J361": "10000000"
+      }
+    },
+    {
+      "row": "362",
+      "cells": {
+        "G362": "Trúng 4 số trắng + 1 Mega Ball",
+        "H362": "1000.0",
+        "J362": "10000000"
+      }
+    },
+    {
+      "row": "363",
+      "cells": {
+        "G363": "Trúng 4 số trắng + 0 Mega Ball",
+        "H363": "900.0",
+        "J363": "9000000"
+      }
+    },
+    {
+      "row": "364",
+      "cells": {
+        "G364": "Trúng 3 số trắng + 1 Mega Ball",
+        "H364": "900.0",
+        "J364": "9000000"
+      }
+    },
+    {
+      "row": "365",
+      "cells": {
+        "G365": "Trúng 3 số trắng + 0 Mega Ball",
+        "H365": "500.0",
+        "J365": "5000000"
+      }
+    },
+    {
+      "row": "366",
+      "cells": {
+        "G366": "Trúng 2 số trắng + 1 Mega Ball",
+        "H366": "500.0",
+        "J366": "5000000"
+      }
+    },
+    {
+      "row": "367",
+      "cells": {
+        "G367": "Trúng 1 số trắng + 1 Mega Ball",
+        "H367": "100.0",
+        "J367": "1000000"
+      }
+    },
+    {
+      "row": "368",
+      "cells": {
+        "G368": "Trúng 0 số trắng + 1 Mega Ball",
+        "H368": "10.0",
+        "J368": "100000"
+      }
+    },
+    {
+      "row": "369",
+      "cells": {
+        "G369": "Trúng 1 số trắng + 0 Mega Ball",
+        "H369": "1.0",
+        "J369": "10000"
+      }
+    },
+    {
+      "row": "370",
+      "cells": {
+        "C370": "Bao số chính",
+        "D370": "Bao 4",
+        "E370": "10000.0",
+        "F370": "31.0",
+        "G370": "Trúng 4 số + 1 số Mega Ball",
+        "H370": "3800",
+        "I370": "310000",
+        "J370": "38000000",
+        "K370": "Bao số chính là cách chơi chọn nhiều số chính từ 01 đến 70: 4,6,7,8,9,10,11,12,13,14,15 số và 1 số Mega Ball (bất kỳ từ 01 đến 24). Kết quả xổ ra có thì được tính là thắng.",
+        "L370": "Bao 4 là chọn 4 số chính + 1 số Mega Ball. Số xổ ra có trong kết quả thì thắng."
+      }
+    },
+    {
+      "row": "371",
+      "cells": {
+        "G371": "Trúng 1-3 số + 1 số Mega Ball",
+        "H371": "10.0",
+        "J371": "100000"
+      }
+    },
+    {
+      "row": "372",
+      "cells": {
+        "D372": "Bao 6",
+        "E372": "10000.0",
+        "F372": "6.0",
+        "G372": "Trúng 5 số + 1 số Mega Ball",
+        "H372": "602500",
+        "I372": "60000",
+        "J372": "6025000000",
+        "L372": "Bao 6 là chọn 6 số chính + 1 số Mega Ball. Số xổ ra có trong kết quả thì thắng."
+      }
+    },
+    {
+      "row": "373",
+      "cells": {
+        "G373": "Trúng 5 số + 0 số Mega Ball",
+        "H373": "1260.0",
+        "J373": "12600000"
+      }
+    },
+    {
+      "row": "374",
+      "cells": {
+        "G374": "Trúng 4 số + 1 số Mega Ball",
+        "H374": "1050.0",
+        "J374": "10500000"
+      }
+    },
+    {
+      "row": "375",
+      "cells": {
+        "G375": "Trúng 1-3 số + 1 số Mega Ball",
+        "H375": "11.0",
+        "J375": "110000"
+      }
+    },
+    {
+      "row": "376",
+      "cells": {
+        "D376": "Bao 7",
+        "E376": "10000.0",
+        "F376": "21.0",
+        "G376": "Trúng 5 số + 1 số Mega Ball",
+        "H376": "605100",
+        "I376": "210000",
+        "J376": "6051000000",
+        "L376": "Bao 7 là chọn 7 số chính + 1 số Mega Ball. Số xổ ra có trong kết quả thì thắng."
+      }
+    },
+    {
+      "row": "377",
+      "cells": {
+        "G377": "Trúng 5 số + 0 số Mega Ball",
+        "H377": "1270.0",
+        "J377": "12700000"
+      }
+    },
+    {
+      "row": "378",
+      "cells": {
+        "G378": "Trúng 4 số + 1 số Mega Ball",
+        "H378": "1060.0",
+        "J378": "10600000"
+      }
+    },
+    {
+      "row": "379",
+      "cells": {
+        "G379": "Trúng 1-3 số + 1 số Mega Ball",
+        "H379": "12.0",
+        "J379": "120000"
+      }
+    },
+    {
+      "row": "380",
+      "cells": {
+        "D380": "Bao 8",
+        "E380": "10000.0",
+        "F380": "56.0",
+        "G380": "Trúng 5 số + 1 số Mega Ball",
+        "H380": "607810",
+        "I380": "560000",
+        "J380": "6078100000",
+        "L380": "Bao 8 là chọn 8 số chính + 1 số Mega Ball. Số xổ ra có trong kết quả thì thắng."
+      }
+    },
+    {
+      "row": "381",
+      "cells": {
+        "G381": "Trúng 5 số + 0 số Mega Ball",
+        "H381": "1280.0",
+        "J381": "12800000"
+      }
+    },
+    {
+      "row": "382",
+      "cells": {
+        "G382": "Trúng 4 số + 1 số Mega Ball",
+        "H382": "1070.0",
+        "J382": "10700000"
+      }
+    },
+    {
+      "row": "383",
+      "cells": {
+        "G383": "Trúng 1-3 số + 1 số Mega Ball",
+        "H383": "13.0",
+        "J383": "130000"
+      }
+    },
+    {
+      "row": "384",
+      "cells": {
+        "G384": "Giải Khuyến Khích: 0 số + 1 số Mega Ball",
+        "H384": "1.0",
+        "J384": "10000"
+      }
+    },
+    {
+      "row": "385",
+      "cells": {
+        "D385": "Bao 9",
+        "E385": "10000.0",
+        "F385": "126.0",
+        "G385": "Trúng 5 số + 1 số Mega Ball",
+        "H385": "610645",
+        "I385": "1260000",
+        "J385": "6106450000",
+        "L385": "Bao 9 là chọn 9 số chính + 1 số Mega Ball. Số xổ ra có trong kết quả thì thắng."
+      }
+    },
+    {
+      "row": "386",
+      "cells": {
+        "G386": "Trúng 5 số + 0 số Mega Ball",
+        "H386": "1290.0",
+        "J386": "12900000"
+      }
+    },
+    {
+      "row": "387",
+      "cells": {
+        "G387": "Trúng 4 số + 1 số Mega Ball",
+        "H387": "1080.0",
+        "J387": "10800000"
+      }
+    },
+    {
+      "row": "388",
+      "cells": {
+        "G388": "Trúng 1-3 số + 1 số Mega Ball",
+        "H388": "14.0",
+        "J388": "140000"
+      }
+    },
+    {
+      "row": "389",
+      "cells": {
+        "G389": "Giải Khuyến Khích: 0 số + 1 số Mega Ball",
+        "H389": "1.0",
+        "J389": "10000"
+      }
+    },
+    {
+      "row": "390",
+      "cells": {
+        "D390": "Bao 10",
+        "E390": "10000.0",
+        "F390": "252.0",
+        "G390": "Trúng 5 số + 1 số Mega Ball",
+        "H390": "613626",
+        "I390": "2520000",
+        "J390": "6136260000",
+        "L390": "Bao 10 là chọn 10 số chính + 1 số Mega Ball. Số xổ ra có trong kết quả thì thắng."
+      }
+    },
+    {
+      "row": "391",
+      "cells": {
+        "G391": "Trúng 5 số + 0 số Mega Ball",
+        "H391": "1300.0",
+        "J391": "13000000"
+      }
+    },
+    {
+      "row": "392",
+      "cells": {
+        "G392": "Trúng 4 số + 1 số Mega Ball",
+        "H392": "1090.0",
+        "J392": "10900000"
+      }
+    },
+    {
+      "row": "393",
+      "cells": {
+        "G393": "Trúng 1-3 số + 1 số Mega Ball",
+        "H393": "15.0",
+        "J393": "150000"
+      }
+    },
+    {
+      "row": "394",
+      "cells": {
+        "G394": "Giải Khuyến Khích: 0 số + 1 số Mega Ball",
+        "H394": "1.0",
+        "J394": "10000"
+      }
+    },
+    {
+      "row": "395",
+      "cells": {
+        "D395": "Bao 11",
+        "E395": "10000.0",
+        "F395": "462.0",
+        "G395": "Trúng 5 số + 1 số Mega Ball",
+        "H395": "616781",
+        "I395": "4620000",
+        "J395": "6167810000",
+        "L395": "Bao 11 là chọn 11 số chính + 1 số Mega Ball. Số xổ ra có trong kết quả thì thắng."
+      }
+    },
+    {
+      "row": "396",
+      "cells": {
+        "G396": "Trúng 5 số + 0 số Mega Ball",
+        "H396": "1310.0",
+        "J396": "13100000"
+      }
+    },
+    {
+      "row": "397",
+      "cells": {
+        "G397": "Trúng 4 số + 1 số Mega Ball",
+        "H397": "1100.0",
+        "J397": "11000000"
+      }
+    },
+    {
+      "row": "398",
+      "cells": {
+        "G398": "Trúng 1-3 số + 1 số Mega Ball",
+        "H398": "16.0",
+        "J398": "160000"
+      }
+    },
+    {
+      "row": "399",
+      "cells": {
+        "G399": "Giải Khuyến Khích: 0 số + 1 số Mega Ball",
+        "H399": "1.0",
+        "J399": "10000"
+      }
+    },
+    {
+      "row": "400",
+      "cells": {
+        "D400": "Bao 12",
+        "E400": "10000.0",
+        "F400": "792.0",
+        "G400": "Trúng 5 số + 1 số Mega Ball",
+        "H400": "620146",
+        "I400": "7920000",
+        "J400": "6201460000",
+        "L400": "Bao 12 là chọn 12 số chính + 1 số Mega Ball. Số xổ ra có trong kết quả thì thắng."
+      }
+    },
+    {
+      "row": "401",
+      "cells": {
+        "G401": "Trúng 5 số + 0 số Mega Ball",
+        "H401": "1320.0",
+        "J401": "13200000"
+      }
+    },
+    {
+      "row": "402",
+      "cells": {
+        "G402": "Trúng 4 số + 1 số Mega Ball",
+        "H402": "1110.0",
+        "J402": "11100000"
+      }
+    },
+    {
+      "row": "403",
+      "cells": {
+        "G403": "Trúng 1-3 số + 1 số Mega Ball",
+        "H403": "17.0",
+        "J403": "170000"
+      }
+    },
+    {
+      "row": "404",
+      "cells": {
+        "G404": "Giải Khuyến Khích: 0 số + 1 số Mega Ball",
+        "H404": "1.0",
+        "J404": "10000"
+      }
+    },
+    {
+      "row": "405",
+      "cells": {
+        "D405": "Bao 13",
+        "E405": "10000.0",
+        "F405": "1287.0",
+        "G405": "Trúng 5 số + 1 số Mega Ball",
+        "H405": "623766",
+        "I405": "12870000",
+        "J405": "6237660000",
+        "L405": "Bao 13 là chọn 13 số chính + 1 số Mega Ball. Số xổ ra có trong kết quả thì thắng."
+      }
+    },
+    {
+      "row": "406",
+      "cells": {
+        "G406": "Trúng 5 số + 0 số Mega Ball",
+        "H406": "1330.0",
+        "J406": "13300000"
+      }
+    },
+    {
+      "row": "407",
+      "cells": {
+        "G407": "Trúng 4 số + 1 số Mega Ball",
+        "H407": "1120.0",
+        "J407": "11200000"
+      }
+    },
+    {
+      "row": "408",
+      "cells": {
+        "G408": "Trúng 1-3 số + 1 số Mega Ball",
+        "H408": "18.0",
+        "J408": "180000"
+      }
+    },
+    {
+      "row": "409",
+      "cells": {
+        "G409": "Giải Khuyến Khích: 0 số + 1 số Mega Ball",
+        "H409": "1.0",
+        "J409": "10000"
+      }
+    },
+    {
+      "row": "410",
+      "cells": {
+        "D410": "Bao 14",
+        "E410": "10000.0",
+        "F410": "2002.0",
+        "G410": "Trúng 5 số + 1 số Mega Ball",
+        "H410": "627696",
+        "I410": "20020000",
+        "J410": "6276960000",
+        "L410": "Bao 14 là chọn 14 số chính + 1 số Mega Ball. Số xổ ra có trong kết quả thì thắng."
+      }
+    },
+    {
+      "row": "411",
+      "cells": {
+        "G411": "Trúng 5 số + 0 số Mega Ball",
+        "H411": "1340.0",
+        "J411": "13400000"
+      }
+    },
+    {
+      "row": "412",
+      "cells": {
+        "G412": "Trúng 4 số + 1 số Mega Ball",
+        "H412": "1130.0",
+        "J412": "11300000"
+      }
+    },
+    {
+      "row": "413",
+      "cells": {
+        "G413": "Trúng 1-3 số + 1 số Mega Ball",
+        "H413": "19.0",
+        "J413": "190000"
+      }
+    },
+    {
+      "row": "414",
+      "cells": {
+        "G414": "Giải Khuyến Khích: 0 số + 1 số Mega Ball",
+        "H414": "1.0",
+        "J414": "10000"
+      }
+    },
+    {
+      "row": "415",
+      "cells": {
+        "D415": "Bao 15",
+        "E415": "10000.0",
+        "F415": "3003.0",
+        "G415": "Trúng 5 số + 1 số Mega Ball",
+        "H415": "632002",
+        "I415": "30030000",
+        "J415": "6320020000",
+        "L415": "Bao 15 là chọn 15 số chính + 1 số Mega Ball. Số xổ ra có trong kết quả thì thắng."
+      }
+    },
+    {
+      "row": "416",
+      "cells": {
+        "G416": "Trúng 5 số + 0 số Mega Ball",
+        "H416": "1350.0",
+        "J416": "13500000"
+      }
+    },
+    {
+      "row": "417",
+      "cells": {
+        "G417": "Trúng 4 số + 1 số Mega Ball",
+        "H417": "1140.0",
+        "J417": "11400000"
+      }
+    },
+    {
+      "row": "418",
+      "cells": {
+        "G418": "Trúng 1-3 số + 1 số Mega Ball",
+        "H418": "20.0",
+        "J418": "200000"
+      }
+    },
+    {
+      "row": "419",
+      "cells": {
+        "G419": "Giải Khuyến Khích: 0 số + 1 số Mega Ball",
+        "H419": "1.0",
+        "J419": "10000"
+      }
+    },
+    {
+      "row": "420",
+      "cells": {
+        "C420": "Bao số ĐB",
+        "D420": "Bao 2",
+        "E420": "10000.0",
+        "F420": "2.0",
+        "G420": "Trúng 5 số + 1 số Mega Ball",
+        "H420": "600000",
+        "I420": "20000",
+        "J420": "6000000000",
+        "K420": "Bao số Mega Ball là cách chơi chọn 5 số chính từ 01 đến 70 số và chọn 2 đến 12 số đặc biệt (bất kỳ từ 01 đến 24). Kết quả xổ ra có thì được tính là thắng.",
+        "L420": "Bao 2: Chọn 5 số chính + 2 số Mega Ball"
+      }
+    },
+    {
+      "row": "421",
+      "cells": {
+        "G421": "Trúng 5 số + 0 số Mega Ball",
+        "H421": "2000",
+        "J421": "20000000"
+      }
+    },
+    {
+      "row": "422",
+      "cells": {
+        "G422": "Trúng 4 số + 1 số Mega Ball",
+        "H422": "2000",
+        "J422": "20000000"
+      }
+    },
+    {
+      "row": "423",
+      "cells": {
+        "G423": "Trúng 4 số + 0 số Mega Ball",
+        "H423": "1800",
+        "J423": "18000000"
+      }
+    },
+    {
+      "row": "424",
+      "cells": {
+        "G424": "Trúng 1-3 số + 1 số Mega Ball",
+        "H424": "1800",
+        "J424": "18000000"
+      }
+    },
+    {
+      "row": "425",
+      "cells": {
+        "G425": "Giải Khuyến Khích: 0 số + 1 số Mega Ball",
+        "H425": "2.0",
+        "J425": "20000"
+      }
+    },
+    {
+      "row": "426",
+      "cells": {
+        "D426": "Bao 3",
+        "E426": "10000.0",
+        "F426": "3.0",
+        "G426": "Trúng 5 số + 1 số Mega Ball",
+        "H426": "600000",
+        "I426": "30000",
+        "J426": "6000000000",
+        "L426": "Bao 3: Chọn 5 số chính + 3 số Mega Ball"
+      }
+    },
+    {
+      "row": "427",
+      "cells": {
+        "G427": "Trúng 5 số + 0 số Mega Ball",
+        "H427": "3000",
+        "J427": "30000000"
+      }
+    },
+    {
+      "row": "428",
+      "cells": {
+        "G428": "Trúng 4 số + 1 số Mega Ball",
+        "H428": "3000",
+        "J428": "30000000"
+      }
+    },
+    {
+      "row": "429",
+      "cells": {
+        "G429": "Trúng 4 số + 0 số Mega Ball",
+        "H429": "2700",
+        "J429": "27000000"
+      }
+    },
+    {
+      "row": "430",
+      "cells": {
+        "G430": "Trúng 1-3 số + 1 số Mega Ball",
+        "H430": "2700",
+        "J430": "27000000"
+      }
+    },
+    {
+      "row": "431",
+      "cells": {
+        "G431": "Giải Khuyến Khích: 0 số + 1 số Mega Ball",
+        "H431": "3",
+        "J431": "30000"
+      }
+    },
+    {
+      "row": "432",
+      "cells": {
+        "D432": "Bao 4",
+        "E432": "10000.0",
+        "F432": "4.0",
+        "G432": "Trúng 5 số + 1 số Mega Ball",
+        "H432": "600000",
+        "I432": "40000",
+        "J432": "6000000000",
+        "L432": "Bao 4: Chọn 5 số chính + 4 số Mega Ball"
+      }
+    },
+    {
+      "row": "433",
+      "cells": {
+        "G433": "Trúng 5 số + 0 số Mega Ball",
+        "H433": "4500",
+        "J433": "45000000"
+      }
+    },
+    {
+      "row": "434",
+      "cells": {
+        "G434": "Trúng 4 số + 1 số Mega Ball",
+        "H434": "4500",
+        "J434": "45000000"
+      }
+    },
+    {
+      "row": "435",
+      "cells": {
+        "G435": "Trúng 4 số + 0 số Mega Ball",
+        "H435": "4050",
+        "J435": "40500000"
+      }
+    },
+    {
+      "row": "436",
+      "cells": {
+        "G436": "Trúng 1-3 số + 1 số Mega Ball",
+        "H436": "4050",
+        "J436": "40500000"
+      }
+    },
+    {
+      "row": "437",
+      "cells": {
+        "G437": "Giải Khuyến Khích: 0 số + 1 số Mega Ball",
+        "H437": "4.5",
+        "J437": "45000"
+      }
+    },
+    {
+      "row": "438",
+      "cells": {
+        "D438": "Bao 5",
+        "E438": "10000.0",
+        "F438": "5.0",
+        "G438": "Trúng 5 số + 1 số Mega Ball",
+        "H438": "600000",
+        "I438": "50000",
+        "J438": "6000000000",
+        "L438": "Bao 5: Chọn 5 số chính + 5 số Mega Ball"
+      }
+    },
+    {
+      "row": "439",
+      "cells": {
+        "G439": "Trúng 5 số + 0 số Mega Ball",
+        "H439": "6750",
+        "J439": "67500000"
+      }
+    },
+    {
+      "row": "440",
+      "cells": {
+        "G440": "Trúng 4 số + 1 số Mega Ball",
+        "H440": "6750",
+        "J440": "67500000"
+      }
+    },
+    {
+      "row": "441",
+      "cells": {
+        "G441": "Trúng 4 số + 0 số Mega Ball",
+        "H441": "6075",
+        "J441": "60750000"
+      }
+    },
+    {
+      "row": "442",
+      "cells": {
+        "G442": "Trúng 1-3 số + 1 số Mega Ball",
+        "H442": "6075",
+        "J442": "60750000"
+      }
+    },
+    {
+      "row": "443",
+      "cells": {
+        "G443": "Giải Khuyến Khích: 0 số + 1 số Mega Ball",
+        "H443": "6.75",
+        "J443": "67500"
+      }
+    },
+    {
+      "row": "444",
+      "cells": {
+        "D444": "Bao 6",
+        "E444": "10000.0",
+        "F444": "6.0",
+        "G444": "Trúng 5 số + 1 số Mega Ball",
+        "H444": "600000",
+        "I444": "60000",
+        "J444": "6000000000",
+        "L444": "Bao 6: Chọn 5 số chính + 6 số Mega Ball"
+      }
+    },
+    {
+      "row": "445",
+      "cells": {
+        "G445": "Trúng 5 số + 0 số Mega Ball",
+        "H445": "10125",
+        "J445": "101250000"
+      }
+    },
+    {
+      "row": "446",
+      "cells": {
+        "G446": "Trúng 4 số + 1 số Mega Ball",
+        "H446": "10125",
+        "J446": "101250000"
+      }
+    },
+    {
+      "row": "447",
+      "cells": {
+        "G447": "Trúng 4 số + 0 số Mega Ball",
+        "H447": "9112.5",
+        "J447": "91125000"
+      }
+    },
+    {
+      "row": "448",
+      "cells": {
+        "G448": "Trúng 1-3 số + 1 số Mega Ball",
+        "H448": "9112.5",
+        "J448": "91125000"
+      }
+    },
+    {
+      "row": "449",
+      "cells": {
+        "G449": "Giải Khuyến Khích: 0 số + 1 số Mega Ball",
+        "H449": "10.125",
+        "J449": "101250"
+      }
+    },
+    {
+      "row": "450",
+      "cells": {
+        "D450": "Bao 7",
+        "E450": "10000.0",
+        "F450": "7.0",
+        "G450": "Trúng 5 số + 1 số Mega Ball",
+        "H450": "600000",
+        "I450": "70000",
+        "J450": "6000000000",
+        "L450": "Bao 7: Chọn 5 số chính + 7 số Mega Ball"
+      }
+    },
+    {
+      "row": "451",
+      "cells": {
+        "G451": "Trúng 5 số + 0 số Mega Ball",
+        "H451": "15187.5",
+        "J451": "151875000"
+      }
+    },
+    {
+      "row": "452",
+      "cells": {
+        "G452": "Trúng 4 số + 1 số Mega Ball",
+        "H452": "15187.5",
+        "J452": "151875000"
+      }
+    },
+    {
+      "row": "453",
+      "cells": {
+        "G453": "Trúng 4 số + 0 số Mega Ball",
+        "H453": "13668.75",
+        "J453": "136687500"
+      }
+    },
+    {
+      "row": "454",
+      "cells": {
+        "G454": "Trúng 1-3 số + 1 số Mega Ball",
+        "H454": "13668.75",
+        "J454": "136687500"
+      }
+    },
+    {
+      "row": "455",
+      "cells": {
+        "G455": "Giải Khuyến Khích: 0 số + 1 số Mega Ball",
+        "H455": "15.1875",
+        "J455": "151875"
+      }
+    },
+    {
+      "row": "456",
+      "cells": {
+        "D456": "Bao 8",
+        "E456": "10000.0",
+        "F456": "8.0",
+        "G456": "Trúng 5 số + 1 số Mega Ball",
+        "H456": "600000",
+        "I456": "80000",
+        "J456": "6000000000",
+        "L456": "Bao 8: Chọn 5 số chính + 8 số Mega Ball"
+      }
+    },
+    {
+      "row": "457",
+      "cells": {
+        "G457": "Trúng 5 số + 0 số Mega Ball",
+        "H457": "22781.25",
+        "J457": "227812500"
+      }
+    },
+    {
+      "row": "458",
+      "cells": {
+        "G458": "Trúng 4 số + 1 số Mega Ball",
+        "H458": "22781.25",
+        "J458": "227812500"
+      }
+    },
+    {
+      "row": "459",
+      "cells": {
+        "G459": "Trúng 4 số + 0 số Mega Ball",
+        "H459": "20503.125",
+        "J459": "205031250"
+      }
+    },
+    {
+      "row": "460",
+      "cells": {
+        "G460": "Trúng 1-3 số + 1 số Mega Ball",
+        "H460": "20503.125",
+        "J460": "205031250"
+      }
+    },
+    {
+      "row": "461",
+      "cells": {
+        "G461": "Giải Khuyến Khích: 0 số + 1 số Mega Ball",
+        "H461": "22.78125",
+        "J461": "227812.5"
+      }
+    },
+    {
+      "row": "462",
+      "cells": {
+        "D462": "Bao 9",
+        "E462": "10000.0",
+        "F462": "9.0",
+        "G462": "Trúng 5 số + 1 số Mega Ball",
+        "H462": "600000",
+        "I462": "90000",
+        "J462": "6000000000",
+        "L462": "Bao 9: Chọn 5 số chính + 9 số Mega Ball"
+      }
+    },
+    {
+      "row": "463",
+      "cells": {
+        "G463": "Trúng 5 số + 0 số Mega Ball",
+        "H463": "34171.875",
+        "J463": "341718750"
+      }
+    },
+    {
+      "row": "464",
+      "cells": {
+        "G464": "Trúng 4 số + 1 số Mega Ball",
+        "H464": "34171.875",
+        "J464": "341718750"
+      }
+    },
+    {
+      "row": "465",
+      "cells": {
+        "G465": "Trúng 4 số + 0 số Mega Ball",
+        "H465": "30754.6875",
+        "J465": "307546875"
+      }
+    },
+    {
+      "row": "466",
+      "cells": {
+        "G466": "Trúng 1-3 số + 1 số Mega Ball",
+        "H466": "30754.6875",
+        "J466": "307546875"
+      }
+    },
+    {
+      "row": "467",
+      "cells": {
+        "G467": "Giải Khuyến Khích: 0 số + 1 số Mega Ball",
+        "H467": "34.171875",
+        "J467": "341718.75"
+      }
+    },
+    {
+      "row": "468",
+      "cells": {
+        "D468": "Bao 10",
+        "E468": "10000.0",
+        "F468": "10.0",
+        "G468": "Trúng 5 số + 1 số Mega Ball",
+        "H468": "600000",
+        "I468": "100000",
+        "J468": "6000000000",
+        "L468": "Bao 10: Chọn 5 số chính + 10 số Mega Ball"
+      }
+    },
+    {
+      "row": "469",
+      "cells": {
+        "G469": "Trúng 5 số + 0 số Mega Ball",
+        "H469": "51257.8125",
+        "J469": "512578125"
+      }
+    },
+    {
+      "row": "470",
+      "cells": {
+        "G470": "Trúng 4 số + 1 số Mega Ball",
+        "H470": "51257.8125",
+        "J470": "512578125"
+      }
+    },
+    {
+      "row": "471",
+      "cells": {
+        "G471": "Trúng 4 số + 0 số Mega Ball",
+        "H471": "46132.03125",
+        "J471": "461320312.5"
+      }
+    },
+    {
+      "row": "472",
+      "cells": {
+        "G472": "Trúng 1-3 số + 1 số Mega Ball",
+        "H472": "46132.03125",
+        "J472": "461320312.5"
+      }
+    },
+    {
+      "row": "473",
+      "cells": {
+        "G473": "Giải Khuyến Khích: 0 số + 1 số Mega Ball",
+        "H473": "51.2578125",
+        "J473": "512578.125"
+      }
+    },
+    {
+      "row": "474",
+      "cells": {
+        "D474": "Bao 11",
+        "E474": "10000.0",
+        "F474": "11.0",
+        "G474": "Trúng 5 số + 1 số Mega Ball",
+        "H474": "600000",
+        "I474": "110000",
+        "J474": "6000000000",
+        "L474": "Bao 11: Chọn 5 số chính + 11 số Mega Ball"
+      }
+    },
+    {
+      "row": "475",
+      "cells": {
+        "G475": "Trúng 5 số + 0 số Mega Ball",
+        "H475": "76886.71875",
+        "J475": "768867187.5"
+      }
+    },
+    {
+      "row": "476",
+      "cells": {
+        "G476": "Trúng 4 số + 1 số ",
+        "H476": "76886.71875",
+        "J476": "768867187.5"
+      }
+    },
+    {
+      "row": "477",
+      "cells": {
+        "G477": "Trúng 4 số + 0 số Mega Ball",
+        "H477": "69198.04688",
+        "J477": "691980468.8"
+      }
+    },
+    {
+      "row": "478",
+      "cells": {
+        "G478": "Trúng 1-3 số + 1 số Mega Ball",
+        "H478": "69198.04688",
+        "J478": "691980468.8"
+      }
+    },
+    {
+      "row": "479",
+      "cells": {
+        "G479": "Giải Khuyến Khích: 0 số + 1 số Mega Ball",
+        "H479": "76.88671875",
+        "J479": "768867.1875"
+      }
+    },
+    {
+      "row": "480",
+      "cells": {
+        "D480": "Bao 12",
+        "E480": "10000.0",
+        "F480": "12.0",
+        "G480": "Trúng 5 số + 1 số Mega Ball",
+        "H480": "600000",
+        "I480": "120000",
+        "J480": "6000000000",
+        "L480": "Bao 12: Chọn toàn bộ 12 số Mega Ball"
+      }
+    },
+    {
+      "row": "481",
+      "cells": {
+        "G481": "Trúng 5 số + 0 số Mega Ball",
+        "H481": "115330.0781",
+        "J481": "1153300781"
+      }
+    },
+    {
+      "row": "482",
+      "cells": {
+        "G482": "Trúng 4 số + 1 số Mega Ball",
+        "H482": "115330.0781",
+        "J482": "1153300781"
+      }
+    },
+    {
+      "row": "483",
+      "cells": {
+        "G483": "Trúng 4 số + 0 số Mega Ball",
+        "H483": "103797.0703",
+        "J483": "1037970703"
+      }
+    },
+    {
+      "row": "484",
+      "cells": {
+        "G484": "Trúng 1-3 số + 1 số Mega Ball",
+        "H484": "103797.0703",
+        "J484": "1037970703"
+      }
+    },
+    {
+      "row": "485",
+      "cells": {
+        "G485": "Giải Khuyến Khích: 0 số + 1 số Mega Ball",
+        "H485": "115.3300781",
+        "J485": "1153300.781"
+      }
+    },
+    {
+      "row": "486",
+      "cells": {
+        "A486": "ĐIỆN TOÁN\nLÔ TÔ 2,3,5\n(Miền Bắc)",
+        "C486": "Lô tô 2 số",
+        "E486": "10000.0",
+        "F486": "4.0",
+        "G486": "Trúng 2 số cuối Giải Đặc Biệt",
+        "H486": "90.0",
+        "I486": "40000",
+        "J486": "900000",
+        "K486": "Lô tô 2,3,5 là chọn 1 số có 2,3,4,5 chữ số nằm trong khoảng từ 00000 đến 99999.\nCách dò kết quả: Lấy con số bạn chọn so sánh trực tiếp với 2 số cuối của Giải Đặc biệt và 2 số cuối của Giải Nhất kết quả XSKT Miền Bắc trong ngày.",
+        "L486": "Lô tô 2 số là chọn 1 số có 2 chữ số nằm trong khoảng từ 00 đến 99."
+      }
+    },
+    {
+      "row": "487",
+      "cells": {
+        "G487": "Trúng 2 số đầu Giải Đặc Biệt",
+        "H487": "10.0",
+        "J487": "100000"
+      }
+    },
+    {
+      "row": "488",
+      "cells": {
+        "G488": "Trúng 2 số cuối Giải Nhất",
+        "H488": "10.0",
+        "J488": "100000"
+      }
+    },
+    {
+      "row": "489",
+      "cells": {
+        "G489": "Trúng 2 số cuối Giải Nhất",
+        "H489": "10.0",
+        "J489": "100000"
+      }
+    },
+    {
+      "row": "490",
+      "cells": {
+        "C490": "Lô tô 3 số",
+        "E490": "10000.0",
+        "F490": "4.0",
+        "G490": "Trúng 3 số cuối Giải Đặc Biệt",
+        "H490": "900.0",
+        "I490": "40000",
+        "J490": "9000000",
+        "L490": "Lô tô 3 số là chọn 1 số có 3 chữ số nằm trong khoảng từ 000 đến 999."
+      }
+    },
+    {
+      "row": "491",
+      "cells": {
+        "G491": "Trúng 3 số đầu Giải Đặc Biệt",
+        "H491": "10.0",
+        "J491": "100000"
+      }
+    },
+    {
+      "row": "492",
+      "cells": {
+        "G492": "Trúng 3 số cuối Giải Nhất",
+        "H492": "10.0",
+        "J492": "100000"
+      }
+    },
+    {
+      "row": "493",
+      "cells": {
+        "G493": "Trúng 3 số cuối Giải Nhất",
+        "H493": "10.0",
+        "J493": "100000"
+      }
+    },
+    {
+      "row": "494",
+      "cells": {
+        "C494": "Lô tô 4 số",
+        "E494": "10000.0",
+        "F494": "4.0",
+        "G494": "Trúng 4 số cuối Giải Đặc Biệt",
+        "H494": "9000.0",
+        "I494": "40000",
+        "J494": "90000000",
+        "L494": "Lô tô 4 số là chọn 1 số có 4 chữ số nằm trong khoảng từ 0000 đến 9999."
+      }
+    },
+    {
+      "row": "495",
+      "cells": {
+        "G495": "Trúng 4 số đầu Giải Đặc Biệt",
+        "H495": "10.0",
+        "J495": "100000"
+      }
+    },
+    {
+      "row": "496",
+      "cells": {
+        "G496": "Trúng 4 số cuối Giải Nhất",
+        "H496": "10.0",
+        "J496": "100000"
+      }
+    },
+    {
+      "row": "497",
+      "cells": {
+        "G497": "Trúng 4 số cuối Giải Nhất",
+        "H497": "10.0",
+        "J497": "100000"
+      }
+    },
+    {
+      "row": "498",
+      "cells": {
+        "C498": "Lô tô 5 số",
+        "E498": "10000.0",
+        "F498": "27.0",
+        "G498": "Trùng với 5 chữ số của Giải Nhất hoặc Đặc Biệt",
+        "H498": "90000.0",
+        "I498": "270000",
+        "J498": "900000000",
+        "L498": "Lô tô 5 số là chọn 1 số có 5 chữ số nằm trong khoảng từ 00000 đến 99999.\nĐối chiếu lần lượt 5 chữ số của bạn với kết quả của 27 lần quay thưởng xổ số Miền Bắc."
+      }
+    },
+    {
+      "row": "499",
+      "cells": {
+        "G499": "Trùng với 5 chữ số của 2 lần quay Giải Nhì",
+        "H499": "10.0",
+        "J499": "100000"
+      }
+    },
+    {
+      "row": "500",
+      "cells": {
+        "G500": "Trùng với 5 chữ số của 6 lần quay Giải Ba",
+        "H500": "10.0",
+        "J500": "100000"
+      }
+    },
+    {
+      "row": "501",
+      "cells": {
+        "G501": "Trùng với 4 chữ số của 10 lần quay Giải Tư và Năm",
+        "H501": "10.0",
+        "J501": "100000"
+      }
+    },
+    {
+      "row": "502",
+      "cells": {
+        "G502": "Trùng với 3 chữ số của 3 lần quay Giải Sáu",
+        "H502": "10.0",
+        "J502": "100000"
+      }
+    },
+    {
+      "row": "503",
+      "cells": {
+        "G503": "Trùng với 2 chữ số của 4 lần quay Giải Bảy",
+        "H503": "10.0",
+        "J503": "100000"
+      }
+    },
+    {
+      "row": "504",
+      "cells": {
+        "C504": "Bao 2 số",
+        "D504": "Chẵn",
+        "E504": "10000.0",
+        "F504": "50.0",
+        "G504": "Trùng với 2 số cuối cùng của 27 giải Miền Bắc. \nXuất hiện n lần thì tiền thắng nhân xN.",
+        "H504": "2.7",
+        "I504": "500000",
+        "J504": "27000",
+        "K504": "Bao 2 số là chọn số từ 00-99 (ví dụ: chọn bao 00). Kết quả có trong 27 giải của xổ số miền Bắc thì được tính thắng.",
+        "L504": "Chẵn là 50 số kết thúc bằng 0, 2, 4, 6, 8.",
+        "M504": "."
+      }
+    },
+    {
+      "row": "505",
+      "cells": {
+        "D505": "Lẻ",
+        "E505": "10000.0",
+        "F505": "50.0",
+        "H505": "2.7",
+        "I505": "500000",
+        "J505": "27000",
+        "L505": "Lẻ là 50 số kết thúc bằng 1, 3, 5, 7, 9.",
+        "M505": "."
+      }
+    },
+    {
+      "row": "506",
+      "cells": {
+        "D506": "Lớn",
+        "E506": "10000.0",
+        "F506": "50.0",
+        "H506": "2.7",
+        "I506": "500000",
+        "J506": "27000",
+        "L506": "Lớn là 50 số từ 50 đến 99.",
+        "M506": "."
+      }
+    },
+    {
+      "row": "507",
+      "cells": {
+        "D507": "Nhỏ",
+        "E507": "10000.0",
+        "F507": "50.0",
+        "H507": "2.7",
+        "I507": "500000",
+        "J507": "27000",
+        "L507": "Nhỏ là 50 số từ 00 đến 49.",
+        "M507": "."
+      }
+    },
+    {
+      "row": "508",
+      "cells": {
+        "D508": "Tổng Chẵn",
+        "E508": "10000.0",
+        "F508": "50.0",
+        "H508": "2.7",
+        "I508": "500000",
+        "J508": "27000",
+        "L508": "Tổng Chẵn là 50 số có tổng hai chữ số là số chẵn (ví dụ: 13 vì 1+3=4).",
+        "M508": "."
+      }
+    },
+    {
+      "row": "509",
+      "cells": {
+        "D509": "Tổng Lẻ",
+        "E509": "10000.0",
+        "F509": "50.0",
+        "H509": "2.7",
+        "I509": "500000",
+        "J509": "27000",
+        "L509": "Tổng Lẻ là 50 số có tổng hai chữ số là số lẻ (ví dụ: 12 vì 1+2=3).",
+        "M509": "."
+      }
+    },
+    {
+      "row": "510",
+      "cells": {
+        "D510": "Đầu",
+        "E510": "10000.0",
+        "F510": "10.0",
+        "H510": "2.7",
+        "I510": "100000",
+        "J510": "27000",
+        "L510": "Đầu là chữ số hàng chục của con số kết quả.",
+        "M510": "."
+      }
+    },
+    {
+      "row": "511",
+      "cells": {
+        "D511": "Đuôi",
+        "E511": "10000.0",
+        "F511": "10.0",
+        "H511": "2.7",
+        "I511": "100000",
+        "J511": "27000",
+        "L511": "Đầu là chữ số hàng đơn vị của con số kết quả.",
+        "M511": "."
+      }
+    },
+    {
+      "row": "512",
+      "cells": {
+        "A512": "ĐIỆN TOÁN\nLÔ TÔ 2,3,4 CẶP\n(Miền Bắc)",
+        "C512": "Lô tô 2 cặp (Xiên 2)",
+        "E512": "10000.0",
+        "F512": "1.0",
+        "G512": "Cả 2 cặp số có mặt trong 27 giải xổ số Miền Bắc",
+        "H512": "15.0",
+        "I512": "10000",
+        "J512": "150000",
+        "K512": "Lô tô, Lô tô 2 cặp, 3 cặp, 4 cặp (hay còn gọi là chơi xiên/đá lô tô)",
+        "L512": "Lô tô 2 cặp (Xiên 2) là chọn 2 cặp số có 2 chữ số (từ 00 đến 99).",
+        "M512": "."
+      }
+    },
+    {
+      "row": "513",
+      "cells": {
+        "C513": "Lô tô 3 cặp (Xiên 3)",
+        "E513": "10000.0",
+        "F513": "1.0",
+        "G513": "Cả 3 cặp số có mặt trong 27 giải xổ số Miền Bắc",
+        "H513": "65.0",
+        "I513": "10000",
+        "J513": "650000",
+        "L513": "Lô tô 3 cặp (Xiên 3) là chọn 3 cặp số có 2 chữ số (từ 00 đến 99).",
+        "M513": "."
+      }
+    },
+    {
+      "row": "514",
+      "cells": {
+        "C514": "Lô tô 4 cặp (Xiên 4)",
+        "E514": "10000.0",
+        "F514": "1.0",
+        "G514": "Cả 4 cặp số có mặt trong 27 giải xổ số Miền Bắc",
+        "H514": "170.0",
+        "I514": "10000",
+        "J514": "1700000",
+        "L514": "Lô tô 4 cặp (Xiên 4) là chọn 4 cặp số có 2 chữ số (từ 00 đến 99).",
+        "M514": "."
+      }
+    },
+    {
+      "row": "515",
+      "cells": {
+        "A515": "ĐIỆN TOÁN\n6x36\n(01-36)",
+        "C515": "Cơ bản",
+        "E515": "10000.0",
+        "F515": "1.0",
+        "G515": "Trúng cả 6 số",
+        "H515": "100000.0",
+        "I515": "10000",
+        "J515": "500000000",
+        "K515": "Điện toán 6x36 là chọn ra 6 con số khác nhau nằm trong khoảng từ 01 đến 36.\nGiải thưởng cộng dồn. Đến khi có người thắng.\nLịch mở thưởng: Thường được tổ chức quay số mở thưởng định kỳ vào thứ Tư và thứ Bảy hằng tuần",
+        "L515": "Cơ bản là chọn 6 số từ 01 đến 36. Kết quả có mặt từ 2 đến 6 số thì được tính là thắng.",
+        "M515": "."
+      }
+    },
+    {
+      "row": "516",
+      "cells": {
+        "G516": "Trúng 5 trong 6 số",
+        "H516": "180.0",
+        "J516": "1800000",
+        "M516": "."
+      }
+    },
+    {
+      "row": "517",
+      "cells": {
+        "G517": "Trúng 4 trong 6 số",
+        "H517": "90.0",
+        "J517": "900000",
+        "M517": "."
+      }
+    },
+    {
+      "row": "518",
+      "cells": {
+        "G518": "Trúng 3 trong 6 số",
+        "H518": "50.0",
+        "J518": "500000",
+        "M518": "."
+      }
+    },
+    {
+      "row": "519",
+      "cells": {
+        "G519": "Trúng 2 trong 6 số",
+        "H519": "5.0",
+        "J519": "50000",
+        "M519": "."
+      }
+    },
+    {
+      "row": "520",
+      "cells": {
+        "C520": "Bao 6x36",
+        "D520": "Bao 4",
+        "E520": "10000.0",
+        "F520": "248.0",
+        "G520": "Trúng cả 6 số",
+        "H520": "100000.0",
+        "I520": "2480000",
+        "J520": "500000000",
+        "K520": "Bao 6x36 là chọn các con số trong dãy 01-36 tạo thành tổ hợp 6 số để có cơ hội trúng nhiều hơn.",
+        "L520": "Bao 4 là chọn 4 số + kết hợp ngẫu nhiên 2 số còn lại trong dãy 01-36. Nếu kết quả xổ có mặt các số đó thì thắng.",
+        "M520": "."
+      }
+    },
+    {
+      "row": "521",
+      "cells": {
+        "G521": "Trúng 5 trong 6 số",
+        "H521": "180.0",
+        "J521": "1800000",
+        "M521": "."
+      }
+    },
+    {
+      "row": "522",
+      "cells": {
+        "G522": "Trúng 4 trong 6 số",
+        "H522": "90.0",
+        "J522": "900000",
+        "M522": "."
+      }
+    },
+    {
+      "row": "523",
+      "cells": {
+        "G523": "Trúng 3 trong 6 số",
+        "H523": "50.0",
+        "J523": "500000",
+        "M523": "."
+      }
+    },
+    {
+      "row": "524",
+      "cells": {
+        "G524": "Trúng 2 trong 6 số",
+        "H524": "5.0",
+        "J524": "50000",
+        "M524": "."
+      }
+    },
+    {
+      "row": "525",
+      "cells": {
+        "D525": "Bao 5",
+        "E525": "10000.0",
+        "F525": "15.5",
+        "G525": "Trúng cả 6 số",
+        "H525": "100000.0",
+        "I525": "155000",
+        "J525": "500000000",
+        "L525": "Bao 5 là chọn 5 số + kết hợp ngẫu nhiên 1 số còn lại trong dãy 01-36. Nếu kết quả xổ có mặt các số đó thì thắng.",
+        "M525": "."
+      }
+    },
+    {
+      "row": "526",
+      "cells": {
+        "G526": "Trúng 5 trong 6 số",
+        "H526": "180.0",
+        "J526": "1800000",
+        "M526": "."
+      }
+    },
+    {
+      "row": "527",
+      "cells": {
+        "G527": "Trúng 4 trong 6 số",
+        "H527": "90.0",
+        "J527": "900000",
+        "M527": "."
+      }
+    },
+    {
+      "row": "528",
+      "cells": {
+        "G528": "Trúng 3 trong 6 số",
+        "H528": "50.0",
+        "J528": "500000",
+        "M528": "."
+      }
+    },
+    {
+      "row": "529",
+      "cells": {
+        "G529": "Trúng 2 trong 6 số",
+        "H529": "5.0",
+        "J529": "50000",
+        "M529": "."
+      }
+    },
+    {
+      "row": "530",
+      "cells": {
+        "D530": "Bao 7",
+        "E530": "10000.0",
+        "F530": "3.5",
+        "G530": "Trúng cả 6 số",
+        "H530": "100000.0",
+        "I530": "35000",
+        "J530": "500000000",
+        "L530": "Bao 7 là chọn 7 số trong dãy 01-36. Nếu kết quả xổ có mặt các số đó thì thắng."
+      }
+    },
+    {
+      "row": "531",
+      "cells": {
+        "G531": "Trúng 5 trong 6 số",
+        "H531": "180.0",
+        "J531": "1800000"
+      }
+    },
+    {
+      "row": "532",
+      "cells": {
+        "G532": "Trúng 4 trong 6 số",
+        "H532": "90.0",
+        "J532": "900000"
+      }
+    },
+    {
+      "row": "533",
+      "cells": {
+        "G533": "Trúng 3 trong 6 số",
+        "H533": "50.0",
+        "J533": "500000"
+      }
+    },
+    {
+      "row": "534",
+      "cells": {
+        "G534": "Trúng 2 trong 6 số",
+        "H534": "5.0",
+        "J534": "50000"
+      }
+    },
+    {
+      "row": "535",
+      "cells": {
+        "D535": "Bao 8",
+        "E535": "10000.0",
+        "F535": "14.0",
+        "G535": "Trúng cả 6 số",
+        "H535": "100000.0",
+        "I535": "140000",
+        "J535": "500000000",
+        "L535": "Bao 8 là chọn 8 số trong dãy 01-36. Nếu kết quả xổ có mặt các số đó thì thắng."
+      }
+    },
+    {
+      "row": "536",
+      "cells": {
+        "G536": "Trúng 5 trong 6 số",
+        "H536": "180.0",
+        "J536": "1800000"
+      }
+    },
+    {
+      "row": "537",
+      "cells": {
+        "G537": "Trúng 4 trong 6 số",
+        "H537": "90.0",
+        "J537": "900000"
+      }
+    },
+    {
+      "row": "538",
+      "cells": {
+        "G538": "Trúng 3 trong 6 số",
+        "H538": "50.0",
+        "J538": "500000"
+      }
+    },
+    {
+      "row": "539",
+      "cells": {
+        "G539": "Trúng 2 trong 6 số",
+        "H539": "5.0",
+        "J539": "50000"
+      }
+    },
+    {
+      "row": "540",
+      "cells": {
+        "D540": "Bao 9",
+        "E540": "10000.0",
+        "F540": "42.0",
+        "G540": "Trúng cả 6 số",
+        "H540": "100000.0",
+        "I540": "420000",
+        "J540": "500000000",
+        "L540": "Bao 9 là chọn 9 số trong dãy 01-36. Nếu kết quả xổ có mặt các số đó thì thắng."
+      }
+    },
+    {
+      "row": "541",
+      "cells": {
+        "G541": "Trúng 5 trong 6 số",
+        "H541": "180.0",
+        "J541": "1800000"
+      }
+    },
+    {
+      "row": "542",
+      "cells": {
+        "G542": "Trúng 4 trong 6 số",
+        "H542": "90.0",
+        "J542": "900000"
+      }
+    },
+    {
+      "row": "543",
+      "cells": {
+        "G543": "Trúng 3 trong 6 số",
+        "H543": "50.0",
+        "J543": "500000"
+      }
+    },
+    {
+      "row": "544",
+      "cells": {
+        "G544": "Trúng 2 trong 6 số",
+        "H544": "5.0",
+        "J544": "50000"
+      }
+    },
+    {
+      "row": "545",
+      "cells": {
+        "D545": "Bao 10",
+        "E545": "10000.0",
+        "F545": "105.0",
+        "G545": "Trúng cả 6 số",
+        "H545": "100000.0",
+        "I545": "1050000",
+        "J545": "500000000",
+        "L545": "Bao 10 là chọn 10 số trong dãy 01-36. Nếu kết quả xổ có mặt các số đó thì thắng."
+      }
+    },
+    {
+      "row": "546",
+      "cells": {
+        "G546": "Trúng 5 trong 6 số",
+        "H546": "180.0",
+        "J546": "1800000"
+      }
+    },
+    {
+      "row": "547",
+      "cells": {
+        "G547": "Trúng 4 trong 6 số",
+        "H547": "90.0",
+        "J547": "900000"
+      }
+    },
+    {
+      "row": "548",
+      "cells": {
+        "G548": "Trúng 3 trong 6 số",
+        "H548": "50.0",
+        "J548": "500000"
+      }
+    },
+    {
+      "row": "549",
+      "cells": {
+        "G549": "Trúng 2 trong 6 số",
+        "H549": "5.0",
+        "J549": "50000"
+      }
+    },
+    {
+      "row": "550",
+      "cells": {
+        "D550": "Bao 11",
+        "E550": "10000.0",
+        "F550": "231.0",
+        "G550": "Trúng cả 6 số",
+        "H550": "100000.0",
+        "I550": "2310000",
+        "J550": "500000000",
+        "L550": "Bao 11 là chọn 11 số trong dãy 01-36. Nếu kết quả xổ có mặt các số đó thì thắng."
+      }
+    },
+    {
+      "row": "551",
+      "cells": {
+        "G551": "Trúng 5 trong 6 số",
+        "H551": "180.0",
+        "J551": "1800000"
+      }
+    },
+    {
+      "row": "552",
+      "cells": {
+        "G552": "Trúng 4 trong 6 số",
+        "H552": "90.0",
+        "J552": "900000"
+      }
+    },
+    {
+      "row": "553",
+      "cells": {
+        "G553": "Trúng 3 trong 6 số",
+        "H553": "50.0",
+        "J553": "500000"
+      }
+    },
+    {
+      "row": "554",
+      "cells": {
+        "G554": "Trúng 2 trong 6 số",
+        "H554": "5.0",
+        "J554": "50000"
+      }
+    },
+    {
+      "row": "555",
+      "cells": {
+        "D555": "Bao 12",
+        "E555": "10000.0",
+        "F555": "462.0",
+        "G555": "Trúng cả 6 số",
+        "H555": "100000.0",
+        "I555": "4620000",
+        "J555": "500000000",
+        "L555": "Bao 12 là chọn 12 số trong dãy 01-36. Nếu kết quả xổ có mặt các số đó thì thắng."
+      }
+    },
+    {
+      "row": "556",
+      "cells": {
+        "G556": "Trúng 5 trong 6 số",
+        "H556": "180.0",
+        "J556": "1800000"
+      }
+    },
+    {
+      "row": "557",
+      "cells": {
+        "G557": "Trúng 4 trong 6 số",
+        "H557": "90.0",
+        "J557": "900000"
+      }
+    },
+    {
+      "row": "558",
+      "cells": {
+        "G558": "Trúng 3 trong 6 số",
+        "H558": "50.0",
+        "J558": "500000"
+      }
+    },
+    {
+      "row": "559",
+      "cells": {
+        "G559": "Trúng 2 trong 6 số",
+        "H559": "5.0",
+        "J559": "50000"
+      }
+    },
+    {
+      "row": "560",
+      "cells": {
+        "A560": "ĐIỆN TOÁN\nTHẦN TÀI 123",
+        "C560": "Điện toán 123",
+        "D560": "3 Số",
+        "E560": "10000.0",
+        "F560": "1.0",
+        "G560": "Trúng 3 số cuối cùng (đúng thứ tự)",
+        "H560": "1000.0",
+        "I560": "10000",
+        "J560": "10000000",
+        "K560": "Xổ số điện toán 123 là chọn chơi 1 chữ số, 2 chữ số hoặc 3 chữ số tùy thích:\nLoại 1 chữ số: Chọn 1 chữ số từ 0 đến 9.\nLoại 2 chữ số: Chọn một số gồm 2 chữ số từ 00 đến 99.\nLoại 3 chữ số: Chọn một số gồm 3 chữ số từ 000 đến 999.\n\nCách dò kết quả: Dãy kết quả quay thưởng gồm 6 chữ số sẽ được chia thành 3 phần tương ứng để đối chiếu: 1 số - 2 số - 3 số.",
+        "L560": "3 Số là chọn từ 000 đến 999. Nếu kết quả xổ ra có mặt trong cụm 3 số cuối cùng bên phải thì thắng."
+      }
+    },
+    {
+      "row": "561",
+      "cells": {
+        "G561": "Trúng 3 số cuối cùng (không đúng thứ tự)",
+        "H561": "100.0",
+        "J561": "1000000"
+      }
+    },
+    {
+      "row": "562",
+      "cells": {
+        "G562": "Trúng 2 chữ số cuối cùng (hàng chục và hàng đơn vị) đúng thứ tự",
+        "H562": "10.0",
+        "J562": "100000"
+      }
+    },
+    {
+      "row": "563",
+      "cells": {
+        "G563": "Trúng 1 chữ số bên phải (hàng đơn vị)",
+        "H563": "5.0",
+        "J563": "50000"
+      }
+    },
+    {
+      "row": "564",
+      "cells": {
+        "D564": "2 Số",
+        "E564": "10000.0",
+        "F564": "1.0",
+        "G564": "Trúng 2 chữ số theo đúng thứ tự",
+        "H564": "75.0",
+        "I564": "10000",
+        "J564": "750000",
+        "L564": "2 Số là chọn từ 00 đến 99. Nếu kết quả xổ ra có mặt trong cụm 2 số ở giữa thì thắng."
+      }
+    },
+    {
+      "row": "565",
+      "cells": {
+        "G565": "Trúng 1 chữ số bên phải (hàng đơn vị)",
+        "H565": "5.0",
+        "J565": "50000"
+      }
+    },
+    {
+      "row": "566",
+      "cells": {
+        "D566": "1 Số",
+        "E566": "10000.0",
+        "F566": "1.0",
+        "G566": "Trúng chính xác 1 chữ số",
+        "H566": "5.0",
+        "I566": "10000",
+        "J566": "50000",
+        "L566": "1 Số là chọn từ 0 đến 9. Nếu kết quả xổ ra có mặt trong 1 số đầu tiên ở bên trái thì thắng.",
+        "M566": "."
+      }
+    },
+    {
+      "row": "567",
+      "cells": {
+        "C567": "Thần tài 4",
+        "E567": "10000.0",
+        "F567": "1.0",
+        "G567": "Trúng cả 4 chữ số theo đúng thứ tự",
+        "H567": "2900.0",
+        "I567": "10000",
+        "J567": "29000000",
+        "K567": "Xổ số thần tài 4 là chọn 4 chữ số bất kỳ nằm trong khoảng từ 0000 đến 9999 để tham gia dự thưởng.\nCách dò kết quả: Dãy số trên vé của sẽ được đối chiếu trực tiếp với 4 chữ số của kết quả quay thưởng mở màn hằng ngày của xổ số miền bắc.",
+        "L567": "Chọn 4 chữ số bất kỳ nằm trong khoảng từ 0000 đến 9999. Nếu có trong kết quả xổ ra thì thắng."
+      }
+    },
+    {
+      "row": "568",
+      "cells": {
+        "G568": "Trúng cả 4 chữ số sai thứ tự",
+        "H568": "200.0",
+        "J568": "2000000"
+      }
+    },
+    {
+      "row": "569",
+      "cells": {
+        "G569": "Trúng 3 số cuối bên phải đúng thứ tự",
+        "H569": "100.0",
+        "J569": "1000000"
+      }
+    },
+    {
+      "row": "570",
+      "cells": {
+        "G570": "Trúng 3 số cuối bên phải sai thứ tự",
+        "H570": "10.0",
+        "J570": "100000"
+      }
+    },
+    {
+      "row": "571",
+      "cells": {
+        "G571": "Trúng 3 số đầu bên trái đúng thứ tự",
+        "H571": "100.0",
+        "J571": "1000000"
+      }
+    },
+    {
+      "row": "572",
+      "cells": {
+        "G572": "Trúng 3 số đầu bên trái sai thứ tự",
+        "H572": "10.0",
+        "J572": "100000"
+      }
+    },
+    {
+      "row": "573",
+      "cells": {
+        "G573": "Trúng 2 số cuối bên phải",
+        "H573": "10.0",
+        "J573": "100000"
+      }
+    },
+    {
+      "row": "574",
+      "cells": {
+        "G574": "Trúng 2 số đầu bên trái",
+        "H574": "10.0",
+        "J574": "100000"
+      }
+    },
+    {
+      "row": "575",
+      "cells": {
+        "G575": "Trúng 1 số cuối bên phải",
+        "H575": "1.0",
+        "J575": "10000"
+      }
+    },
+    {
+      "row": "576",
+      "cells": {
+        "G576": "Trúng 1 số đầu bên trái",
+        "H576": "1.0",
+        "J576": "10000"
+      }
+    },
+    {
+      "row": "577",
+      "cells": {
+        "A577": "ĐIỆN TOÁN BINGO18\n(111-666)",
+        "C577": "Cơ bản",
+        "D577": "Một số",
+        "E577": "10000.0",
+        "F577": "1.0",
+        "G577": "Trúng 1 số",
+        "H577": "2.0",
+        "I577": "10000",
+        "J577": "20000",
+        "K577": "Bingo18 là chọn ngẫu nhiên 3 con số từ tập hợp các số 1 đến 6 (các con số này có thể trùng nhau trong một kết quả).",
+        "L577": "Cơ bản là chọn 1 số cụ thể (từ 1 đến 6). Nếu số đó xuất hiện trong kết quả quay thưởng, bạn trúng giải. Số lần xuất hiện càng nhiều (1, 2 hoặc 3 lần), hệ số thưởng càng cao.",
+        "M577": "."
+      }
+    },
+    {
+      "row": "578",
+      "cells": {
+        "D578": "Hai số trùng",
+        "E578": "10000.0",
+        "F578": "1.0",
+        "G578": "Trúng 2 giống nhau",
+        "H578": "3.0",
+        "I578": "10000",
+        "J578": "30000",
+        "L578": "Hai số trùng là chọn một cặp số giống nhau (ví dụ: 1-1, 2-2, ..., 6-6).",
+        "M578": "."
+      }
+    },
+    {
+      "row": "579",
+      "cells": {
+        "D579": "Ba số trùng",
+        "E579": "10000.0",
+        "F579": "1.0",
+        "G579": "Trúng 3 giống nhau",
+        "H579": "4.0",
+        "I579": "10000",
+        "J579": "40000",
+        "L579": "Ba số trùng là chọn 3 số giống hệt nhau (ví dụ: 1-1-1)",
+        "M579": "."
+      }
+    },
+    {
+      "row": "580",
+      "cells": {
+        "C580": "Cộng tổng",
+        "D580": "Tổng 3",
+        "E580": "10000.0",
+        "F580": "1.0",
+        "G580": "Tổng 3: thắng",
+        "H580": "120.0",
+        "I580": "10000",
+        "J580": "1200000",
+        "K580": "Cộng tổng là ổng của 3 con số từ 3 đến tối đa 18 (có 16 mức tổng để lựa chọn).",
+        "L580": "Tổng 3 là có tổng 3 số là 3.",
+        "M580": "."
+      }
+    },
+    {
+      "row": "581",
+      "cells": {
+        "D581": "Tổng 4",
+        "E581": "10000.0",
+        "F581": "1.0",
+        "G581": "Tổng 4: thắng",
+        "H581": "40.0",
+        "I581": "10000",
+        "J581": "400000",
+        "L581": "Tổng 4 là có tổng 3 số là 4.",
+        "M581": "."
+      }
+    },
+    {
+      "row": "582",
+      "cells": {
+        "D582": "Tổng 5",
+        "E582": "10000.0",
+        "F582": "1.0",
+        "G582": "Tổng 5: thắng",
+        "H582": "20.0",
+        "I582": "10000",
+        "J582": "200000",
+        "L582": "Tổng 5 là có tổng 3 số là 5.",
+        "M582": "."
+      }
+    },
+    {
+      "row": "583",
+      "cells": {
+        "D583": "Tổng 6",
+        "E583": "10000.0",
+        "F583": "1.0",
+        "G583": "Tổng 6: thắng",
+        "H583": "12.0",
+        "I583": "10000",
+        "J583": "120000",
+        "L583": "Tổng 6 là có tổng 3 số là 6.",
+        "M583": "."
+      }
+    },
+    {
+      "row": "584",
+      "cells": {
+        "D584": "Tổng 7",
+        "E584": "10000.0",
+        "F584": "1.0",
+        "G584": "Tổng 7: thắng",
+        "H584": "8.0",
+        "I584": "10000",
+        "J584": "80000",
+        "L584": "Tổng 7 là có tổng 3 số là 7.",
+        "M584": "."
+      }
+    },
+    {
+      "row": "585",
+      "cells": {
+        "D585": "Tổng 8",
+        "E585": "10000.0",
+        "F585": "1.0",
+        "G585": "Tổng 8: thắng",
+        "H585": "6.0",
+        "I585": "10000",
+        "J585": "60000",
+        "L585": "Tổng 8 là có tổng 3 số là 8.",
+        "M585": "."
+      }
+    },
+    {
+      "row": "586",
+      "cells": {
+        "D586": "Tổng 9",
+        "E586": "10000.0",
+        "F586": "1.0",
+        "G586": "Tổng 9: thắng",
+        "H586": "5.0",
+        "I586": "10000",
+        "J586": "50000",
+        "L586": "Tổng 9 là có tổng 3 số là 9.",
+        "M586": "."
+      }
+    },
+    {
+      "row": "587",
+      "cells": {
+        "D587": "Tổng 10",
+        "E587": "10000.0",
+        "F587": "1.0",
+        "G587": "Tổng 10: thắng",
+        "H587": "5.0",
+        "I587": "10000",
+        "J587": "50000",
+        "L587": "Tổng 10 là có tổng 3 số là 10.",
+        "M587": "."
+      }
+    },
+    {
+      "row": "588",
+      "cells": {
+        "D588": "Tổng 11",
+        "E588": "10000.0",
+        "F588": "1.0",
+        "G588": "Tổng 11: thắng",
+        "H588": "5.0",
+        "I588": "10000",
+        "J588": "50000",
+        "L588": "Tổng 11 là có tổng 3 số là 11.",
+        "M588": "."
+      }
+    },
+    {
+      "row": "589",
+      "cells": {
+        "D589": "Tổng 12",
+        "E589": "10000.0",
+        "F589": "1.0",
+        "G589": "Tổng 12: thắng",
+        "H589": "5.0",
+        "I589": "10000",
+        "J589": "50000",
+        "L589": "Tổng 12 là có tổng 3 số là 12.",
+        "M589": "."
+      }
+    },
+    {
+      "row": "590",
+      "cells": {
+        "D590": "Tổng 13",
+        "E590": "10000.0",
+        "F590": "1.0",
+        "G590": "Tổng 13: thắng",
+        "H590": "6.0",
+        "I590": "10000",
+        "J590": "60000",
+        "L590": "Tổng 13 là có tổng 3 số là 13.",
+        "M590": "."
+      }
+    },
+    {
+      "row": "591",
+      "cells": {
+        "D591": "Tổng 14",
+        "E591": "10000.0",
+        "F591": "1.0",
+        "G591": "Tổng 14: thắng",
+        "H591": "8.0",
+        "I591": "10000",
+        "J591": "80000",
+        "L591": "Tổng 14 là có tổng 3 số là 14.",
+        "M591": "."
+      }
+    },
+    {
+      "row": "592",
+      "cells": {
+        "D592": "Tổng 15",
+        "E592": "10000.0",
+        "F592": "1.0",
+        "G592": "Tổng 15: thắng",
+        "H592": "12.0",
+        "I592": "10000",
+        "J592": "120000",
+        "L592": "Tổng 15 là có tổng 3 số là 15.",
+        "M592": "."
+      }
+    },
+    {
+      "row": "593",
+      "cells": {
+        "D593": "Tổng 16",
+        "E593": "10000.0",
+        "F593": "1.0",
+        "G593": "Tổng 16: thắng",
+        "H593": "20.0",
+        "I593": "10000",
+        "J593": "200000",
+        "L593": "Tổng 16 là có tổng 3 số là 15.",
+        "M593": "."
+      }
+    },
+    {
+      "row": "594",
+      "cells": {
+        "D594": "Tổng 17",
+        "E594": "10000.0",
+        "F594": "1.0",
+        "G594": "Tổng 17: thắng",
+        "H594": "40.0",
+        "I594": "10000",
+        "J594": "400000",
+        "L594": "Tổng 17 là có tổng 3 số là 17.",
+        "M594": "."
+      }
+    },
+    {
+      "row": "595",
+      "cells": {
+        "D595": "Tổng 18",
+        "E595": "10000.0",
+        "F595": "1.0",
+        "G595": "Tổng 18: thắng",
+        "H595": "120.0",
+        "I595": "10000",
+        "J595": "1200000",
+        "L595": "Tổng 18 là có tổng 3 số là 18.",
+        "M595": "."
+      }
+    },
+    {
+      "row": "596",
+      "cells": {
+        "C596": "Tài Xỉu Hoà",
+        "D596": "Tài",
+        "E596": "10000.0",
+        "F596": "1.0",
+        "G596": "Tổng 3 số từ 3 đến 9",
+        "H596": "2.0",
+        "I596": "10000",
+        "J596": "20000",
+        "L596": "Xỉu là tổng kết quả ba lần quay số từ 3 đến 9.",
+        "M596": "."
+      }
+    },
+    {
+      "row": "597",
+      "cells": {
+        "D597": "Hoà",
+        "G597": "Tổng 3 số là 10 hoặc 11",
+        "H597": "3.0",
+        "J597": "30000",
+        "L597": "Hoà là tổng kết quả ba lần quay số là 10 hoặc 11.",
+        "M597": "."
+      }
+    },
+    {
+      "row": "598",
+      "cells": {
+        "D598": "Xỉu",
+        "G598": "Tổng 3 số là 12 đến 18",
+        "H598": "2.0",
+        "J598": "20000",
+        "L598": "Tài là tổng kết quả ba lần quay số là 12 đến 18.",
+        "M598": "."
+      }
+    }
+  ]
+}

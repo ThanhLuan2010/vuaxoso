@@ -1,0 +1,477 @@
+{
+  "sheet": "LÔ ĐỀ",
+  "rows": [
+    {
+      "row": "1",
+      "cells": {
+        "A1": "Hạng mục",
+        "B1": "Edit from",
+        "C1": "Status",
+        "D1": "Image",
+        "E1": "Note",
+        "H1": "Check Lần 1",
+        "I1": "Image",
+        "O1": "Check Lần 2",
+        "T1": "Final",
+        "V1": "User nhân viên",
+        "X1": "User Master Admin"
+      }
+    },
+    {
+      "row": "2",
+      "cells": {
+        "A2": "PROFILE INFO",
+        "B2": "Thông tin tài khoản",
+        "C2": "Done",
+        "E2": "1. Icon cài đặt mặc định là logo của VuaXoSo. (Sẽ cung cấp link logo sau)\n2. Email: thêm nút xác thực (để khách chủ động bấm xác thực đến hệ thống là email đó active)\n3. Các hạng mục thông tin: chỉ cho edit 1 lần duy nhất từ khi tạo tài khoản.\n4. IP/Thiết bị: Cần collect các IP/Thiết bị trùng nhau ở 1 tab riêng để kiểm tra gian lận.\n5. Bị líp chữ ở bottom.",
+        "H2": "1. Okay\n2. TK mới: Email bấm xác thực bị lỗi. Tk cũ thì chỗ status cần hiển thị \"Đã xác thực\"\n3. Okay\n4. IP: 1 lần đăng nhập nó hiển thị 2 IP giống nhau luôn, 1 lần ĐN hiển thị 1 IP thôi, cứ như vậy lưu lại IP mỗi lần đăng nhập, để sau check khách trùng lập.\nChỗ quản lý User trên CMS: Cần có nút \"Tìm kiếm\" (Để tìm thông tin khách hàng theo IP, thiết bị, họ tên, TKNH, số CCCD,...)\n5. Okay\n6. Màn hình chính lúc đăng nhập: dưới chữ \"Chưa có tài khoản? Đăng ký ngay\" Cần sửa lại 2 nút bấm:\n- Quên mật khẩu? \n- Đăng ký mới\n\nNgoài ra, cần có icon CSKH để khách quên mật khẩu liên hệ. Có ảnh demo đính kèm >>>",
+        "O2": "1. Okay\n2. Okay\n3. Okay\n4. OKay\n5. Okay\n6. Okay\n7. Icon CSKH nâng cao lên xíu, vì nó bị líp\n8. Ảnh chỗ CCCD trên app không hiển thị, CMS thì có.",
+        "T2": "Okay",
+        "V2": "1. Tắt chức năng chụp ảnh trên CMS.\n2. Tắt chức năng: copy, save image, copy image link\n3. Không cho phép sao lưu thông tin khách. \nẨn hết: Email, số điện thoại, làm mờ ảnh CCCD của khách\n4. Tắt chức năng xoá TKNH/Binance của khách (Chỉ giữ tính năng thêm TKNH/binance hộ khách thôi)\n5. Tắt chức năng sửa \"Cấu hình chung\" và cần tắt vài mục khi không đúng tách nhiệm: nhân viên không được xem mục mà Master admin cấm.",
+        "X2": "1. Thêm 1 nút chèn ảnh CCCD của khách bằng link (vì nhiều khi khách upload ảnh lên app bị lỗi thì cần thao tác tay)\n2. Xem full thông tin khách, xem ró ảnh CCCD của khách\n3. Thêm tính năng: Note đỏ Tài khoản gian lận\n4. Full quyền thêm/xoá/khoá TKNH/Binance.\n5. Có tính năng tạo user con cho nhân viên và cấp quyền cần thiết."
+      }
+    },
+    {
+      "row": "3",
+      "cells": {
+        "B3": "Banner size 739x273",
+        "C3": "Done",
+        "O3": "1. Banner QC chưa hiển thị trên app.",
+        "T3": "Okay",
+        "V3": "Nhân viên được quyền thêm, xoá banner"
+      }
+    },
+    {
+      "row": "4",
+      "cells": {
+        "C4": "Done",
+        "E4": "Quan trọng: IP/Thiết bị để kiểm tra gian lận, \n<<<<Bổ sung lịch sử IP/Thiết bị ở backend\n\n1. IP trùng với user nào? cần list user ra ở đây.\n2. Thêm tính nắng gửi tin nhắn vào app cho khách. (Để gửi khi có KM mới)",
+        "H4": "1. -> Cần cho vào Logs, tất cả hoạt động của khách, tạo vé-sửa vé-đổi vé đều lưu lại Backend.\n2. Chưa thấy tính năng gửi tin nhắn vào hộp thư tài khoản của khách.",
+        "O4": "1. Okay\n2. Okay",
+        "T4": "Okay"
+      }
+    },
+    {
+      "row": "5",
+      "cells": {
+        "C5": "Done",
+        "E5": "1. Chỗ \"Ghi Chú\": mỗi lần bấm nút lưu là 1 ghi chú + ngày giờ đi kèm + admin nào lưu cần note tên user admin đó lại.\n\nVì hiện tại bấm nút lưu xong, quay lại vẫn thế, không biết được user admin nào lưu? không có ngày giờ note? Phần này quan trọng vì sau nhân viên làm việc còn biết được nhân viên thao tác gì vào tài khoản của khách.\n\n2. Bất kỳ thao tác nào của admin cần ghi nhận lại ở mục \"Ghi chú\" > Và gửi về tài khoản Master để quản lý và xử lý khi cần.",
+        "H5": "Okay. Nhưng chỉ cần hiển thị 5-10 Notes gần nhất. Còn lại cho vào tab Trước-Sau.",
+        "O5": "Okay",
+        "T5": "Okay"
+      }
+    },
+    {
+      "row": "6",
+      "cells": {
+        "C6": "Done",
+        "E6": "\"Quản Lý User\" cần bổ sung thêm các cột sau:\n1. Ngày tạo: DD/MM/YYYY 00:00:00 (đâỳ đủ ngày giờ)\n2. Tổng Nạp\n3. Tổng Rút\n4. Ngày ĐN cuối (ĐN viết tắt của đăng nhập): DD/MM/YYYY 00:00:00 (đâỳ đủ ngày giờ)\n5. IP đăng ký\n6. IP đăng nhập\n7. Hành động (không được xoá user của khách)\n- Sửa\n- Khoá (1 khi admin kick vào \"Khoá\" thì khách hàng không đăng nhập được).\n- Review (1 khi admin kick vào \"Review\" thì khách hàng đăng nhập được nhưng không thao tác được bất kỳ nút nào trên app)",
+        "H6": "1. Okay\n2. Okay\n3. Okay\n4. Okay\n5 + 6 cần thu cột nhỏ lại, vì rộng quá.\n7. Okay\n\nChỗ quản lý User trên CMS: Cần có nút \"Tìm kiếm\" (Để tìm thông tin khách hàng theo: username, IP, thiết bị, họ tên, TKNH, số CCCD,...)",
+        "O6": "1. Okay\n2. Okay\n3. Okay\n4. Okay\n5 + 6 Okay\n7. Okay\n8. Nút \"Tìm kiếm\"  > Okay",
+        "T6": "Okay"
+      }
+    },
+    {
+      "row": "7",
+      "cells": {
+        "B7": "Nút \"ĐĂNG XUẤT\"",
+        "C7": "Done",
+        "E7": "\"Đăng Xuất\" không bấm vô được. Cần tính năng yc đổi mật khẩu 3 tháng 1 lần - và không được lưu tự động trên app/web.\n> vì bảo mật cho khách nếu lỡ mất điện thoại thì người khác không đăng nhập được.\n===\nThêm \"Lịch sử giao dịch\" chỗ này > để khách kiểm tra giao dịch nạp/rút/số tiền thắng thua.",
+        "H7": "Lịch sử giao dịch chỉ cần hiển thị 10 giao dịch gần nhất. Các gd cũ trên app ko cần hiển thị để giữ an toàn cho khách.",
+        "O7": "Okay",
+        "T7": "Okay"
+      }
+    },
+    {
+      "row": "8",
+      "cells": {
+        "B8": "Hướng dẫn",
+        "C8": "Doing",
+        "E8": "Không bấm vào được. \nBị líp chữ ở bottom.",
+        "H8": "Làm file hướng dẫn update lên sau.",
+        "O8": "1. Cho quyền chỉnh sửa nd hướng dẫn: thêm hd mới, sửa hd cũ, ẩn hd khỏi app, hiển thị hd trên app, xoá bài viết.\n2. File HD: https://docs.google.com/spreadsheets/d/1-g7936uw4mWrs8cnD3NB6668BTw32NLOBUIV95k3QmE/edit?gid=1794686766#gid=1794686766\n3. Nd cần thêm tính năng text của words: ảnh chèn qua link, in đậm, in màu, font chữ, size chữ,....\nChỗ thêm nd HD này , loại con có bị thiếu ko e? có gì thêm bổ dung đủ tất cả vào giúp c nhé.\n\nKENO\nBAO KENO\nPOWER 6/55\nMEGA 6/45\nMAX 3D/3DPRO\nMAX 4D\nLOTTO 5/35\nLOTTO 5/70\nBINGO18\nLÔ TÔ 235\nLÔ TÔ 234\nĐT 6X36\nBAO LÔ TÔ 2\nTHẦN TÀI 4\nBAO 6X36\nTRƯỢT LÔ TÔ\nLÔ ĐỀ MIỀN NAM\nLÔ ĐỀ MIỀN TRUNG\nLÔ ĐỀ MIỀN BẮC\nXSKT 3 MIỀN\nHƯỚNG DẪN"
+      }
+    },
+    {
+      "row": "9",
+      "cells": {
+        "B9": "Phương thức thanh toán",
+        "C9": "Done",
+        "E9": "Cho khách tính năng thêm bank/usdt > lưu tự động 1 lần duy nhất.\nSau khi lưu thì ko đc edit. Chỉ thêm tối đa 3 bank, 4 usdt.\n\nChỗ thêm USDT cần bổ sung thêm:\n1. Ký tự nhập không giới hạn (vì mã usdt nhiều ký tự)\n2. Cần thêm mục đính kèm ảnh QR (vì mã khách nhâpj vào nhiều khi bị lỗi ký tự, không chuyển khoản được, cần có ảnh QR để quét đối chiếu.)",
+        "H9": "1. Nạp tiền trên CMS: ảnh biên lai bị vỡ, cần thêm hàng có thể hiện ndck.\nĐể kiểm tra xử lý nhanh cho khách.\n2. Thêm TKNH: Ngân hàng Việt Nam có 40 banks, thêm đủ 40 banks giúp c dc ko?\n3. C Có đính kèm ảnh QR khi thêm bank và binance mà không hiển thị trên app và cũng không hiển thị trên CMS.",
+        "O9": "1. Okay\n2. Okay\n3. \nLỗi ảnh đính kèm QR khi thêm bank và binance vẫn ko hiển thị trên app và CMS. E check lại xem.\nẢnh CCCD cũng vậy.\n\nChỉ có ảnh biên lai là có hiển thị trên app + CMS.",
+        "T9": "Okay"
+      }
+    },
+    {
+      "row": "10",
+      "cells": {
+        "B10": "Mật khẩu rút tiền",
+        "C10": "Done",
+        "E10": "Mkrt khách tự lưu được. Ko cần quyền admin. Sau khi lưu thì không được edit.",
+        "H10": "Okay",
+        "O10": "1. Mật khẩu rút tiền: cần cài đặt khác với mkt đăng nhập (nếu khách nhập mk trùng với mk đăng nhập thì hiển thị popup \"Mật Khẩu Rút Tiền phải khác với Mật khẩu Đăng Nhập\".\n> Okay\n2. Thêm dòng ghi chú phía dưới ô rút tiền qua Bank:\n- Rút tối thiểu 200.000 VNĐ/1 lần rút.\n- Rút tối đa 200.000.000 VNĐ/1 lần rút.\n- Rút tối đa 5 lần/ngày.\n> Okay\n3. Thêm dòng ghi chú phía dưới ô rút tiền qua USDT:\n- Rút tối thiểu 10 USDT/1 lần rút.\n- Rút tối đa 8000 USDT/1 lần rút.\n- Rút tối đa 5 lần/ngày.",
+        "Q10": "Em update thêm cho USDT giúp c phần ghi chú nhé:\n\n- Rút tối thiểu 10 USDT/1 lần rút.\n- Rút tối đa 8000 USDT/1 lần rút.\n- Rút tối đa 5 lần/ngày.",
+        "T10": "Okay"
+      }
+    },
+    {
+      "row": "11",
+      "cells": {
+        "B11": "Điều khoản và chính sách",
+        "C11": "Doing",
+        "E11": "Nút này ko bấm dc.",
+        "H11": "Cập nhật thông tin sau",
+        "O11": "1. Update CMS chung với content Hướng Dẫn, để edit khi cần.\nFile Điều Khoản & Điều Kiện: https://docs.google.com/spreadsheets/d/1-g7936uw4mWrs8cnD3NB6668BTw32NLOBUIV95k3QmE/edit?gid=0#gid=0\n2. Bị kíp chữ cuối bài viết."
+      }
+    },
+    {
+      "row": "12",
+      "cells": {
+        "A12": "NẠP/RÚT",
+        "B12": "NẠP BANK",
+        "C12": "Done",
+        "E12": "1. Cần có ô nhập số tiền đã nạp: \"Số Tiền Nạp\"\n2. Ô đính kèm biên lai chuyển tiền: \"Đính kèm sao kê\"\n3. Nút bấm \"Xác Nhận Chuyển Khoản\"\n=====\nTất cả ảnh khách gửi lên cần tạo Folder riêng trên database, để delete ko bị nhầm.\nVD: Ảnh giao dịch nạp tiền > lưu ImageDEP, Ảnh CCCD > lưu ImageID1. ",
+        "H12": "1. Okay\n2. Okay. Đính kèm biên lai ở app thì thấy rõ. Nhưng Backend lại không hiển thị.\n3. Okay\n4. Backend có cài đặt ảnh QR bank bằng link. Nhưng ngoài app của khách không hiển thị.\n5. Nạp tiền Backend báo thành công nhưng ngoài app ko auto cập nhật số dư.\nC muốn auto cập nhật số dư sau khi backend Duyệt thành công.",
+        "L12": "5. Nạp tiền Backend báo thành công nhưng ngoài app ko auto cập nhật số dư.\nC muốn auto cập nhật số dư sau khi backend Duyệt thành công.",
+        "O12": "1. Okay\n2. Okay.\n3. Okay\n4. Okay\n5. Okay",
+        "T12": "Okay"
+      }
+    },
+    {
+      "row": "13",
+      "cells": {
+        "C13": "Done",
+        "E13": "\"Số Tiền Nạp\" sẽ lấy từ việc khách ghi lúc tạo lệnh nạp > Nhân viên chỉ bấm Duyệt theo số tiền đó, không được edit số tiền (Vì sẽ sẽ dễ gian lận hệ thống).\n\nChỗ này em ko để tính năng edit số tiền nhé. > Mà chỉ duyệt theo số tiền khách ghi thôi. Khi nào khách ghi số tiền sai thì khách tự tạo lệnh khác.\n",
+        "H13": "- Thẻ cào điện thoại: Hiển thị nội dung khách nhập",
+        "T13": "Okay"
+      }
+    },
+    {
+      "row": "14",
+      "cells": {
+        "C14": "Doing",
+        "E14": "1. Backend: cần lưu 10 TK Bank + Mã QR + Nội dung CK\nBackend không thấy chỗ chèn QR và ko thấy chỗ sửa nội dung chuyển khoản. NDCK sửa tay hay auto ? và sửa ở đâu trên backend?\n2. Thêm cổng nạp qua:\n- Thẻ cào điện thoại\n- Ví Momo/Zalopay/VNpay/9Pay\n- ShopeePay\n- TiktokPay\n- LazadaPay\n- Paypal\n\nMở sẵn - Để khi có cổng của bên thứ 3 thì gắng vào cho tiện.",
+        "H14": "1. CMS Có chỗ chèn ảnh QR, c đã chèn thử ảnh QR nhưng không hiển thị ngoài app.\n2. Trên Backend cần mở sẵn: \n\n- Ví Momo/Zalopay/VNpay/9Pay: Nội dung CK + Mã QR tương tự ngân hàng\n\nNgoài App chỗ nạp tiền:\n- Thẻ cào điện thoại: Ô nhập số Seri + ô nhập số PIN + ô chọn nhà mạng + ô đính kèm ảnh thẻ cào + Nút \"Xác Nhận\"\n- Ví Momo/Zalopay/VNpay/9Pay: Ô số tiền + Ô đính kèm ảnh biên lai + Nút \"Xác Nhận\"\n- ShopeePay: Ô số tiền + Ô đính kèm ảnh biên lai + Nút \"Xác Nhận\"\n- TiktokPay: Ô số tiền + Ô đính kèm ảnh biên lai + Nút \"Xác Nhận\"\n- LazadaPay: Ô số tiền + Ô đính kèm ảnh biên lai + Nút \"Xác Nhận\"\n- Paypal: Ô số tiền + Ô đính kèm ảnh biên lai + Nút \"Xác Nhận\"\n\nKhi khách nạp tiền qua các cổng này thì thông tin khách nhập cần hiển thị về CMS để nhân viên view lại và xử lý như nạp qua ngân hàng.",
+        "O14": "1.  OKay\n2. Okay\n3. Chỉ có nạp tiền qua thẻ cào là đang bị lỗi\n- Thẻ cào điện thoại: Ô nhập số Seri + ô nhập số PIN + ô chọn nhà mạng + ô đính kèm ảnh thẻ cào + Nút \"Xác Nhận\" > Nhưng trên CMS không có nhận được thông tin.\n- Thẻ cào mệnh giá cao nhất là 1.000.000 VNĐ, thiếu mệnh giá 1.000.000 VNĐ này.\n- Note thêm dòng khi khách chọn nạp tiền qua thẻ cào là: Phí đổi thẻ 17%. Không xử lý khi thông tin thẻ hết giá trị sử dụng.\n- Nhà mạng cần đầy đủ:\nViettel\nMobi\nVina\nVietnamobile\nGarena\nZing\nVcoin\nScoin\nAppota\nGate\n\n- Mệnh giá đầy đủ là:\n10.000\n20.000\n30.000\n50.000\n100.000\n200.000\n300.000\n500.000\n1.000.000\n=> Okay\n\n4. Không kéo lên xuống được khi chọn nhà mạng hoặc chọn mệnh giá. Dự phòng lỗi kéo lên kéo xuống, e thử cho nó show hết luôn ra được không? cho size nó bé chút= > Okay\n5. Chưa trừ 17% trên CMS"
+      }
+    },
+    {
+      "row": "15",
+      "cells": {
+        "B15": "NẠP USDT",
+        "C15": "Doing",
+        "E15": "1. iCon \"i\" cần có thông tin HD Nạp Tiền USDT (Phần nầy có thể text ngắn gọn để khách hiểu, kèm thêm trỏ link url > c cung cấp sau).\n2. Cần có ảnh QR hiển thị để khách quét nhanh và đúng ví.\n3. Mục 2. Số tiền dự kiến nạp (Tuỳ chọn ghi nhớ) > sửa lại thành \"Số USDT nạp\"",
+        "H15": "1. Okay (sẽ gửi link sau)\n2. Ảnh QR CMS không hiển thị trên app.\n3. USDT này có 2 hình thứ:\n- Auto nạp qua Binance Pay: này c cung cấp API qua cho e làm auto hay sao? -> Đã có tích hợp hiện tại đang là ví của em, test ok sẽ lấy ví của chị\n- Nạp thủ công qua mã ví: này trên app cần có thêm 1 nút Nạp thủ công cho khách nhập số tiền và đính kèm ảnh biên lai vào (như ngân hàng) để nhiều khi auto nó lỗi thì khách gửi qua để mình xem lại ảnh biên lai mà xử lý cho khách.\n\nC nạp thử báo lỗi. => cần nhập đúng mã giao dịch",
+        "O15": "1. Tự động bỏ (vì giống thủ công)\n2. OKay\n3. USDT:\n- Copy được mã > Okay\n- nhập số tiền + ô nhập mã Giao dịch + đính kèm ảnh biên lai > Okay\n(thiếu ô nhập mã giao dịch và Ko copy được mã)\n4. Lệnh nạp USDT trên CMS không có hiển thị chi tiết mã giao dịch. > E chỉnh cho nó hiển thị hết nd khách nhập để xử lý nạp, vì mã dài ko đánh tay dc. => Okay"
+      }
+    },
+    {
+      "row": "16",
+      "cells": {
+        "C16": "Done",
+        "E16": "1. Backend: cần lưu 6 TK USDT + Mã QR\nBackend không thấy chỗ chèn QR.",
+        "H16": "Đã chèn ảnh QR nhưng chưa thấy hiển thị lên app.",
+        "O16": "Okay",
+        "T16": "Okay"
+      }
+    },
+    {
+      "row": "17",
+      "cells": {
+        "C17": "Done",
+        "E17": "Quản lý Nạp/Rút backend cần:\n1. Thêm cột \"Chi tiết Nạp\"\n- Xem được chi tiết khách thao tác ở app\n- Xem được ngày giờ tạo lệnh nạp\n- Xem được ảnh biên lai.\n\n2. Thêm cột \"Chi tiết Rút\"\n- Xem được phương thức rút\n- Xem được ngày giờ tạo lệnh rút\n- Xem được ảnh QR bank/ QR USDT\n\n3. Thêm cột \"Ghi Chú\"\n- Text lý do duyệt\n\n4. Hành động\n- Review\n- Duyệt\n- Từ Chối\n\n5. 1 trang hiển thị 20 lệnh rồi mới qua trang mới.",
+        "H17": "1. CMS nạp: Chưa thấy được ảnh biên lai của khách => okay\n2. CMS rút: Chưa thấy được ảnh biên lai của khách. Rút qua USDT chỗ nhập số tiền nên sửa lại là USDT => Okay\n3. Okay\n4. Okay\n5. Okay",
+        "O17": "1. CMS nạp: Okay\n2. CMS rút USDT: Chưa thấy được QR USDT của khách => Okay\n    CMS rút bank: thì đã thấy ảnh QR bank.\n3. Okay\n4. Okay\n5. Okay",
+        "T17": "Okay"
+      }
+    },
+    {
+      "row": "18",
+      "cells": {
+        "B18": "RÚT TIỀN BANK/USDT",
+        "C18": "Done",
+        "E18": "1. Thêm nút \"Thêm Bank\" và \"Thêm USDT\" ở dưới TKNH đã thêm.\n2. Tên ngân hàng: thêm sẵn list bank VN để khách chọn, không cần khách điền (vì khách điền sẽ sai tên bank)\n3. Thêm ảnh QR bank rút\n4. Mật khẩu cần có chỗ bấm hiển thị xem mk đúng hay sai.\n\n======\n\nSau khi thêm 1 bank thì mất luôn nút thêm bank/thêm usdt rồi em. Cần thêm nút \"Thêm Bank\" \"Thêm USDT\" vì Max 2 bank, Max 2 USDT mà. Mất luôn nút đó thì khách không biết thêm lại chỗ nào.",
+        "F18": "List bank VND:\n\nAgribank\nVietcombank\nVietinBank\nBIDV\nTechcombank\nVPBank\nMBBank\nACB\nTPBank\nHDBank\nSHB\nSacombank\nVIB\nMSB\nOCB\nLPBank\nSeABank\nABBANK\nNam A Bank\nEximbank\nVietABank\nBVBank\nBaoViet Bank\nPGBank\nSaigonbank\nKienlongBank\nNCB\nVietBank\nShinhan Bank\nHSBC\nStandard Chartered\nUOB - United Overseas Bank\nCIMB Bank\nHong Leong Bank\nPublic Bank Vietnam\nIndovina Bank\nVRB\nVBSP\nVDB\nCo-opBank",
+        "H18": "1. List bank em vào bị thiếu: đủ hết là 40 banks\n2. Okay\n3. Okay\n4. Okay\n\nẢnh QR đã thêm ở App nhưng CMS không hiển thị. Chỗ Ngân hàng cần thêm cột hiển thị ảnh QR.",
+        "O18": "1. List bank em vào bị thiếu: OKay\n2. Okay\n3. Okay\n4. Okay\n\nẢnh QR đã thêm ở App nhưng cả App+CMS không hiển thị.= > Okay",
+        "T18": "Okay"
+      }
+    },
+    {
+      "row": "19",
+      "cells": {
+        "C19": "Done",
+        "E19": "Quản lý Nạp/Rút backend cần:\n1. Thêm cột \"Chi tiết Nạp\"\n- Xem được chi tiết khách thao tác ở app\n- Xem được ngày giờ tạo lệnh nạp\n- Xem được ảnh biên lai.\n\n2. Thêm cột \"Chi tiết Rút\"\n- Xem được phương thức rút\n- Xem được ngày giờ tạo lệnh rút\n- Xem được ảnh QR bank/ QR USDT\n\n3. Thêm cột \"Ghi Chú\"\n- Text lý do duyệt\n\n4. Hành động\n- Review\n- Duyệt\n- Từ Chối\n\n5. 1 trang hiển thị 20 lệnh rồi mới qua trang mới.",
+        "H19": "Okay",
+        "T19": "Okay"
+      }
+    },
+    {
+      "row": "20",
+      "cells": {
+        "B20": "Check số dư",
+        "C20": "Doing",
+        "O20": "1. Cần thêm vào CMS tính năng: Check số dư:\nsố dư trước là bn? cược bn tiền? số dư sau khi trừ là bao nhiêu? Ngày giờ? Chơi trò gì? Loại cược nào? Ngày xổ kết quả?\n2. Khi khách có hoạt động nạp tiền, rút tiền, cược + số tiền, Login, Logout + IP cần báo vào mục LỊCH SỬ HOẠT ĐỘNG."
+      }
+    },
+    {
+      "row": "21",
+      "cells": {
+        "A21": "MIỀN NAM\nMIỀN TRUNG\nMIỀN BẮC",
+        "B21": "LÔ 2 SỐ",
+        "C21": "Done",
+        "E21": "1. Miền Nam + Miền Trung - Cần thêm tỉnh để chọn đánh: trên app ko thấy chỗ chọn tỉnh.\n2. Lô 2 số, lô 2 số đầu, lô 2 số 1k, lô 2 số đầu 1k, lô giải 4, lô giải 6: là từ 00-99. Tỉ lệ thắng 1 ăn 99.9\n(Bắt buộc phải 2 ký tự số mới nhận cược, 1 ký tự số hoặc 3 ký tự số báo lỗi cho khách nhập lại. \nHiện trên app 1 ký tự số nó vẫn tính cược)\n3. Cần có cơ chế lọc số trùng, báo lỗi cú pháp khi khách nhập sai.\n4. Cú pháp nhập số cần mở rộng: dấu phẩy, dấu chấm phẩy, hoặc khoảng cách 1 lần trắng (nếu 2 lần trắng thì báo lỗi cú pháp)\n5. Chỗ tạm tính thắng: chưa nhập số mà nó đã hiện 99.900 rồi. Nếu chưa chọn số thì chỗ đó nên là 0.",
+        "F21": "1. Miền Nam + Miền Trung: cần thêm tính năng chọn tỉnh (list tỉnh theo ngày) > chèn tỉnh ở đầu tiên/phía trên hàng \"Chọn loại cược\".\n2. Kết quả kỳ trước: chuyển xuống dưới cùng.\n3. Cần hàng giải thích cách chơi từng loại khi bấm vào (tương tự giải thích cho tất cả trò)\n4. Nhập số muốn cược:\n- Cần để rõ số hàng chục + hàng đơn vị 0-9, để khách bấm vào và hiện thị ở hàng \"nhập số\".\n- Nếu khách nhập số tay: thì các số cách nhau bằng dấu phẩy \",\" dấu chấm phẩy \";\" hoặc khoảng cách trắng đều được nhận. Khi nhập số tay cần có cơ chế tự lọc số trùng và hiện lỗi nếu sai cú pháp.\n- HIển thị topup các số mà khách đã nhập > để khách dò lại xem đúng số và số tiền đặt chưa > rồi mới hiển thị nút \"thêm vào giỏ vé\".\n5. Số tiền cược cần move lên trên xíu để ko bị líp mất số.\n\nMẫu ảnh kế >>>>>>>",
+        "H21": "Lô 2 số: Okay - nhưng xác nhận cược chưa được.\nChỗ ghi chú của Lô 2 số, lô giải 4, lô giải 6, lô 2 số đầu, lô 2 số 1k, lô 2 số đầu 1k: \nbỏ \"vd: 68 86,99\" vì chỗ nhập số có VD rồi.\n1. Giỏ hàng: Bị líp nút thanh toán\n2. Bấm cược không được\n3. Sau khi huỷ vé, bấm \"Chọn Số Ngay\" để cược tiếp không được.\n===\nMiền nam, trung: các tỉnh cần hiển thị theo ngày. VD: thứ 2 có tỉnh nào thì chỉ hiện các tỉnh đó thôi. \nVì khách sẽ không nhớ tỉnh nào để bấm chọn đặt cược đâu.\n===\nTất cả ghi chú: bỏ 2 chỗ này. Vì có nhiều loại cược ko phù hợp hiển thị >> ảnh đính kèm...",
+        "L21": "Chỗ ghi chú của Lô 2 số, lô giải 4, lô giải 6, lô 2 số đầu, lô 2 số 1k, lô 2 số đầu 1k: \nbỏ \"vd: 68 86,99\" vì chỗ nhập số có VD rồi.",
+        "O21": "Miền Nam, Miền Trung, Miền Bắc: Sau khi chốt số thì tự động hiển thị sang các tỉnh cho ngày cược kế tiếp.\n- Miền Nam: 16h10 hiển thị các tỉnh và ngày kế tiếp\n- Miền Trung: 17h10 hiển thị các tỉnh và ngày kế tiếp\n- Miền Bắc: 18h10 hiển thị sang ngày kế tiếp\n=======\n1. Ô nhập số của tất cả lô đề, chỉ để: Nhập số...=> Okay\n2. Giỏ hàng: Okay\n3. Bấm cược: Okay\n4. Sau khi huỷ vé, bấm \"\"Chọn Số Ngay\"\" > Okay\n5. Vé gửi về email bị thiếu thông tin : Tỉnh Đài / Ngày / Giờ Phút Giây > Okay\n6. Lúc thêm cược thì thêm 2 nút này để khách cược cho tiện => Okay\n- Cược Ngay (khách bấm vào là cược và trừ tiền luôn)\n- Thêm Vé (Ra giỏ hàng xác nhận tất cả các vé 1 lúc, nếu thiếu số dư thì báo thiếu để khách nạp thêm hoặc huỷ bớt vé)"
+      }
+    },
+    {
+      "row": "22",
+      "cells": {
+        "B22": "LÔ 3 SỐ",
+        "C22": "Done",
+        "E22": "1. Lô 3 số: là từ 000-999.\n2. Cần có cơ chế lọc số trùng, báo lỗi cú pháp khi khách nhập sai.\n(Bắt buộc phải 3 ký tự số mới nhận cược, 1 ký tự số hoặc 2 hoặc 4 ký tự số báo lỗi cho khách nhập lại. \nHiện trên app 1 ký tự số nó vẫn tính cược)\n3. Cú pháp nhập số cần mở rộng: dấu phẩy, dấu chấm phẩy, hoặc khoảng cách 1 lần trắng (nếu 2 lần trắng thì báo lỗi cú pháp)\n4. Lô 3 số tỉ lệ thắng là 1 ăn 980\n5. Chỗ tạm tính thắng: chưa nhập số mà nó đã hiện 99.900 rồi. Nếu chưa chọn số thì chỗ đó nên là 0.",
+        "F22": "1. Cần hàng giải thích cách chơi từng loại khi bấm vào (tương tự giải thích cho tất cả trò)\n2. Nhập số muốn cược:\n- Cần để rõ số hàng trăm + hàng chục + hàng đơn vị 0-9, để khách bấm vào và hiện thị ở hàng \"nhập số\".\n- Nếu khách nhập số tay: thì các số cách nhau bằng dấu phẩy \",\" dấu chấm phẩy \";\" hoặc khoảng cách trắng đều được nhận. Khi nhập số tay cần có cơ chế tự lọc số trùng và hiện lỗi nếu sai cú pháp.\n- HIển thị topup các số mà khách đã nhập > để khách dò lại xem đúng số và số tiền đặt chưa > rồi mới hiển thị nút \"thêm vào giỏ vé\".\n3. Số tiền cược cần move lên trên xíu để ko bị líp mất số.\n\nMẫu ảnh kế >>>>>>>",
+        "H22": "Lô 3 số Okay - nhưng xác nhận cược chưa được.\nChỗ ghi chú của Lô 3 số:\nbỏ \"vd: 68 86,99\" vì chỗ nhập số có VD rồi. \n\nKhung nhập số vd ghi sai, cần ghi lại đúng là: \nNhập số... (VD: 688,788)",
+        "O22": "1. Ô nhập số, chỉ để: Nhập số..."
+      }
+    },
+    {
+      "row": "23",
+      "cells": {
+        "B23": "LÔ 4 SỐ",
+        "C23": "Done",
+        "E23": "1. Lô 4 số: là từ 0000-9999.\n2. Cần có cơ chế lọc số trùng, báo lỗi cú pháp khi khách nhập sai.\n(Bắt buộc phải 4 ký tự số mới nhận cược, 1 ký tự số hoặc 2 hoặc 3 hoặc 5 ký tự số báo lỗi cho khách nhập lại. \nHiện trên app 1 ký tự số nó vẫn tính cược)\n3. Cú pháp nhập số cần mở rộng: dấu phẩy, dấu chấm phẩy, hoặc khoảng cách 1 lần trắng (nếu 2 lần trắng thì báo lỗi cú pháp)\n4. Lô 4 số tỉ lệ thắng là 1 ăn 9000\n5. Chỗ tạm tính thắng: chưa nhập số mà nó đã hiện 99.900 rồi. Nếu chưa chọn số thì chỗ đó nên là 0.",
+        "F23": "1. Cần hàng giải thích cách chơi từng loại khi bấm vào (tương tự giải thích cho tất cả trò)\n2. Nhập số muốn cược:\n- Cần để rõ số hàng  nghìn + hằng trăm + hàng chục + hàng đơn vị 0-9, để khách bấm vào và hiện thị ở hàng \"nhập số\".\n- Nếu khách nhập số tay: thì các số cách nhau bằng dấu phẩy \",\" dấu chấm phẩy \";\" hoặc khoảng cách trắng đều được nhận. Khi nhập số tay cần có cơ chế tự lọc số trùng và hiện lỗi nếu sai cú pháp.\n- HIển thị topup các số mà khách đã nhập > để khách dò lại xem đúng số và số tiền đặt chưa > rồi mới hiển thị nút \"thêm vào giỏ vé\".\n3. Số tiền cược cần move lên trên xíu để ko bị líp mất số.\n\nMẫu ảnh kế >>>>>>>",
+        "H23": "Lô 4 số Okay - nhưng xác nhận cược chưa được.\nChỗ ghi chú của Lô 4 số:\nbỏ \"vd: 68 86,99\" vì chỗ nhập số có VD rồi. \n\nKhung nhập số vd ghi sai, cần ghi lại đúng là: \nNhập số... (VD: 6888,7888)",
+        "O23": "1. Ô nhập số, chỉ để: Nhập số..."
+      }
+    },
+    {
+      "row": "24",
+      "cells": {
+        "B24": "ĐỀ",
+        "C24": "Done",
+        "E24": "1. Đề ĐB, Đề Đầu ĐB, Đề giải 1, Đề đầu giải 1, Đề giải 8, Đề Đầu đuôi: là từ 00-99.\n(Bắt buộc phải 2 ký tự số mới nhận cược, 1 ký tự số hoặc 3 ký tự số báo lỗi cho khách nhập lại. \nHiện trên app 1 ký tự số nó vẫn tính cược)\n2. Tỉ lệ thắng : 1x99.9\n3. Cần có cơ chế lọc số trùng, báo lỗi cú pháp khi khách nhập sai.\n4. Cú pháp nhập số cần mở rộng: dấu phẩy, dấu chấm phẩy, hoặc khoảng cách 1 lần trắng (nếu 2 lần trắng thì báo lỗi cú pháp)\n5. Chỗ tạm tính thắng: chưa nhập số mà nó đã hiện 99.900 rồi. Nếu chưa chọn số thì chỗ đó nên là 0.",
+        "F24": "1. Cần hàng giải thích cách chơi từng loại khi bấm vào (tương tự giải thích cho tất cả trò)\n2. Nhập số muốn cược:\n- Cần để rõ số hàng chục + hàng đơn vị 0-9, để khách bấm vào và hiện thị ở hàng \"nhập số\".\n- Nếu khách nhập số tay: thì các số cách nhau bằng dấu phẩy \",\" dấu chấm phẩy \";\" hoặc khoảng cách trắng đều được nhận. Khi nhập số tay cần có cơ chế tự lọc số trùng và hiện lỗi nếu sai cú pháp.\n- HIển thị topup các số mà khách đã nhập > để khách dò lại xem đúng số và số tiền đặt chưa > rồi mới hiển thị nút \"thêm vào giỏ vé\".\n3. Số tiền cược cần move lên trên xíu để ko bị líp mất số.\n\nMẫu ảnh kế >>>>>>>",
+        "H24": "Đề Okay - nhưng chưa đặt cược được.\nChỗ ghi chú của Đề ĐB, Đề Đầu ĐB, Đề giải 1, Đề đầu giải 1, Đề giải 8, đề đầu, đề đuôi, đề đầu đuôi:\nbỏ \"vd: 68 86,99\" vì chỗ nhập số có VD rồi. ",
+        "O24": "1. Ô nhập số, chỉ để: Nhập số..."
+      }
+    },
+    {
+      "row": "25",
+      "cells": {
+        "B25": "ĐỀ ĐẦU, ĐỀ ĐUÔI",
+        "C25": "Done",
+        "E25": "1. Đề Đầu, Đề đuôi: là từ 0-9.\n(Bắt buộc phải 1 ký tự số mới nhận cược, KHÔNG CHO NHẬP TAY)\n2. Tỉ lệ thắng : 1x99.9\n3. Cú pháp nhập số cần mở rộng: dấu phẩy, dấu chấm phẩy, hoặc khoảng cách 1 lần trắng (nếu 2 lần trắng thì báo lỗi cú pháp)\n4. Chỗ tạm tính thắng: chưa nhập số mà nó đã hiện 99.900 rồi. Nếu chưa chọn số thì chỗ đó nên là 0.",
+        "F25": "1. Cần hàng giải thích cách chơi từng loại khi bấm vào (tương tự giải thích cho tất cả trò)\n2. Nhập số muốn cược:\n- Cần để rõ số hàng chục 0-9, để khách bấm vào và hiện thị ở hàng \"nhập số\".\n- Đề đầu và đề đuôi không cho khách nhập số tay.\n- Hiển thị topup các số mà khách đã nhập > để khách dò lại xem đúng số và số tiền đặt chưa > rồi mới hiển thị nút \"thêm vào giỏ vé\".\n3. Số tiền cược cần move lên trên xíu để ko bị líp mất số.\n\nMẫu ảnh kế >>>>>>>",
+        "H25": "OKay"
+      }
+    },
+    {
+      "row": "26",
+      "cells": {
+        "F26": "1. Cần hàng giải thích cách chơi từng loại khi bấm vào (tương tự giải thích cho tất cả trò)\n2. Nhập số muốn cược:\n- Cần để rõ số hàng đơn vị 0-9, để khách bấm vào và hiện thị ở hàng \"nhập số\".\n- Đề đầu và đề đuôi không cho khách nhập số tay.\n- Hiển thị topup các số mà khách đã nhập > để khách dò lại xem đúng số và số tiền đặt chưa > rồi mới hiển thị nút \"thêm vào giỏ vé\".\n3. Số tiền cược cần move lên trên xíu để ko bị líp mất số.\n\nMẫu ảnh kế >>>>>>>",
+        "H26": "OKay"
+      }
+    },
+    {
+      "row": "27",
+      "cells": {
+        "B27": "XIÊN ĐỀ",
+        "C27": "Done",
+        "D27": "THÊM 2 LOẠI CƯỢC: XIÊN ĐB + XIÊN GIẢI 1",
+        "E27": "1. Xiên ĐB, Xiên giải 1: là từ 0-9.\n(Bắt buộc phải 1 ký tự số mới nhận cược, KHÔNG CHO NHẬP TAY)\n2. Tỉ lệ thắng : 1x4.9\n3. Không cho nhập tay.\n4. Chỗ tạm tính thắng: chưa nhập số mà nó đã hiện 99.900 rồi. Nếu chưa chọn số thì chỗ đó nên là 0.",
+        "F27": "1. Cần hàng giải thích cách chơi từng loại khi bấm vào (tương tự giải thích cho tất cả trò)\n2. Nhập số muốn cược:\n- Cần để rõ số hàng 0-9, để khách bấm vào và hiện thị ở hàng \"nhập số\".\n- Không cho khách nhập số tay.\n- Hiển thị topup các số mà khách đã nhập > để khách dò lại xem đúng số và số tiền đặt chưa > rồi mới hiển thị nút \"thêm vào giỏ vé\".\n3. Số tiền cược cần move lên trên xíu để ko bị líp mất số.\n\nMẫu ảnh kế >>>>>>>",
+        "H27": "1. Xiên ĐB, Xiên giải 1, Xiên 3 càng ĐB, Xiên 4 càng ĐB: vì tính chất giống nhau nên làm hiển thị giống nhau giúp c nhé.\n2. Chỗ ghi chú của Xiên ĐB, Xiên giải 1, Xiên 3 càng ĐB, Xiên 4 càng ĐB:\nbỏ \"vd: 68 86,99\" vì chỗ nhập số có VD rồi. \n3. Khung nhập số: khoá chức năng nhập số  - giống kiểu không cho nhập số của Đề Đầu.",
+        "O27": "Okay"
+      }
+    },
+    {
+      "row": "28",
+      "cells": {
+        "B28": "XIÊN 2",
+        "C28": "Done",
+        "E28": "1. Xiên 2: là ghép 2 số thành 1 vé. Ví dụ: 00&01, 01&33, 04&34 là 3 vé. 1 vé xiên là ghép 2 số bằng dấu \"&\", cách nhau giữa 2 xiên là dấu: , hoặc ; hoặc khoảng cách. Tỉ lệ thắng : 1x28 > Hiện tại trên app nhập số lộn xộn nó vẫn tính 1 vé.\n(Bắt buộc phải 2 cặp số kết hợp mới nhận cược, CHỈ NHẬP TAY)\n2. Số nhập tay cần có tính năng phát hiện trùng. VD: 00&00 thì cần báo lỗi cho khách thấy để sửa lại số - \"Số trùng, vui lòng kiểm tra lại\".\n3. Cú pháp nhập cách nhau giữa các số xiên bằng: dấu phẩy, dấu chấm phẩy, hoặc khoảng cách 1 lần trắng (nếu 2 lần trắng thì báo lỗi cú pháp)\n4. Chỗ tạm tính thắng: chưa nhập số mà nó đã hiện 28.000 rồi. Nếu chưa chọn số thì chỗ đó nên là 0.",
+        "F28": "1. Cần hàng giải thích cách chơi từng loại khi bấm vào (tương tự giải thích cho tất cả trò)\n2. Nhập số muốn cược:\n- Khách nhập số tay, 1 xiên kết hợp với nhau bằng dấu \"&\", cách nhau giữa các xiên là dấu: phẩy hoặc chấm phẩy hoặc khoảng cách.\n- Hiển thị topup các số mà khách đã nhập > để khách dò lại xem đúng số và số tiền đặt chưa > rồi mới hiển thị nút \"thêm vào giỏ vé\".\n3. Số tiền cược cần move lên trên xíu để ko bị líp mất số.\n\nMẫu ảnh kế >>>>>>>",
+        "H28": "Okay"
+      }
+    },
+    {
+      "row": "29",
+      "cells": {
+        "B29": "XIÊN 3",
+        "C29": "Done",
+        "E29": "1. Xiên 3: là ghép 3 số thành 1 vé. Ví dụ: 00&01&02, 01&33&90, 04&34&67 là 3 vé. 1 vé xiên là ghép 3 số bằng dấu \"&\", cách nhau giữa 2 xiên là dấu: , hoặc ; hoặc khoảng cách. Tỉ lệ thắng : 1x150 > Hiện tại trên app nhập số lộn xộn nó vẫn tính 1 vé.\n(Bắt buộc phải 3 cặp số kết hợp mới nhận cược, CHỈ NHẬP TAY)\n2. Số nhập tay cần có tính năng phát hiện trùng. VD: 00&01&01 thì cần báo lỗi cho khách thấy để sửa lại số - \"Số trùng, vui lòng kiểm tra lại\".\n3. Cú pháp nhập cách nhau giữa các số xiên bằng: dấu phẩy, dấu chấm phẩy, hoặc khoảng cách 1 lần trắng (nếu 2 lần trắng thì báo lỗi cú pháp)\n4. Chỗ tạm tính thắng: chưa nhập số mà nó đã hiện 150.000 rồi. Nếu chưa chọn số thì chỗ đó nên là 0.",
+        "F29": "1. Cần hàng giải thích cách chơi từng loại khi bấm vào (tương tự giải thích cho tất cả trò)\n2. Nhập số muốn cược:\n- Khách nhập số tay, 1 xiên kết hợp với nhau bằng dấu \"&\", cách nhau giữa các xiên là dấu: phẩy hoặc chấm phẩy hoặc khoảng cách.\n- Hiển thị topup các số mà khách đã nhập > để khách dò lại xem đúng số và số tiền đặt chưa > rồi mới hiển thị nút \"thêm vào giỏ vé\".\n3. Số tiền cược cần move lên trên xíu để ko bị líp mất số.\n\nMẫu ảnh kế >>>>>>>",
+        "H29": "Okay"
+      }
+    },
+    {
+      "row": "30",
+      "cells": {
+        "B30": "XIÊN 4",
+        "C30": "Done",
+        "E30": "1. Xiên 4: là ghép 4 số thành 1 vé. Ví dụ: 00&01&02&03, 01&33&90&09, 04&34&67&89 là 3 vé. 1 vé xiên là ghép 3 số bằng dấu \"&\", cách nhau giữa 2 xiên là dấu: , hoặc ; hoặc khoảng cách. Tỉ lệ thắng : 1x150 > Hiện tại trên app nhập số lộn xộn nó vẫn tính 1 vé.\n(Bắt buộc phải 4 cặp số kết hợp mới nhận cược, CHỈ NHẬP TAY)\n2. Số nhập tay cần có tính năng phát hiện trùng. VD: 00&01&02&02 thì cần báo lỗi cho khách thấy để sửa lại số - \"Số trùng, vui lòng kiểm tra lại\".\nCú pháp nhập cách nhau giữa các số xiên bằng: dấu phẩy, dấu chấm phẩy, hoặc khoảng cách 1 lần trắng (nếu 2 lần trắng thì báo lỗi cú pháp)\n3. Chỗ tạm tính thắng: chưa nhập số mà nó đã hiện 150.000 rồi. Nếu chưa chọn số thì chỗ đó nên là 0.",
+        "F30": "1. Cần hàng giải thích cách chơi từng loại khi bấm vào (tương tự giải thích cho tất cả trò)\n2. Nhập số muốn cược:\n- Khách nhập số tay, 1 xiên kết hợp với nhau bằng dấu \"&\", cách nhau giữa các xiên là dấu: phẩy hoặc chấm phẩy hoặc khoảng cách.\n- Hiển thị topup các số mà khách đã nhập > để khách dò lại xem đúng số và số tiền đặt chưa > rồi mới hiển thị nút \"thêm vào giỏ vé\".\n3. Số tiền cược cần move lên trên xíu để ko bị líp mất số.\n\nMẫu ảnh kế >>>>>>>",
+        "H30": "Okay"
+      }
+    },
+    {
+      "row": "31",
+      "cells": {
+        "B31": "3 CÀNG",
+        "C31": "Done",
+        "E31": "1. 3 Càng ĐB, 3 Càng đầu ĐB, 3 Càng giải 7, 3 Càng giải 1, 3 Càng đầu giải 1, 3 Càng đầu đuôi: là 000-999. Ví dụ: 000, 182....Tỉ lệ thắng : 1x980 > Hiện tại trên app nhập 2 số nó vẫn tính 3 càng.\n(Bắt buộc phải 3 KÝ TỰ SỐ mới nhận cược)\n2. Cần có cơ chế lọc số trùng, báo lỗi cú pháp khi khách nhập sai hoặc nhập thiếu số.\n3. Cú pháp nhập số cần mở rộng: dấu phẩy, dấu chấm phẩy, hoặc khoảng cách 1 lần trắng (nếu 2 lần trắng thì báo lỗi cú pháp)\n4. Chỗ tạm tính thắng: chưa nhập số mà nó đã hiện 980.000 rồi. Nếu chưa chọn số thì chỗ đó nên là 0.",
+        "F31": "1. Cần hàng giải thích cách chơi từng loại khi bấm vào (tương tự giải thích cho tất cả trò)\n2. Nhập số muốn cược:\n- Cần để rõ số hàng trăm + hàng chục + hàng đơn vị 0-9, để khách bấm vào và hiện thị ở hàng \"nhập số\".\n- Nếu khách nhập số tay: thì các số cách nhau bằng dấu phẩy \",\" dấu chấm phẩy \";\" hoặc khoảng cách trắng đều được nhận. Khi nhập số tay cần có cơ chế tự lọc số trùng và hiện lỗi nếu sai cú pháp.\n- Hiển thị topup các số mà khách đã nhập > để khách dò lại xem đúng số và số tiền đặt chưa > rồi mới hiển thị nút \"thêm vào giỏ vé\".\n3. Số tiền cược cần move lên trên xíu để ko bị líp mất số.\n\nMẫu ảnh kế >>>>>>>",
+        "H31": "3 Càng: Okay\n\nChỗ ghi chú của 3 càng:\nbỏ \"vd: 68 86,99\" vì chỗ nhập số có VD rồi. \n\nKhung nhập số vd ghi sai, cần ghi lại đúng là: \nNhập số... (VD: 688,788)",
+        "O31": "1. Ô nhập số, chỉ để: Nhập số..."
+      }
+    },
+    {
+      "row": "32",
+      "cells": {
+        "B32": "XIÊN 3 CÀNG",
+        "C32": "Done",
+        "E32": "1. Xiên 3C ĐB: là từ 0-9.\n(Bắt buộc phải 1 KÝ TỰ SỐ mới nhận cược, KHÔNG CHO NHẬP TAY)\n2. Tỉ lệ thắng : 1x158.\n3. Chỗ tạm tính thắng: chưa nhập số mà nó đã hiện 99.900 rồi. Nếu chưa chọn số thì chỗ đó nên là 0.",
+        "F32": "1. Cần hàng giải thích cách chơi từng loại khi bấm vào (tương tự giải thích cho tất cả trò)\n2. Nhập số muốn cược:\n- Cần để rõ số hàng 0-9, để khách bấm vào và hiện thị ở hàng \"nhập số\".\n- Không cho khách nhập số tay.\n- Hiển thị topup các số mà khách đã nhập > để khách dò lại xem đúng số và số tiền đặt chưa > rồi mới hiển thị nút \"thêm vào giỏ vé\".\n3. Số tiền cược cần move lên trên xíu để ko bị líp mất số.\n\nMẫu ảnh kế >>>>>>>",
+        "H32": "Đã note chung với Xiên Đề ĐB",
+        "I32": "1. Xiên ĐB, Xiên giải 1, Xiên 3 càng ĐB, Xiên 4 càng ĐB: vì tính chất giống nhau nên làm hiển thị giống nhau giúp c nhé.\n2. Chỗ ghi chú của Xiên ĐB, Xiên giải 1, Xiên 3 càng ĐB, Xiên 4 càng ĐB:\nbỏ \"vd: 68 86,99\" vì chỗ nhập số có VD rồi. \n3. Khung nhập số: khoá chức năng nhập số  - giống kiểu không cho nhập số của Đề Đầu."
+      }
+    },
+    {
+      "row": "33",
+      "cells": {
+        "B33": "4 CÀNG",
+        "C33": "Done",
+        "E33": "1. 4 Càng ĐB, 4 Càng giải 1: là 0000-9999. Ví dụ: 0000, 1882....Tỉ lệ thắng : 1x9000> Hiện tại trên app nhập 2 số nó vẫn tính 4 càng.\n(Bắt buộc phải 4 KÝ TỰ SỐ mới nhận cược, NẾU sai thì báo lỗi cho khách sửa lại)\n2. Cần có cơ chế lọc số trùng, báo lỗi cú pháp khi khách nhập sai hoặc nhập thiếu số.\n3. Cú pháp nhập số cần mở rộng: dấu phẩy, dấu chấm phẩy, hoặc khoảng cách 1 lần trắng (nếu 2 lần trắng thì báo lỗi cú pháp)\n4. Chỗ tạm tính thắng: chưa nhập số mà nó đã hiện 9.000.000 rồi. Nếu chưa chọn số thì chỗ đó nên là 0.",
+        "F33": "1. Cần hàng giải thích cách chơi từng loại khi bấm vào (tương tự giải thích cho tất cả trò)\n2. Nhập số muốn cược:\n- Cần để rõ số hàng nghìn + hàng trăm + hàng chục + hàng đơn vị 0-9, để khách bấm vào và hiện thị ở hàng \"nhập số\".\n- Nếu khách nhập số tay: thì các số cách nhau bằng dấu phẩy \",\" dấu chấm phẩy \";\" hoặc khoảng cách trắng đều được nhận. Khi nhập số tay cần có cơ chế tự lọc số trùng và hiện lỗi nếu sai cú pháp.\n- Hiển thị topup các số mà khách đã nhập > để khách dò lại xem đúng số và số tiền đặt chưa > rồi mới hiển thị nút \"thêm vào giỏ vé\".\n3. Số tiền cược cần move lên trên xíu để ko bị líp mất số.\n\nMẫu ảnh kế >>>>>>>",
+        "H33": "4 Càng: Okay\n\nChỗ ghi chú của 4 càng:\nbỏ \"vd: 68 86,99\" vì chỗ nhập số có VD rồi. \n\nKhung nhập số vd ghi sai, cần ghi lại đúng là: \nNhập số... (VD: 6888,7988)",
+        "O33": "1. Ô nhập số, chỉ để: Nhập số..."
+      }
+    },
+    {
+      "row": "34",
+      "cells": {
+        "B34": "XIÊN 4 CÀNG",
+        "C34": "Done",
+        "E34": "1. Xiên 4C ĐB: là từ 0-9.\n(Bắt buộc phải 1 KÝ TỰ SỐ mới nhận cược, KHÔNG CHO NHẬP TAY)\n2. Tỉ lệ thắng : 1x388.\n3. Chỗ tạm tính thắng: chưa nhập số mà nó đã hiện 99.900 rồi. Nếu chưa chọn số thì chỗ đó nên là 0.",
+        "F34": "1. Cần hàng giải thích cách chơi từng loại khi bấm vào (tương tự giải thích cho tất cả trò)\n2. Nhập số muốn cược:\n- Cần để rõ số hàng 0-9, để khách bấm vào và hiện thị ở hàng \"nhập số\".\n- Không cho khách nhập số tay.\n- Hiển thị topup các số mà khách đã nhập > để khách dò lại xem đúng số và số tiền đặt chưa > rồi mới hiển thị nút \"thêm vào giỏ vé\".\n3. Số tiền cược cần move lên trên xíu để ko bị líp mất số.\n\nMẫu ảnh kế >>>>>>>",
+        "H34": "Đã note chung với Xiên Đề ĐB",
+        "I34": "1. Xiên ĐB, Xiên giải 1, Xiên 3 càng ĐB, Xiên 4 càng ĐB: vì tính chất giống nhau nên làm hiển thị giống nhau giúp c nhé.\n2. Chỗ ghi chú của Xiên ĐB, Xiên giải 1, Xiên 3 càng ĐB, Xiên 4 càng ĐB:\nbỏ \"vd: 68 86,99\" vì chỗ nhập số có VD rồi. \n3. Khung nhập số: khoá chức năng nhập số  - giống kiểu không cho nhập số của Đề Đầu."
+      }
+    },
+    {
+      "row": "35",
+      "cells": {
+        "B35": "LÔ TRƯỢT",
+        "C35": "Done",
+        "E35": "1. Lô trượt xiên 4,6,8,10: là chọn các số từ 00-99. \n- Trượt xiên 4: thì chọn 4 số, không có trong kết quả xổ số thì thắng. VD: 00&01&03&04 (Bắt buộc phải 4 SỐ mới nhận cược, NẾU sai thì báo lỗi cho khách sửa lại)\n- Trượt xiên 6: thì chọn 6 số, không có trong kết quả xổ số thì thắng. VD: 00&01&03&04&05&06 (Bắt buộc phải 6 SỐ mới nhận cược, NẾU sai thì báo lỗi cho khách sửa lại)\n- Trượt xiên 8: thì chọn 8 số, không có trong kết quả xổ số thì thắng. VD: 00&01&03&04&05&06&07&08 (Bắt buộc phải 8 SỐ mới nhận cược, NẾU sai thì báo lỗi cho khách sửa lại)\n- Trượt xiên 10: thì chọn 10 số, không có trong kết quả xổ số thì thắng. VD: 00&01&03&04&05&06&07&08&09&10 (Bắt buộc phải 10 SỐ mới nhận cược, NẾU sai thì báo lỗi cho khách sửa lại)\n\n>>>Hiện tại trên app nhập 1 số nó vẫn tính cược.\n2. Cần có cơ chế lọc số trùng, báo lỗi cú pháp khi khách nhập sai hoặc nhập thiếu số.\n3. Các vé được ngăn cách bởi: dấu phẩy, dấu chấm phẩy, hoặc khoảng cách 1 lần trắng (nếu 2 lần trắng thì báo lỗi cú pháp). VD trượt xiên 4: VD: 00&01&03&04;00&01&03&05 > là được 2 vé.\n4. Chỗ tạm tính thắng: chưa nhập số mà nó đã hiện 1.800 rồi. Nếu chưa chọn số thì chỗ đó nên là 0.",
+        "F35": "1. Cần hàng giải thích cách chơi từng loại khi bấm vào (tương tự giải thích cho tất cả trò)\n2. Nhập số muốn cược:\n- Khách cần nhập tay.\n-Các số cách nhau bằng dấu phẩy \",\" dấu chấm phẩy \";\" hoặc khoảng cách trắng đều được nhận. Khi nhập số tay cần có cơ chế tự lọc số trùng và hiện lỗi nếu sai cú pháp. Và có chức năng lọc số nhập trùng.\n- Hiển thị topup các số mà khách đã nhập > để khách dò lại xem đúng số và số tiền đặt chưa > rồi mới hiển thị nút \"thêm vào giỏ vé\".\n3. Số tiền cược cần move lên trên xíu để ko bị líp mất số.\n\nMẫu ảnh kế >>>>>>>",
+        "H35": "Sai chỗ ghi chú, sửa lại như sau:\n\nĐánh Lô Trượt Xiên 4. Không có trong KQXS thì thắng.\nĐánh Lô Trượt Xiên 6. Không có trong KQXS thì thắng.\nĐánh Lô Trượt Xiên 8. Không có trong KQXS thì thắng.\nĐánh Lô Trượt Xiên 10. Không có trong KQXS thì thắng.\n\nÔ nhập số cần sửa lại như sau:\n\nTrượt Xiên 4: Nhập số... (VD: 00&01&02&03)\nTrượt Xiên 6: Nhập số... (VD: 00&01&02&03&04&05)\nTrượt Xiên 8. Nhập số... (VD: 00&01&02&03&04&05&06&07)\nTrượt Xiên 10: Nhập số... (VD: 00&01&02&03&04&05&06&07&08&09)"
+      }
+    },
+    {
+      "row": "36",
+      "cells": {
+        "A36": "VIETLOTT",
+        "B36": "THÊM trò chơi",
+        "E36": "Cần thêm 4 trò này vào VIETLOTT:\nLotto 5/35        \nMega 5/70\nMax 4D        \nBingo18\n\nXỔ SỐ LIVESTREAM 2 PHÚT + 15 PHÚT\nCách chơi và tỉ lệ thắng ở tab keno+lô tô+điện toán: Functions VuaSoXo",
+        "H36": "Thiếu:\n\nMega 5/70\nMax 4D        \nBingo18\n\nChèn 3 trò này trong tab VIETLOTT"
+      }
+    },
+    {
+      "row": "37",
+      "cells": {
+        "A37": "KENO",
+        "H37": "KENO: Bị líp hàng F\nPOWER 6/55: Mã kỳ quay sao dài quá vây? Nút thống kê bị đè lên thời gian."
+      }
+    },
+    {
+      "row": "38",
+      "cells": {
+        "A38": "Xổ số Livestream",
+        "D38": "Các loại cược giống hệt miền Bắc. Nhưng kết quả xổ theo livestream AI hoặc nhân viên trực livestream của Vua xổ số (2 phút 1 lượt xổ)\nLivestream AI 2 phút: Kết quả nội bộ mình quản lý và cài đặt bằng tay được: Để tránh rủi ro lỗ.\nLivestream PR 15 phút: Kết quả quay trực tiếp cho khách chơi xanh chín. Có icon show live của nhân viên ảnh động.\n\nhttps://aseanlotto.com/live-results/live-lotto-2-min"
+      }
+    },
+    {
+      "row": "39",
+      "cells": {
+        "A39": "Vé Số",
+        "B39": "CMS\nQuản lý đặt vé",
+        "C39": "Doing",
+        "D39": "CMS của mình không được đầy đủ thông tin vé cược. \nC có làm demo backend cho lô đề 3 miền, vé số, điện toán. \n\nhttps://docs.google.com/document/d/1jRxXbi9vX-5d1xFPUbSvWYsSVlFEY5X4jvyOqnmFq34/edit?usp=drive_link\n====\nQuản lý đặt vé cần có các tính năng sau:\n1. Ô tìm kiếm chung\n2. Xem được chi tiết tất cả các vé cược của khách: tỉnh/miền, ngày giờ đặt cược, ngày giờ trả thưởng, ảnh vé số, trạng thái vé cược....\n3. Bảng xem chi tiết gồm:\n- Status (Trạng thái vé)\n- Game Type (tỉnh/miền, xổ số livestream, điện toán, vietlott)\n- Method (loại cược)\n- Username\n- Time Range\n- Scope\n- Order Number (Mã vé cược)\n- Winning\n- Betting\n- No Bet Min\n- No Bet Max\n- Total No. (bao nhiêu con số/1 vé)\n- Total Money (bao nhiêu tiền/1 con số/1 vé)\n- Game issue number (số thứ tự mã vé trong ngày, vd: 20260920-501, 20260920-502,... theo thứ tự trong ngày)\n- Check đối nghịch: Tổng con số 2 vé đủ 100 số có thắng >< thua được xem là đối nghịch. \nVD: Khách A đặt vé đánh từ 00 đến 10 (thắng), Khách B đặt vé từ 11 đến 99 (thua) > khi bấm nút check thì phải hiển thị cả 2 khách này ra và cả vé họ đặt. Để check IP trùng)",
+        "K39": "Khi bấm vào Mã vé trong \"Quản lý user\" cần trỏ qua luôn \"Quản lý đặt vé\" để xem chi tiết",
+        "O39": "1. Có tải ảnh vé số lên CMS, nhưng không xem được\n2. Quản lý vé cược cần thêm tính năng CMS giống ảnh đính kèm >>>\n3. Check đối nghịch: 2 user cược cho cùng 1 tỉnh của ngày nếu: đề tổng lại 100 con, 3 càng tổng 1000 con, 4 càng tổng 10000 con thì hiện vào chung khi bấm nút \"Check đối nghịch\".\n\nVD: user A cược 00 01 02 03 04 05 06 07 08 09 . User B cược từ 10 đến 99 > tổng 100 con thì bấm vào nút check đối nghịch nó hiện ra 2 user A và user B. Vì đủ 100 con\n\n4. Lọc số tiền cược tối thiểu: tức nhập số tiền vào thì tất cả các vé cược tối thiểu từ con số nhập vào ô trở lên đều hiện ra... VD: 10.000.000 thì search sẽ hiện các vé cược có tổng tiền từ 10.000.000 trở lên.\n5. Lọc số tiền thắng tối thiểu: tức nhập số tiền vào thì tất cả các vé thắng tối thiểu từ con số nhập vào ô trở lên đều hiện ra...VD: 10.000.000 thì search sẽ hiện các vé thắng từ 10.000.000 trở lên.",
+        "T39": "Xem bên tab CMS"
+      }
+    },
+    {
+      "row": "40",
+      "cells": {
+        "D40": "Backend Demo chung cho các trò chơi từ bên thứ 3.",
+        "F40": "Khi bấm vào dấu \"+\" \nsẽ hiển thị chi tiết như ảnh demo >>>"
+      }
+    },
+    {
+      "row": "41",
+      "cells": {
+        "D41": "Backend Demo riêng cho từng sảnh của bên thứ 3.\n(Tạo form sẵn, khi có gắn thì chỉ cần clone thêm ra thôi)"
+      }
+    },
+    {
+      "row": "42",
+      "cells": {
+        "A42": "AGENT SYSTEM",
+        "D42": "Tính năng đại lý cần có:\n1. Đại lý tổng (Trên app đăng nhập: Xem được thành viên con, xem được link đại lý, và tổng thua của tháng)\n2. Mã Đại Lý\n3. Link đại lý: theo mã được cấp tự động cho thành viên đăng ký\n4. Hoa Hồng: auto tính cho khách theo kỳ 1 tháng (từ ngày 1 đến cuối tháng), nhận ngày 5 của tháng. Mức HH: 10% tổng thua/Xổ Số. 22% tổng thua/Game thứ 3.\n(% trên đã khấu trừ hết chi phí vận hành của hệ thống: Tiền thua - Tiền thắng - Khuyến mãi - Phí sảnh)\n\nhttps://docs.google.com/document/d/1dqhDUvRlR364ySPDKlhIh18-z1I1q4fM4sa50pFNRRs/edit?usp=sharing"
+      }
+    },
+    {
+      "row": "43",
+      "cells": {
+        "A43": "Cấp quyền CMS",
+        "D43": "Master Admin: fullcontrol\n1. Điều chỉnh được tỉ lệ thắng tất cả trò chơi trên app, edit email nhận vé của khách nếu có thay đổi mail.\n2. Điều chỉnh được số dư của khách.\n3. Tạo user con cho nhân viên riêng biệt theo từng bộ phận.\n4. Quản trị vé cược & Can thiệp kết toán:\n- Tra cứu, lọc vé theo toàn bộ tiêu chí (Game types, method, kỳ quay, cược nuôi...).\n- Thực hiện Hủy vé, Thu hồi vé cược hoặc kết toán lại thủ công khi xảy ra lỗi dữ liệu.\n- Can thiệp chức năng Check vé và Check Đối Nghịch đối với các tài khoản nghi ngờ gian lận.\n- Chuyển đổi linh hoạt phạm vi dữ liệu giữa dữ liệu thật (Official data) và dữ liệu thử nghiệm (Test data).\n5. Quản trị kỳ quay & Kết quả xổ số (lottery_issues):\n- Nhập, điều chỉnh hoặc hủy kết quả quay thưởng nếu có sự cố từ nguồn dữ liệu.\n- Đóng cổng cược sớm hoặc mở lại kỳ cược thủ công.\n6. Quản lý danh mục & Tích hợp sảnh game:\n- Bật/tắt các sảnh cược bên thứ ba (CMD, SBOBet, WM Casino, Pragmatic Play...).   \n- Cấu hình tỷ lệ ăn thưởng, mức cược Min/Max, giới hạn cược theo từng con số hoặc từng tài khoản. \n7. Quản trị dòng tiền, đại lý & Khuyến mãi:\n- Phê duyệt nạp/rút tiền, điều chỉnh thủ công số dư ví của thành viên hoặc đại lý.\n- Phê duyệt bảng kết toán hoa hồng cho tuyến đại lý, điều chỉnh phần trăm chiết khấu.\n8. Quản lý phân quyền & Bảo mật (RBAC):\n- Tạo, chỉnh sửa nhóm quyền (Roles) và cấp quyền (Permissions) cho toàn bộ nhân viên.\n- Xem nhật ký hoạt động (Audit Logs) của toàn bộ nhân viên: ai đã xem vé nào, ai đã thao tác gì.\n9. Thiết Kế User Con (Nhân Viên) Không Cho Phép Chỉnh Sửa\nĐể nhân viên (ví dụ: Chăm sóc khách hàng - CSKH, Nhân viên kiểm soát rủi ro - Risk Control, Kế toán đối soát) chỉ làm việc đúng nghiệp vụ mà không có khả năng sửa đổi, xóa dữ liệu hay làm sai lệch tiền cược, hệ thống cần cấu hình theo nguyên tắc Chỉ Đọc (Read-Only) và Kiểm tra nghiệp vụ (Auditor).\n\nGiải pháp kỹ thuật bảo vệ đa lớp ở Backend:\nKhóa ở tầng Frontend (UI Level): Đối với tài khoản nhân viên, toàn bộ các nút hành động nguy hiểm như Chỉnh sửa, Hủy, Xóa, Cập nhật trạng thái sẽ bị ẩn hoàn toàn khỏi giao diện (render có điều kiện theo Role).\nKhóa ở tầng API Backend (Bắt buộc - API Middleware Level):\nKhông chỉ ẩn giao diện, mọi Endpoint nhận phương thức POST, PUT, DELETE (ví dụ: /api/bets/cancel, /api/bets/update, /api/lottery/settle) đều phải đi qua Middleware xác thực quyền.\nPhân vùng Scope dữ liệu:\nNhân viên vận hành thường chỉ được gán cố định scope: Official data và không được đổi sang xem hay chạy giả lập Test data.\nCơ chế Ghi log bất biến (Audit Logging):\nMọi lượt tra cứu Query theo Username hoặc Order Number của user con đều được ghi nhận lại (IP, thời gian, từ khóa tìm kiếm) để kiểm soát nội bộ.\n"
+      }
+    },
+    {
+      "row": "45",
+      "cells": {
+        "A45": "SỬA BỔ SUNG LÔ ĐỀ 3 MIỀN",
+        "E45": "Thêm giúp c:\n✓ Xiên ĐB (có rồi)\n✓ Xiên G1 (có rồi)\n✓ Đảo ĐB (cách chọn số như đề, tỉ lệ 1 ăn 4.9)\n✓ Đảo G1 (cách chọn số như đề, tỉ lệ 1 ăn 4.9)\n✓ Đảo Đầu ĐB (cách chọn số như đề, tỉ lệ 1 ăn 4.9)\n✓ Đảo Đầu G1 (cách chọn số như đề, tỉ lệ 1 ăn 4.9)\n\n1. Xiên ĐB + Xiên G1\nTỉ lệ sửa lại là : 1 ăn 4.8\n(Dự phòng khách đánh hết 10 số)\n\nCách đánh tương tự nên thêm vào luôn cho khác với mấy web xổ số khác giúp c."
+      }
+    },
+    {
+      "row": "74",
+      "cells": {
+        "E74": "Thêm giúp c:\n✓ Xiên 3 ĐB (có rồi)\n✓ Xiên 3 G1 (tương tự Xiên 3 ĐB)\n✓ 3C Đảo ĐB (cách chọn số như đề 3 càng, tỉ lệ 1 ăn 165 (Miền Nam+Trung), 1 ăn 158 Miền Bắc)\n✓ 3C Đảo G1 (cách chọn số như đề 3 càng, tỉ lệ 1 ăn 165 (Miền Nam+Trung), 1 ăn 158 Miền Bắc)\n✓ 3C Đảo Đầu ĐB (cách chọn số như đề 3 càng, tỉ lệ 1 ăn 165 (Miền Nam+Trung), 1 ăn 158 Miền Bắc)\n✓ 3C Đảo Đầu G1 (cách chọn số như đề 3 càng, tỉ lệ 1 ăn 165 (Miền Nam+Trung), 1 ăn 158 Miền Bắc)\n\n2. Xiên 3C ĐB + Xiên 3C G1\nTỉ lệ sửa lại là : 1 ăn 3.2\n(Dự phòng khách đánh hết 10 số)\n\nCách đánh tương tự nên thêm vào luôn cho khác với mấy web xổ số khác giúp c. Bảng tỉ lệ"
+      }
+    },
+    {
+      "row": "103",
+      "cells": {
+        "E103": "Thêm giúp chị:\n✓ 4 Càng ĐB (có rồi)\n✓ 4 Càng đầu ĐB (tương tự 4 Càng ĐB, tỉ lệ 1 ăn 9000)\n✓ 4 Càng G1  (có rồi)\n✓ 4 Càng đầu G1 (tương tự 4 Càng ĐB,tỉ lệ 1 ăn 9000)\n✓ Xiên 4 ĐB (có rồi)\n✓ Xiên 4 G1 (tương tự Xiên 4 ĐB)\n✓ 4C Đảo ĐB  (cách chọn số như đề 4 càng, tỉ lệ 1 ăn 414 (Miền Nam+Trung), 1 ăn 388 Miền Bắc)\n✓ 4C Đảo G1 (cách chọn số như đề 4 càng, tỉ lệ 1 ăn 414 (Miền Nam+Trung), 1 ăn 388 Miền Bắc)\n✓ 4C Đảo Đầu ĐB (cách chọn số như đề 4 càng, tỉ lệ 1 ăn 414 (Miền Nam+Trung), 1 ăn 388 Miền Bắc)\n✓ 4C Đảo Đầu G1 (cách chọn số như đề 4 càng, tỉ lệ 1 ăn 414 (Miền Nam+Trung), 1 ăn 388 Miền Bắc)\n\n2. Xiên 4 ĐB  + Xiên 4 G1 - Tỉ lệ sửa lại là : 1 ăn 2.4\n(Dự phòng khách đánh hết 10 số)\n\nCách đánh tương tự nên thêm vào luôn cho khác với mấy web xổ số khác giúp c."
+      }
+    },
+    {
+      "row": "132",
+      "cells": {
+        "E132": "Mấy mục kia, c muốn hiển thị nút xanh nhỏ như vầy đc ko?\n\n1. KENO: 8p-1kỳ \n2. Bao Keno, Bao Lô tô 2, Bao 636: có chữ HOT được rồi (này khỏi đổi)\n3. Power 6/55:  T3,5,7 \n4. Mega 6/45: T4,6,CN\n5. Max 3D/3DPro: T2,3,4,5,6,7\n6. Lotto 5/35: 13h & 21h\n7. Max 4D: 18h\n8. Lotto 5/70: 17h20\n9. Bingo18: 6p-1kỳ\n10. Lô Tô 235 Số: 18h15\n11. Lô Tô 234 cặp: 18h15\n12. Điện toán 6x36: T4 & T7\n13. Thần Tài 4: 18h15\n14. Trượt Lô Tô: 18h15"
+      }
+    },
+    {
+      "row": "161",
+      "cells": {
+        "E161": "1. Trên app c thấy 17h20. Nhưng CMS lại 13h á. E sửa lại giờ xổ là 17h20 cho khớp luôn. Chốt thì 17h chốt vé.\n2. Kết quả: bỏ chức năng auto nhé, chỉ để nhập tay\n3. Chỉ có 8 phút keno và Bingo thì để luôn 2 chức năng: auto và nhập tay. Vì nhiều khi c tổ chức livestream quay số > Nhập tay vào."
+      }
+    },
+    {
+      "row": "182",
+      "cells": {
+        "E182": "CMS - Giờ quay xổ lô đề 3 miền.\n\nMiền nam: chốt nhận vé cược 16h10 , xổ 16h15\nMiền trung: chốt nhận vé cược  17h10, xổ 17h15\nMiền bắc: chốt nhận vé cược  18h10, xổ 18h15\n\nVới CMS e cho TK Master thêm nút xoá hoặc edit kỳ quay cũ với nha. Vì c muốn xoá bớt kỳ quay cũ."
+      }
+    }
+  ]
+}

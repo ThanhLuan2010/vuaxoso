@@ -1,0 +1,135 @@
+{
+  "sheet": "App",
+  "rows": [
+    {
+      "row": "1",
+      "cells": {
+        "A1": "Items",
+        "B1": "InApp",
+        "C1": "Cần Edit",
+        "F1": "Trạng Thái"
+      }
+    },
+    {
+      "row": "2",
+      "cells": {
+        "A2": "Tốc độ tải trang khi đặt cược nhiều vé 1 lúc",
+        "B2": "Chậm >2 phút",
+        "C2": "1. Cải thiện tốc độ tải trang",
+        "F2": "Done"
+      }
+    },
+    {
+      "row": "3",
+      "cells": {
+        "A3": "XỔ SỐ 3 MIỀN",
+        "C3": "1. Cần sửa lại : LÔ ĐỀ 3 MIỀN\n2. Thêm icon lửa hót + icon thần tài\n3. Nội dung bố cục như ảnh:\n\nTỉ lệ 99.99\nĐÁNH LÔ ĐỀ \nUSDT/BANK/VISA",
+        "F3": "Done"
+      }
+    },
+    {
+      "row": "4",
+      "cells": {
+        "A4": "Thông tin tài khoản",
+        "C4": "Info này e cho khách tự edit và verified 1 lần thôi nhé. \nSau đó, blocked tính năng edit. \nNếu cập nhật mới thì mình cập nhật trên CMS cho khách.\n\nQuên mk đăng nhập, quên mk rút tiền, quên thông tin tài khoản, câph nhật thông tin khách hàng > CMS cần đủ tính năng để hỗ trợ khách.",
+        "F4": "Done"
+      }
+    },
+    {
+      "row": "5",
+      "cells": {
+        "A5": "Điều khoản & Điều kiện",
+        "C5": "Chỗ này C gửi E file sau nhé. Vì C cần tạo mail domains.",
+        "F5": "Done"
+      }
+    },
+    {
+      "row": "6",
+      "cells": {
+        "A6": "NẠP RÚT",
+        "C6": "Chỗ nạp tiền cho thêm Lịch sử nạp nha e. Giống bên rút tiền",
+        "F6": "Done"
+      }
+    },
+    {
+      "row": "7",
+      "cells": {
+        "C7": "1 user được thêm tối đa 2 TKNH + 2 ví USDT (BEP20/TRC20).\nCài đặt tính năng mật khẩu rút tiền (để bảo mật nếu khách mất phone thì không ai rút dc).\nChỗ tài khoản: cho hiển thị họ tên đầy đủ + ví/bank chọn rút về.\n\nLịch sử rút thưởng > đổi thành Lịch sử rút tiền\nRút thưởng > đổi thành Rút tiền",
+        "F7": "Done"
+      }
+    },
+    {
+      "row": "8",
+      "cells": {
+        "A8": "Vé kiến thiết MB",
+        "D8": "Miền Bắc có max 5 ký tự số thôi.\nTrên app hiện đang là 6 ký tự số.",
+        "F8": "Done"
+      }
+    },
+    {
+      "row": "9",
+      "cells": {
+        "A9": "Điện Toán",
+        "C9": "Hot Bao Lô Tô 2 Số. > đổi sang TRƯỢT LÔ TÔ (4-8-10 cặp)\nCách chơi như Lô tô 2,3,4 cặp.\n\nThắng xiên là có đủ các con đó trong kết quả miền bắc thì khách thắng. VD: Lô 2 cặp: 00 01 > có đủ 2 con này trong bảng kết quả thì khách thắng.\nTrượt xiên là ko có các con đó trong kết quả miền bắc thì khách thắng. VD: Lô trượt 4 cặp: 00 01 02 03  > ko có con nào trong bảng kết quả thì khách thắng",
+        "F9": "Done"
+      }
+    },
+    {
+      "row": "10",
+      "cells": {
+        "A10": "TRỰC TIẾP",
+        "C10": "Mấy mục này ko bấm đc nhỉ?",
+        "D10": "Chỗ này là kết quả chứ ko phải là để bấm đâu chị",
+        "F10": "Done"
+      }
+    },
+    {
+      "row": "11",
+      "cells": {
+        "A11": "Lô Tô 2,3,5 số",
+        "C11": "Tiêu đề LÔ TÔ 2,3,5 SỐ > đổi thành XỔ SỐ THỦ ĐÔ\nLô tô 2 số, 3 số, 5 số, Bao 2 số: 1 ô là 1 đơn vị (từ 0 đến 9, ko phải 2 đơn vị)\nThêm Lô Tô 4 số: cách chơi như lô tô 3 số.\n\n\nThêm tính năng tính tiền thắng: \n\nTạm tính: ....... VNĐ\nThắng tạm tính:............ VNĐ\n\nĐặt vé",
+        "E11": "Bảng tính tiền thắng cho Lô tô 2,3,4,5 số",
+        "F11": "Done"
+      }
+    },
+    {
+      "row": "12",
+      "cells": {
+        "A12": "Đầu Đuôi",
+        "C12": "Đầu, Đuôi: chỉ là số đơn vị từ 0 đến 9. Không phải số cặp. \nVD như ảnh đính kèm bên phải",
+        "F12": "Done"
+      }
+    },
+    {
+      "row": "13",
+      "cells": {
+        "A13": "Thống kê",
+        "C13": "Chỗ này cho thêm miền Bắc nữa nhé em.",
+        "F13": "Done"
+      }
+    },
+    {
+      "row": "14",
+      "cells": {
+        "A14": "KẾT QUẢ",
+        "C14": "Xổ số Nam-Trung-Bắc: Update kết quả bằng tay từ CMS. \nKeno 8 phút: Nếu tự động auto thì c muốn can thiệp điều chỉnh kết quả hạn chế rủi ro thua.",
+        "F14": "Done"
+      }
+    },
+    {
+      "row": "15",
+      "cells": {
+        "A15": "XỔ SỐ 3 MIỀN",
+        "D15": "Ngoài VIETLOTT , ĐIỆN TOÁN\nThêm XỔ SỐ 3 MIỀN cho nằm vị trí phía dưới ĐIỆN TOÁN giúp c nhé.\n\nChỗ này c thêm tất cả kèo lô đề vào cho khách chơi 3 miền Nam-Trung-Bắc.\nTrong vé xổ số 3 miền, có đính kèm khung kết quả.\n\nLOTTO535 > đổi thành XỔ SỐ 3 MIỀN\nCơ bản > đổi thành Miền Nam\nBao số chính > đổi thành Miền Trung\nBao số đặc biệt > đổi thành Miền Bắc\n\nKỳ quay thì giữ nguyên để khách xem lại kết quả cũ.\n\nLoại kèo đánh lô đề thì xem bảng kế bên.>>>>>",
+        "E15": "Bảng tỉ lệ kèo lô đề",
+        "F15": "Done"
+      }
+    },
+    {
+      "row": "16",
+      "cells": {
+        "E16": "<<<<< Có thể sắp xếp theo kiểu này."
+      }
+    }
+  ]
+}

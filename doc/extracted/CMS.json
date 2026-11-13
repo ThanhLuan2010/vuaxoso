@@ -1,0 +1,356 @@
+{
+  "sheet": "CMS",
+  "rows": [
+    {
+      "row": "1",
+      "cells": {
+        "A1": "Items",
+        "B1": "InApp\nCMS > Đặc biệt cần có tính năng thông kê tổng của App để theo dõi dữ liệu khách hàng \nvà số lượng vé bán ra mỗi ngày, mỗi tháng, mỗi năm.",
+        "C1": "Cần Edit",
+        "D1": "Trạng Thái"
+      }
+    },
+    {
+      "row": "2",
+      "cells": {
+        "A2": "CMS",
+        "C2": "mẫy chỗ này cho c thêm tính năng Ô tìm kiếm với nhé, nếu phần nào mà có nhiều page thông tin thì e thêm tính năng tìm kiếm dùm c.",
+        "D2": "Done"
+      }
+    },
+    {
+      "row": "3",
+      "cells": {
+        "A3": "Quản lý user \n> Quản lý đặt vé",
+        "C3": "Quản lý user: khi bấm vào mã đơn cần show ra chi tiết ở Quản lý đặt vé.\nCho link với nhau, để nv check nhanh.\n\nChỗ nào link với nhau được thì cứ link giúp c nhé.\n====\n1. Nút \"Xuất dữ liệu\" cần cho 2 khung thời gian từ ngày nào ? đến ngày nào?\nĐể có thể check mỗi ngày hoặc mỗi tuần.",
+        "D3": "Done"
+      }
+    },
+    {
+      "row": "4",
+      "cells": {
+        "A4": "Quản lý đặt vé \n> Quản lý user",
+        "C4": "Quản lý đặt vé: khi bấm vào user khách cần show ra chi tiết ở Quản lý user.\nCho link với nhau, để nv check nhanh.\n\nChỗ nào link với nhau được thì cứ link giúp c nhé.\n======\n1. Nút \"Xuất dữ liệu\" cần cho 2 khung thời gian từ ngày nào ? đến ngày nào? (không cần phải 2 tháng)\nĐể có thể check mỗi ngày hoặc mỗi tuần.",
+        "D4": "Done"
+      }
+    },
+    {
+      "row": "5",
+      "cells": {
+        "A5": "Quản lý đặt vé ",
+        "C5": "Check đối nghịch:\n1. Cần thể hiện thông tin: User khách, Dãy số chi tiết, Trạng thái vé, Ngày đặt vé, Ngày kết quả, IP \n2. Có thể tạo 1 nút \"Check đối nghịch\" ở trên hoặc tạo nút Check nằm chung từng vé.\n\nVD trong ảnh là đối nghịch: Cố tình đặt 100 số trên 2 user hoặc 100 số trên 3 user, có cả 2 trạng thái: thắng + thua ",
+        "D5": "Done"
+      }
+    },
+    {
+      "row": "6",
+      "cells": {
+        "A6": "Quản lý đặt vé ",
+        "C6": "Số con x (số tiền/1con) = Tổng cược\n\nTrên app tiền nhập sao thì CMS hiển thị y vậy.",
+        "D6": "Done"
+      }
+    },
+    {
+      "row": "7",
+      "cells": {
+        "A7": "Quản lý đặt vé ",
+        "C7": "Ngày xổ bị thiếu thời gian: giờ-phút-giây",
+        "D7": "Done"
+      }
+    },
+    {
+      "row": "8",
+      "cells": {
+        "C8": "Ô tìm kiếm cần tìm được tất cả thông tin có trong \"Quản lý đặt vé\"\nHiện tại chưa tìm kiếm được",
+        "D8": "Done"
+      }
+    },
+    {
+      "row": "9",
+      "cells": {
+        "C9": "1. NÚt chọn ảnh từ thiết bị > chèn xong > bấm vào nút Xem thì bị link lỗi.\n2. Nhập link ảnh > bấm nút Xem thì không bấm được.\n\nNgoài app: khách ko bấm xem ảnh vé số được.",
+        "D9": "Done"
+      }
+    },
+    {
+      "row": "10",
+      "cells": {
+        "C10": "Vé số loại có x00000: là vé đặc biệt.\n- 1 vé thanh toán là 1.600.000đ. \n- Số lượng: 160 vé.\n- Khách mua 1 lần là hết 160 vé đó luôn.\n- Trên App ẩn mất số đó (khi có 1 khách mua), CMS thì báo hết vé giúp c.\nLoại không có x đầu là Thường.\n- 1 vé thanh toán là 10.000đ. ",
+        "D10": "Done"
+      }
+    },
+    {
+      "row": "11",
+      "cells": {
+        "A11": "Database",
+        "B11": "Lịch sử cược: Chỉ lưu data 2 tháng gần nhất. Xuất và Xoá dữ liệu cũ.\nLịch sử nạp rút: 1 năm (tổng nạp thành công , tổng rút thành công)\nHình ảnh info cá nhân: lưu vĩnh viễn ảnh cccd, ảnh bank, ảnh usdt\nHình ảnh sao kê nạp tiền: chỉ lưu 1 tháng.\n\nMật khẩu user khách: cần yêu cầu đổi mật khẩu mới 2 tháng 1 lần.\nMật khẩu user nhân viên CMS: cần yêu cầu đổi mật khẩu mới 1 tháng 1 lần.\nMật khẩu user Master Admin: tự thay đổi bất kỳ lúc nào.\n-----\nDữ liệu thô trong Database đúng chuẩn AES-256 (GCM/CBC).\nCode mã hóa (Encryption Helper) ENCRYPTION_KEY.\nDatabase Triggers.\nTimestamp Lockdown.",
+        "D11": "Done"
+      }
+    },
+    {
+      "row": "12",
+      "cells": {
+        "A12": "Email",
+        "C12": "Email: ad@lottoxoso.com\nPw: EgD)ve!]pEiquL1$\nhttps://s11741.sgp1.stableserver.net:2096/\n====\nDomain làm web game: ett88.com\n(Cài đặt chặn DDos, Lách sao cho chặn mọi report từ đối thủ và từ hacker VN)",
+        "D12": "Doing"
+      }
+    },
+    {
+      "row": "13",
+      "cells": {
+        "A13": "Notifications",
+        "C13": "Cần có mục thông báo từ CMS đến khách hàng khi có khuyến mãi mới.",
+        "D13": "Done"
+      }
+    },
+    {
+      "row": "14",
+      "cells": {
+        "A14": "Kết quả kỳ quay",
+        "C14": "3 miền cần có mục kết quả nhập riêng bằng tay.\nChốt nhận vé Miền Nam: 16h15\nChốt nhận vé Miền Trung: 17h15\nChốt nhận vé Miền Bắc: 18h15",
+        "D14": "Done"
+      }
+    },
+    {
+      "row": "15",
+      "cells": {
+        "A15": "Quản lý đặt vé",
+        "C15": "Cần thêm cột KẾT QUẢ > để kiểm xem trạng thái thắng thua của khách.\nTại đây: xem được chi tiết 1 ngày bán được bao nhiêu vé? \nTổng tiền bán ra? \nTổng tiền khách thắng? \nTổng tiền khách thua?\n\nNên có bảng tổng thể ở trên để xem chi tiết hơn. Có thể kiểm tra theo ngày, fillter.",
+        "D15": "Done"
+      }
+    },
+    {
+      "row": "16",
+      "cells": {
+        "C16": "Chỗ này e cho đính kèm link đi. Để nhẹ hệ thống.",
+        "D16": "Done"
+      }
+    },
+    {
+      "row": "17",
+      "cells": {
+        "A17": "Quản lý user",
+        "C17": "CMS thêm tính năng: \nCCCD (đính kèm hình ảnh) + Email (auto xác thực)\n\nThêm mục NOTE (Là ghi chú lại. E để 1 khung để text là dc):.....\n\nThêm tính năng: thống kế lịch sử mua, lịch sử nạp tiền, lịch sử rút tiền, TKNH của khách.\nThêm tính năng: Check IP đăng ký, IP đăng nhập, Thiết bị đăng nhập > e cho vào trong này luôn nha.",
+        "D17": "Done"
+      }
+    },
+    {
+      "row": "18",
+      "cells": {
+        "A18": "Quản lý vé Kiến Thiết",
+        "C18": "1. Hệ số thưởng (tùy chọn) > E sửa lại là Số Lượng Vé\n2. Thêm 1 hàng Ký hiệu: cho c 10 ô (mỗi ô nhập max 4 ký tự) nhé.\n3. Thiếu ô chèn link ảnh vé số\n4. Thêm tính năng thời gian chốt vé tự động của ngày và mở vé ngày mới: \n\n- Vé số Vietlott và Điện toán thủ đô: trước 17:20 ngày quay thưởng.\n- Sản phẩm Lotto 5/35 có 2 kỳ quay/ngày: trước 12h00 và 20h00 của kỳ quay thưởng.\n- Xổ số kiến thiết Miền Nam: trước 15:40 ngày quay thưởng.\n- Xổ số kiến thiết Miền trung: trước 16:40 ngày quay thưởng.\n- Xổ số kiến thiết Miền Nam: trước 17:30 ngày quay thưởng.\n\nCSKH chỉ tiếp nhận và xử lý các báo lỗi được gửi trong thời gian trên. \n⚠️ Sau thời gian trên, thông tin trên vé vật lý và ảnh vé trong lịch sử mua vé được xem là chính xác và là căn cứ duy nhất để xác định kết quả trúng thưởng.\n",
+        "D18": "Done"
+      }
+    },
+    {
+      "row": "19",
+      "cells": {
+        "A19": "Tính năng note",
+        "C19": "Bổ sung thêm tính năng này trong CMS để tự edit tay.",
+        "D19": "Done"
+      }
+    },
+    {
+      "row": "21",
+      "cells": {
+        "C21": "1. Không thấy ảnh sau khi add CCCD + Ảnh sau khi thêm TKNH rút tiền.\n2. Ảnh biên lai nạp tiền thì ok.",
+        "D21": "Done"
+      }
+    },
+    {
+      "row": "22",
+      "cells": {
+        "C22": "1. Có thể kiểm tra từ ngày nào? đến ngày nào?\n2. Kiểm tra: nạp tiền, rút tiền filter theo trạng thái.",
+        "D22": "Done"
+      }
+    },
+    {
+      "row": "23",
+      "cells": {
+        "C23": "1. Có thể kiểm tra từ ngày nào? đến ngày nào? \nUser đăng ký mới trong khoản ngày đó? Hoặc User cũ?\n\nThành viên:\nTất cả\nTk mới đăng ký\nTK cũ\n\nTrạng thái:\nĐang hoạt động\nĐã khoá\nReview\n\nNgày: từ ngày nào ? đến ngày nào?\n\nPhía dưới tab 1,2,3... (hiển thị số lượng thành viên đã đăng ký dùm c nhé)\n\nKhông cần số lượng active user cũng dc.",
+        "D23": "Doing"
+      }
+    },
+    {
+      "row": "25",
+      "cells": {
+        "C25": "Cột này e cho nó link về Quản lý user dùm c với nhé. Giống bên tab nạp tiền á.",
+        "D25": "Doing"
+      }
+    },
+    {
+      "row": "26",
+      "cells": {
+        "C26": "Hình như chỗ này c thấy thiếu lô đề phải ko?",
+        "D26": "Doing"
+      }
+    },
+    {
+      "row": "27",
+      "cells": {
+        "C27": "Auto 1000 vé: 500 vé thường, 500 vé ĐB",
+        "D27": "Doing"
+      }
+    },
+    {
+      "row": "28",
+      "cells": {
+        "C28": "Còn tin nào chưa đọc thì vẫn hiện số tin chưa đọc, in đậm tin chưa đọc, để khách bấm vào xem đc ko?",
+        "D28": "Doing"
+      }
+    },
+    {
+      "row": "29",
+      "cells": {
+        "C29": "Chỗ này không search được",
+        "D29": "Doing"
+      }
+    },
+    {
+      "row": "30",
+      "cells": {
+        "C30": "Chỉnh giờ chốt? giờ xổ? ở đâu trên CMS",
+        "D30": "Doing"
+      }
+    },
+    {
+      "row": "32",
+      "cells": {
+        "A32": "Thêm",
+        "C32": "Chỗ này cho thêm nút lọc: Thắng/Thua/Chưa có KQ dùm c với. Vì c tìm user mà bấm hết trừng trang nó lâu.\n\nCho thêm tính năng lọc cột: Tỉnh/Đài > để kiểm tra vé.\n\n\nNói chung tất cả các tab trong CMS > E cho c tính năng lọc đầy đủ. Để cần check gì lọc cho nhanh á em."
+      }
+    },
+    {
+      "row": "33",
+      "cells": {
+        "C33": "Cho thêm tính năng lọc cột: Tỉnh/Đài > để kiểm tra vé."
+      }
+    },
+    {
+      "row": "34",
+      "cells": {
+        "C34": "Quản lý kỳ quay cần thêm 2 cột:\n1. Ngày quay\n2. Tỉnh/Đài (Nếu Miền Nam/Trung có nhiều Đài trong ngày thì thêm đủ các hàng để nhập kết quả)\n\nCần thêm 2 nút lọc:\n1. Lọc theo ngày quay\n2. Lọc them Tỉnh/Đài\n\nChỗ nhập kết quả, nếu nhân viên nhập sai thì sửa lại, hệ thống có auto update lại thắng thua ko em?"
+      }
+    },
+    {
+      "row": "35",
+      "cells": {
+        "C35": "Chỗ nhập kết quả, nếu nhân viên nhập sai thì sửa lại, hệ thống có auto update lại thắng thua ko em?"
+      }
+    },
+    {
+      "row": "36",
+      "cells": {
+        "C36": "Quản lý đặt vé: cần thêm hàng lọc thông tin y hệt bên trên khi search user con. Để biết khách chơi bao nhiêu vé, tổng tiền bán ra, tổng thắng, tổng thua."
+      }
+    },
+    {
+      "row": "37",
+      "cells": {
+        "C37": "TK Master cần Thêm tính năng: Sửa tiền thắng, trạng thái và ghi chú lý do sửa. Báo cáo thay đổi về Lịch sử hoạt động\n\nVì hệ thống trả thưởng sai thì sửa lại kịp."
+      }
+    },
+    {
+      "row": "38",
+      "cells": {
+        "C38": "Mã GD: sửa thành mã vé với loại là thắng cược. Không cần trừ phí thắng."
+      }
+    },
+    {
+      "row": "39",
+      "cells": {
+        "C39": "Nhật ký hoạt động: em thêm tính năng báo cáo khách nạp rút + báo cáo tiền thắng/thua từ mã vé nào.\n\nTất cả nhật ký hoạt động cần báo về mail cá nhân của c: developervnteam@gmail.com"
+      }
+    },
+    {
+      "row": "40",
+      "cells": {
+        "C40": "Kiến thiết Miền Bắc, mà lại để miền Nam á em."
+      }
+    },
+    {
+      "row": "41",
+      "cells": {
+        "C41": "Thời gian load 1000 vé chậm quá. Tối ưu phân trang hay ntn đó để load 1 giây là được."
+      }
+    },
+    {
+      "row": "42",
+      "cells": {
+        "C42": "Lịch sử vé bấm vào xem chi tiết: vẫn chưa thể hiện tỉnh nào? loại cược nào?\n\nVD vé này: cược xiên 2 - Trong vé không thể hiện cược xiên 2, ko thấy tỉnh nào của miền trung."
+      }
+    },
+    {
+      "row": "43",
+      "cells": {
+        "C43": "1. Thiếu lịch sử Lô Đề\n2. Vé thắng nên cho background màu đỏ nhạt để phân biệt.\n3. Tốc độ load trang lịch sử chậm quá > nên 1-2 giây thôi."
+      }
+    },
+    {
+      "row": "44",
+      "cells": {
+        "C44": "Nên thêm cột Mã Kỳ Quay. Để biết khách chơi kỳ quay nào."
+      }
+    },
+    {
+      "row": "45",
+      "cells": {
+        "C45": "CMS + App: cần có mã kỳ quay giống nhau.\nThêm mã kỳ quay cho Miền Bắc."
+      }
+    },
+    {
+      "row": "47",
+      "cells": {
+        "C47": "Giỏ hàng > chèn chỗ này dùm c nhé.\n\nC thêm 1 list vô giỏ hàng. Vé cuối c thanh toán ngay thành công thì không quay lại ktra giỏ hàng được (giỏ hàng bị xoá hết các vé đã thêm trước đó)"
+      }
+    },
+    {
+      "row": "48",
+      "cells": {
+        "C48": "Giờ bán vé số e cài y như giờ chốt lô đề dùm c đc ko? VD: tầm 16h10 thì auto vé miền nam ngày đó tắt. 17h10 vé miền trung tắt. 18h10 vé miền bắc tắt.\n\nVà 18h15 auto chuyển sang ngày bán vé kế tiếp của 3 miền."
+      }
+    },
+    {
+      "row": "49",
+      "cells": {
+        "C49": "1. Nhập kết quả rồi mà chưa hiển thị trả kết quả.\n2. Mã kỳ quay chưa hiển thị khớp với App"
+      }
+    },
+    {
+      "row": "50",
+      "cells": {
+        "C50": "1. Xem kết quả: phải có đầy đủ các giải như chỗ nhập kết quả luôn giúp c."
+      }
+    },
+    {
+      "row": "51",
+      "cells": {
+        "C51": "1. Đồng bôh theo bảng kết quả, có đủ các giải để dễ nhìn."
+      }
+    },
+    {
+      "row": "52",
+      "cells": {
+        "C52": "1. Miền Nam + Trung nhập 1 tỉnh mà nó auto clone ra các tỉnh còn lại.\n2. Kết qủa chưa trả về sau khi nhập kết quả."
+      }
+    },
+    {
+      "row": "53",
+      "cells": {
+        "C53": "1. Miền Nam + Trung: không thấy mã kỳ quay."
+      }
+    },
+    {
+      "row": "54",
+      "cells": {
+        "C54": "4 loại này là lấy theo kêt quả miền bắc nhé e. Để ô cho c nhập kểt quả luôn.\n\nGiờ mở, giờ chốt theo giờ Miền Bắc (MB): Chốt vé 18:10 — Xổ thưởng 18:15"
+      }
+    },
+    {
+      "row": "55",
+      "cells": {
+        "C55": "C muốn sửa lại giờ mở và giờ chốt cho 4 loại này mà ko dc nhỉ."
+      }
+    }
+  ]
+}

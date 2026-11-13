@@ -1,0 +1,253 @@
+{
+  "sheet": "Các trò chơi khác",
+  "rows": [
+    {
+      "row": "1",
+      "cells": {
+        "A1": "Items",
+        "B1": "Tốc độ load app khi đặt cược chậm quá em",
+        "C1": "InApp",
+        "D1": "Cần Edit",
+        "E1": "Trạng Thái"
+      }
+    },
+    {
+      "row": "2",
+      "cells": {
+        "A2": "All Trò",
+        "B2": "1. Tất cả trò chơi cần thể hiện chọn mệnh giá FORMAT như nhau:\n10.000đ\n20.000đ\n30.000đ\n40.000đ\n50.000đ\n\n2. Bấm chọn kỳ quay: bị líp chữ ở bottom - Em cho hiển thị 1 lần 10 kỳ quay kế tiếp cho khách kéo chọn.\n3. Bấm thanh toán load chậm lắm.\n4. CMS quản lý vé:\n- Cần thu gọn lại chỗ chi tiết vé cược.\n- Bấm nút vào xem chi tiết popup tiện hơn.\n- Bấm vào user khách sẽ hiện ra tab Quản lý user. \n- Kết quả: cần hiển thị chi tiết kết quả khi bấm vào. Để biết lý do thắng/thua của khách. Vì ngoài app có đính kèm ảnh kết quả, nhưng CMS ko thấy.",
+        "E2": "Doing"
+      }
+    },
+    {
+      "row": "3",
+      "cells": {
+        "A3": "KENO",
+        "D3": "1. Thêm icon 🏆️ vào trước dãy số không được. > Ok\n2. Cập nhật CMS: 124.270.821.500đ nhưng trên app lại mất chữ \"đ\" > Ok",
+        "E3": "Done"
+      }
+    },
+    {
+      "row": "4",
+      "cells": {
+        "D4": "1. Đặt vé báo lỗi, không thanh toán được. > Ok\n2. Bấm chọn kỳ quay: bị líp chữ ở bottom - Em cho hiển thị 1 lần 10 kỳ quay kế tiếp cho khách kéo chọn giúp chị. > Ok\n3. Mỗi 1 kỳ cần cách nhau 8 phút.  > Ok\n4. Sau khi kết thúc kỳ quay thì App cần hiển thị sang kỳ quay kế luôn. Vì đặt xong app tự động lưu kỳ quay cũ, nên đặt vé ko dc.> Ok",
+        "E4": "Done"
+      }
+    },
+    {
+      "row": "5",
+      "cells": {
+        "D5": "1. Keno không cần giới hạn số lượng 70%số/1 vé. > Ok\nMấy cái bao này ko cần giới hạn 70%. Keno chỉ cần giới hạn số con mà khách đánh ko quá 60 con (MAX 60 số/1khách/1 kỳ quay) > Ok\n(vì Keno có 80 con, nếu khách chọn hết 80 con thì mình lỗ)\n2. CMS: Đặt nhiều số thì ko xem dc. E cho hiển thị khi click vào giúp c nhé. > Ok",
+        "E5": "Done"
+      }
+    },
+    {
+      "row": "6",
+      "cells": {
+        "C6": "1. Giới hạn số lượng con khi 1 khách chơi Keno như vầy là ok. > Ok\nCần sửa lại: MAX 60 số/1khách/1 kỳ quay (ko phải 1 ngày)",
+        "E6": "Done"
+      }
+    },
+    {
+      "row": "7",
+      "cells": {
+        "D7": "1. Chỗ 10k này cho nhiều giá trị để khách chọn đánh: > Ok\n\n10.000đ\n20.000đ\n30.000đ\n40.000đ\n50.000đ",
+        "E7": "Done"
+      }
+    },
+    {
+      "row": "8",
+      "cells": {
+        "A8": "POWER 655",
+        "C8": "1. Power655: xổ vào 18h00 Thứ 3,5,7 cho nên kỳ mua cần show 10 kỳ quay gần nhất và cài đặt đúng ngày để khách đặt. > Ok\nChốt nhận vé Power655 là 17h20 cùng ngày của kỳ quay.\n2. Bấm chọn kỳ quay: bị líp chữ ở bottom - Em cho hiển thị 1 lần 10 kỳ quay kế tiếp cho khách kéo chọn  > Ok\n3. Thiếu cột tiền: > Ok\n10.000đ\n20.000đ\n30.000đ\n40.000đ\n50.000đ\n\nDemo ảnh chọn kỳ quay như ảnh đính kèm >>>",
+        "E8": "Done"
+      }
+    },
+    {
+      "row": "9",
+      "cells": {
+        "D9": "Kết quả ở đâu mà nó tự trả Thua luôn vậy e.",
+        "E9": "Done"
+      }
+    },
+    {
+      "row": "10",
+      "cells": {
+        "A10": "MEGA645",
+        "C10": "1. MEGA645: xổ vào 18h00 Thứ 4,6,CN cho nên kỳ mua cần show 10 kỳ quay gần nhất và cài đặt đúng ngày để khách đặt. > Ok\nChốt nhận vé MEGA645 là 17h20 cùng ngày của kỳ quay.\n2. Bấm chọn kỳ quay: bị líp chữ ở bottom - Em cho hiển thị 1 lần 10 kỳ quay kế tiếp cho khách kéo chọn > Ok\n3. Thiếu cột tiền: > Ok\n10.000đ\n20.000đ\n30.000đ\n40.000đ\n50.000đ\nDemo ảnh chọn kỳ quay như ảnh đính kèm >>>",
+        "E10": "Done"
+      }
+    },
+    {
+      "row": "11",
+      "cells": {
+        "A11": "MAX3D/3D+\n    3DPro",
+        "C11": "1. Tất cả các loại cược đều loading lâu khi thanh toán vé. > Ok\n2. Bấm chọn kỳ quay: bị líp chữ ở bottom - Em cho hiển thị 1 lần 10 kỳ quay kế tiếp cho khách kéo chọn > Ok\n3. Max3D/3D+: xổ vào 18h00 Thứ 2,4,6 cho nên kỳ mua cần show 10 kỳ quay gần nhất và cài đặt đúng ngày để khách đặt.> Ok\nChốt nhận vé Max3D là 17h20 cùng ngày của kỳ quay.\n4. Max3DPro+: xổ vào 18h00 Thứ 3,5,7 cho nên kỳ mua cần show 10 kỳ quay gần nhất và cài đặt đúng ngày để khách đặt.> Ok\nChốt nhận vé Max3D là 17h20 cùng ngày của kỳ quay.\n5. Thiếu cột tiền:> Ok\n10.000đ\n20.000đ\n30.000đ\n40.000đ\n50.000đ\n\nDemo ảnh chọn kỳ quay như ảnh đính kèm >>>",
+        "E11": "Done"
+      }
+    },
+    {
+      "row": "12",
+      "cells": {
+        "A12": "LOTTO535",
+        "C12": "1. Tất cả các loại cược đều loading lâu khi thanh toán vé.> Ok\n2. Bấm chọn kỳ quay: bị líp chữ ở bottom - Em cho hiển thị 1 lần 10 kỳ quay kế tiếp cho khách kéo chọn > Ok\n3. LOTTO535: xổ vào 13h + 21h MỖI NGÀY cho nên kỳ mua cần show 10 kỳ quay gần nhất và cài đặt đúng ngày để khách đặt.\nChốt nhận vé Max3D là 12h + 20h cùng ngày của kỳ quay.> Ok\n4. Thiếu cột tiền:> Ok\n10.000đ\n20.000đ\n30.000đ\n40.000đ\n50.000đ\nDemo ảnh chọn kỳ quay như ảnh đính kèm >>>",
+        "E12": "Done"
+      }
+    },
+    {
+      "row": "13",
+      "cells": {
+        "C13": "1. Cơ bản: bị líp 1 nửa hàng F > Ok\n2. Bao số chính Từ bao 7 -15: bị líp ô vàng đb > Ok\n3. Bao số ĐB Từ bao 3 -12: bị líp ô vàng đb > Ok\nDemo làm gọn lại như ảnh đính kèm >>>",
+        "E13": "Done"
+      }
+    },
+    {
+      "row": "14",
+      "cells": {
+        "A14": "LÔ TÔ 235",
+        "C14": "1. Đổi XỔ SỐ THỦ ĐÔ thành: LÔ TÔ 2,3,5 > Ok\n2. Bấm chọn kỳ quay: bị líp chữ ở bottom - LÔ TÔ 235 khách có thể đánh 1 vé cho nhiều kỳ quay: > Ok\n1 kỳ: tức là 1 ngày, tiền cược x1\n2 kỳ: tức là 2 ngày, tiền cược x2\n5 kỳ: tức là 5 ngày, tiền cược x5\n10 kỳ: tức là 10 ngày, tiền cược x10\n\n3. LÔ TÔ 235: xổ vào 18h15 MỖI NGÀY. Chốt nhận vé là 17h20 cùng ngày của kỳ quay.\n4. Cách tính tiền cược và thắng bị sai:\n- Tiền cược tạm tính = [Tiển đánh cho 1 con] x [số kỳ quay: x1,x2,x5,x10]\n- Tiền thắng tạm tính = [Tiển đánh cho 1 con] x [tỉ lệ thắng]\n\nTỉ lệ thắng có sửa lại chút xíu, em xem lại bên bảng này nhé, c có đánh màu đỏ:\n- Lô tô 2 số: x90\n- Lô tô 3 số: x900\n- Lô tô 4 số: x9000\n- Lô tô 5 số: x90,000\n- Bao 2 số: x2.7\n\n5. Không giới hạn số con đánh, khách có thể đánh cả 100,1000,10000,100000 con, để tạo điểm khác biệt với Lô Đề MB.\n\nDemo ảnh chọn kỳ quay như ảnh đính kèm >>>",
+        "E14": "Doing",
+        "G14": "Chọn số đơn từ 0 đến 9.\nÔ 1: chọn 1 số.\nÔ 2: chọn 1 số.\nÔ 3: chọn 1 số.\nÔ 4: chọn 1 số.\nÔ 5: chọn 1 số.\n--\nBỏ câu thông báo chọn tối thiểu 6 số dùm c. Vì cái này 1 ô chỉ chọn 1 số thôi."
+      }
+    },
+    {
+      "row": "15",
+      "cells": {
+        "C15": "1. Chỗ tính tiền thắng tạm tính cần sửa lại: > OK\n- Lô tô 2 số\nTạm tính:        40.000 VNĐ\nTỉ lệ thắng:     *90\n[Số tiền đánh cho 1con] * 90 = 900.000 VNĐ (Không cần ghi cả công thức tính ra)\n\n- Lô tô 3 số\nTạm tính:      40.000 VNĐ\nTỉ lệ thắng:     *900\n[Số tiền đánh cho 1con] * 900 = 9.000.000 VNĐ (Không cần ghi cả công thức tính ra)\n\n- Lô tô 4 số\nTạm tính:      40.000 VNĐ\nTỉ lệ thắng:     *9,000\n[Số tiền đánh cho 1con] * 9000 = 90.000.000 VNĐ (Không cần ghi cả công thức tính ra)\n\n- Lô tô 5 số\nTạm tính:      40.000 VNĐ\nTỉ lệ thắng:     *90,000\n[Số tiền đánh cho 1con] * 90,000 = 900.000.000 VNĐ (Không cần ghi cả công thức tính ra)\n\nMẫu như ảnh đính kèm >>>>>",
+        "E15": "Done"
+      }
+    },
+    {
+      "row": "16",
+      "cells": {
+        "C16": "1. Khi bấm vào các nút cần show con số ra luôn: > OK\nChẵn (50 số): 00, 02, 04, 06, 08, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 96, 98  \nLẻ (50 số): 01, 03, 05, 07, 09, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63, 65, 67, 69, 71, 73, 75, 77, 79, 81, 83, 85, 87, 89, 91, 93, 95, 97, 99\nLỡn (50 số): 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99\nNhỏ (50 số): 00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49\nTổng chẵn (50 số): 00, 02, 04, 06, 08, 11, 13, 15, 17, 19, 20, 22, 24, 26, 28, 31, 33, 35, 37, 39, 40, 42, 44, 46, 48, 51, 53, 55, 57, 59, 60, 62, 64, 66, 68, 71, 73, 75, 77, 79, 80, 82, 84, 86, 88, 91, 93, 95, 97, 99\nTổng lẻ (50 số): 01, 03, 05, 07, 09, 10, 12, 14, 16, 18, 21, 23, 25, 27, 29, 30, 32, 34, 36, 38, 41, 43, 45, 47, 49, 50, 52, 54, 56, 58, 61, 63, 65, 67, 69, 70, 72, 74, 76, 78, 81, 83, 85, 87, 89, 90, 92, 94, 96, 98\n\n2. Không giới hạn số con đánh. Khách chọn 100 số đều được. Không cần note 70% số, cho khách đánh 100% số luôn. > OK\n3. Chỗ tính tiền thắng tạm tính cần sửa lại: > OK\n- Bao lô 2 số\nTạm tính:        500.000 VNĐ\nTỉ lệ thắng:     *2.7\n\n[Số tiền đánh cho 1con] * 2.7 = 27.000 VNĐ (Miền Bắc có 27 giải, nếu con số xuất hiện bao nhiêu lần thì *n lần, không cần ghi cả công thức tính ra)\nDemo ảnh đính kèm >>>>>",
+        "E16": "Done",
+        "H16": "27"
+      }
+    },
+    {
+      "row": "17",
+      "cells": {
+        "C17": "1. Đầu/Đuôi: khi bấm vào số cần show ra bên dưới dãy số khách đã chọn luôn. > Ok\n2. Không giới hạn số con đánh. Khách chọn 100 số đều được. Không cần note 70% số, cho khách đánh 100% số luôn. > Ok\n3. Chỗ tính tiền thắng tạm tính cần sửa lại: > Ok\n- Bao lô 2 số\nTạm tính:        100.000 VNĐ\nTỉ lệ thắng:     x2.7\n\n[Số tiền đánh cho 1con] * 2.7 = 27.000 VNĐ (Miền Bắc có 27 giải, nếu con số xuất hiện bao nhiêu lần thì *n lần, không cần ghi cả công thức tính ra)\nDemo ảnh đính kèm >>>>>",
+        "E17": "Done"
+      }
+    },
+    {
+      "row": "18",
+      "cells": {
+        "A18": "LÔ TÔ 234\n    CẶP",
+        "C18": "1. Trả thắng theo KQXS Miền Bắc - loại: xiên 2, xiên 3, xiên 4 > Ok\n2. Không giới hạn số con đánh. Khách chọn 100 số đều được. Không cần note 70% số, cho khách đánh 100% số luôn. > Ok\n3. Chỗ tính tiền thắng tạm tính cần sửa lại: > Ok\n- Lô tô 2 cặp\nTạm tính:        10.000 VNĐ\nTỉ lệ thắng:     x15\n\n[Số tiền đánh cho 1con] * 15 = 150.000 VNĐ (Miền Bắc có 27 giải, nếu có mặt cả 2 con thì thắng, nếu chỉ có 1 con thì thua, không cần ghi cả công thức tính ra)\n\n- Lô tô 3 cặp\nTạm tính:        10.000 VNĐ\nTỉ lệ thắng:     x65\n\n[Số tiền đánh cho 1con] *65 = 650.000 VNĐ (Miền Bắc có 27 giải, nếu có mặt cả 3 con thì thắng, nếu chỉ có 1-2 con thì thua, không cần ghi cả công thức tính ra)\n\n- Lô tô 4 cặp\nTạm tính:        10.000 VNĐ\nTỉ lệ thắng:     x170\n\n[Số tiền đánh cho 1con] *170 = 1.700.000 VNĐ (Miền Bắc có 27 giải, nếu có mặt cả 4 con thì thắng, nếu chỉ có 1-2-3 con thì thua, không cần ghi cả công thức tính ra)\n\n\nDemo ảnh đính kèm >>>>>",
+        "E18": "Done"
+      }
+    },
+    {
+      "row": "19",
+      "cells": {
+        "C19": "1. Cho hiển thị 10 kỳ quay gần nhất, để khách bấm chọn > Ok\n2. Bị líp bottom > Ok",
+        "E19": "Done"
+      }
+    },
+    {
+      "row": "20",
+      "cells": {
+        "A20": "ĐT 6x36",
+        "C20": "1. Cho hiển thị 10 kỳ quay gần nhất, để khách bấm chọn > Ok\n2. Bị líp bottom > Ok\n3. Chỗ thắng tạm tính sửa lại cố định cho tất cả các giải của ĐT636:\n\nGiải đặc biệt: 500.000.000VNĐ ",
+        "E20": "Doing",
+        "G20": "Min đặt cho 1 vé là 10K. Em chỉnh lại dùm c chỗ tạm tính: 10.000 VNĐ luôn nhé."
+      }
+    },
+    {
+      "row": "21",
+      "cells": {
+        "C21": "1. Các nút Bao 4 đến Bao 12: cần làm gọn lại 1 hàng, size nhỏ cũng được.\n\n2. Bao 4: chọn 4 số > Khi bấm vào chọn 4 số, thì hệ thống tự show ra bộ số bên dưới luôn-> Demo ảnh đính kèm>>>\n3. Bao 5: chọn 5 số > Khi bấm vào chọn 5 số, thì hệ thống tự show ra bộ số bên dưới luôn-> Demo ảnh đính kèm>>>\n\nHiện tại chọn 6 số vẫn được. E chỉnh lại dùm c.\n\n4. Cho hiển thị 10 kỳ quay gần nhất, để khách bấm chọn\n5. Bị líp bottom\n6. Chỗ thắng tạm tính sửa lại cố định cho tất cả các giải của ĐT636:\n\nGiải đặc biệt: 500.000.000VNĐ ",
+        "E21": "Done"
+      }
+    },
+    {
+      "row": "22",
+      "cells": {
+        "C22": "1. Các nút Bao 4 đến Bao 12: cần làm gọn lại 1 hàng, size nhỏ cũng được.\n\n2. Bao 7: chọn 7 số \n3. Bao 8: chọn 8 số\n4. Bao 9: chọn 9 số\n5. Bao 10: chọn 10 số\n6. Bao 11: chọn 11 số\n7. Bao 12: chọn 12 số\n\n> Khi bấm vào chọn số, thì hệ thống tự show ra bộ số bên dưới luôn-> Demo ảnh đính kèm>>>\nHiện tại chỉ chọn được 6. E chỉnh lại dùm c.\n\n8. Chỗ thắng tạm tính sửa lại cố định cho tất cả các giải của ĐT636:\n\nGiải đặc biệt: 500.000.000VNĐ ",
+        "E22": "Done"
+      }
+    },
+    {
+      "row": "23",
+      "cells": {
+        "A23": "BAO LÔ TÔ\n      2 SỐ",
+        "C23": "1. Bàn phím số cần đều và khoanh nút bấm như bàn phiếm điện thoại. Để khách bấm chọn.\n2. Không giới hạn số con đánh. Khách chọn 100 số đều được. Không cần note 70% số, cho khách đánh 100% số luôn.\n3. Chỗ nhập số tiền đánh/1con: ko nhập được. Thêm note vào: Nhập số tiền\n4. Tổng tiền, sửa lại là:\n\nTạm tính:       27.000 VNĐ\nTỉ lệ thắng:     x99\n\nKhi khách nhập vào ô số tiền là: 1000 thì chỗ tạm tính tự tính theo công thức: [số tiền đánh/1con] *27 = Tạm tính\n(Miền Bắc có 27 giải, nếu con số xuất hiện bao nhiêu lần thì *n lần, không cần ghi cả công thức tính ra)\n\n5. 2 nút dời xuống dòng, và cho đều center.\n\n\nDemo ảnh đính kèm >>>>>",
+        "E23": "Done"
+      }
+    },
+    {
+      "row": "24",
+      "cells": {
+        "A24": "THẦN TÀI 4\nĐT 123",
+        "C24": "1. Thiếu cột số tiền: \n10.000đ\n20.000đ\n30.000đ\n40.000đ\n50.000đ\n2. Bấm chọn kỳ quay: bị líp chữ ở bottom - Em cho hiển thị 1 lần 10 kỳ quay kế tiếp cho khách kéo chọn \n3. Thêm hàng trong Thần Tài 4: \nGiải thưởng: 179.000.000 VNĐ\n\n4. Tỉ lệ Thần Tài 4 có thay đổi, c đã note màu vàng trong bảng này nhé. \n\n5. Thêm hàng trong ĐT123: \nGiải thưởng: 139.000.000 VNĐ\n\n6. Thần tài 4 + ĐT123: xổ vào 18h15 mỗi ngày cho nên kỳ mua cần show 10 kỳ quay gần nhất và cài đặt đúng ngày để khách đặt.\nChốt nhận vé Thần tài 4 + ĐT123 là 17h20 cùng ngày của kỳ quay.\nHiển thị cột chọn tiền như ảnh đính kèm>>>",
+        "D24": "1. Thiếu nút chọn kỳ quay (quay mỗi ngày theo xsmb)",
+        "E24": "Doing"
+      }
+    },
+    {
+      "row": "25",
+      "cells": {
+        "C25": "1. ĐT123: thêm dấu ngăn cách như ảnh đính kèm: ? | ?? | ???\n2. Bị líp bottom hàng F.\n3. Thiếu cột tiền như thần tài 4.",
+        "E25": "Done"
+      }
+    },
+    {
+      "row": "26",
+      "cells": {
+        "A26": "TRƯỢT LÔ TÔ",
+        "C26": "1. Trượt 4: chỉ cần 4 ô , trên cùng 1 hàng (Trên app bị dư 2 ô)\n2. Trượt 8: chỉ cần 8 ô, trên cùng 1 hàng (Trên app bị thiếu 2 ô)\n3. Trượt 10: chỉ cần 10 ô, trên cùng 1 hàng (Trên app bị thiếu 4 ô)\n\nTheo kết quả XSMB, không có mặt trong lô thì thắng, nếu có mặt 1 con là thua.\n\nTỉ lệ thắng trượt 4: *2.3\nTỉ lệ thắng trượt 8: *8\nTỉ lệ thắng trượt 10: *12\n\n4. Đặt ngẫu nhiên 6 vé, mà tiền tạm tính có 5 vé. E xem lại giúp c.\n5. Trượt Lô Tô: xổ vào 18h15 mỗi ngày cho nên kỳ mua cần show 10 kỳ quay gần nhất và cài đặt đúng ngày để khách đặt.\nChốt nhận vé là 17h20 cùng ngày của kỳ quay.\n6. THIẾU CỘT TIỀN: \n10.000đ\n20.000đ\n30.000đ\n40.000đ\n50.000đ",
+        "E26": "Done"
+      }
+    },
+    {
+      "row": "27",
+      "cells": {
+        "A27": "MAX4D",
+        "C27": "1. MỆNH GIÁ NÊN ĐỦ như các trò chơi khác: \n10.000đ\n20.000đ\n30.000đ\n40.000đ\n50.000đ\n2. Bấm chọn kỳ quay: bị líp chữ ở bottom - Em cho hiển thị 1 lần 10 kỳ quay kế tiếp cho khách kéo chọn\n\n3. Max4D: xổ vào 18h00 mỗi ngày cho nên kỳ mua cần show 10 kỳ quay gần nhất và cài đặt đúng ngày để khách đặt.\nChốt nhận vé là 17h20 cùng ngày của kỳ quay.\n4. Chữ TC c thấy trò nào cũng có nút đó, nút đó làm chức năng gì vậy em?",
+        "D27": "1. Kỳ quay diễn ra mỗi ngày.",
+        "E27": "Doing"
+      }
+    },
+    {
+      "row": "28",
+      "cells": {
+        "A28": "LOTTO570",
+        "C28": "1. Thiếu cột số tiền: \n10.000đ\n20.000đ\n30.000đ\n40.000đ\n50.000đ\n2. Bấm chọn kỳ quay: bị líp chữ ở bottom - Em cho hiển thị 1 lần 10 kỳ quay kế tiếp cho khách kéo chọn \n\n6. Lotto570: xổ vào 12h45 + 20h45 mỗi ngày cho nên kỳ mua cần show 10 kỳ quay gần nhất và cài đặt đúng ngày để khách đặt.\nChốt nhận vé là 12h30 + 20h30 cùng ngày của kỳ quay.",
+        "D28": "1. Kỳ quay diễn ra 2 lần mỗi ngày: 12h45 , 20h45",
+        "E28": "Doing"
+      }
+    },
+    {
+      "row": "29",
+      "cells": {
+        "C29": "1. Cơ bản: bị líp 1 nửa hàng F\n2. Bao số chính từ bao 7 -15: bị líp ô vàng đb\n\nDemo làm gọn lại như ảnh đính kèm >>>",
+        "E29": "Done"
+      }
+    },
+    {
+      "row": "30",
+      "cells": {
+        "C30": "1. Cơ bản: bị líp 1 nửa hàng F\n2. Bao số ĐB từ bao 3 -11: bị líp ô vàng đb\n\nDemo làm gọn lại như ảnh đính kèm >>>",
+        "E30": "Done"
+      }
+    },
+    {
+      "row": "31",
+      "cells": {
+        "A31": "BINGO18",
+        "C31": "1. Chèn ô hiển thị kỳ quay trên đầu:\nBingo18 quay 10 phút 1 lần từ 06:00 - 21:55 mỗi ngày. Show 10 kỳ quay gần nhất có thời gian hiển thị để khách biết kỳ quay đó là 10 phút.\n2. Bỏ mấy note trong ngoặc giúp c. Chỉ để:\n- Một số\n- Hai số trùng\n- Ba số trùng\n3. Thắng tạm tính (Max): ..... > thay bằng: 🏆️ Giải thưởng 79.000.000 VNĐ\n4. Tỉ lệ thắng có thay đổi theo số c tô màu đỏ bên bảng này.\nVì trò này tiền thắng ít. Không cần ghi số tiền thắng tạm tính ra.",
+        "E31": "Done"
+      }
+    },
+    {
+      "row": "32",
+      "cells": {
+        "C32": "1. Bỏ tỉ lệ trong ngoặc đi. Chỉ chừa lại: Chọn tổng của 3 con số\n2. Tỉ lệ của Tài, Hoà, Xỉu sửa lại theo bảng.",
+        "E32": "Done"
+      }
+    }
+  ]
+}

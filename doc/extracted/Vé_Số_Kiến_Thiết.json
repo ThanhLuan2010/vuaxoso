@@ -1,0 +1,71 @@
+{
+  "sheet": "Vé Số Kiến Thiết",
+  "rows": [
+    {
+      "row": "1",
+      "cells": {
+        "A1": "Items",
+        "B1": "InApp",
+        "C1": "Cần Edit",
+        "D1": "Trạng Thái"
+      }
+    },
+    {
+      "row": "2",
+      "cells": {
+        "A2": "Vé số kiến thiết",
+        "C2": "Vé số loại có x00000: là vé đặc biệt.\n- 1 vé thanh toán là 1.600.000đ. \n- Số lượng: 160 vé.\n- Khách mua 1 lần là hết 160 vé đó luôn.\n- Trên App ẩn mất số đó (khi có 1 khách mua), CMS thì báo hết vé giúp c.\nLoại không có x đầu là Thường.\n- 1 vé thanh toán là 10.000đ. ",
+        "D2": "Done"
+      }
+    },
+    {
+      "row": "3",
+      "cells": {
+        "C3": "1. NÚt chọn ảnh từ thiết bị > chèn xong > bấm vào nút Xem thì bị link lỗi.\n2. Nhập link ảnh > bấm nút Xem thì không bấm được.\n\nNgoài app: khách ko bấm xem ảnh vé số được. Nó bị cứng đơ.",
+        "D3": "Done"
+      }
+    },
+    {
+      "row": "4",
+      "cells": {
+        "C4": "c trích xuất vé số của nhà nước ra file như vầy thì có cách nào cập nhật vào backend không em nhỉ?\n\nhttps://docs.google.com/spreadsheets/d/1f9P4elr0bf9wQZjdk0PS-G-gz18Xm-8B/edit?usp=sharing&ouid=100256926652094744375&rtpof=true&sd=true\n\n1. Thêm nút \"upload dữ liệu\"\n2. Nút \"tìm kiếm\"\n3. Nút \"khoá dữ liệu\", không cho nhân viên chỉnh sửa\n4. Nút \"Xuất dữ liệu\" cần cho 2 khung thời gian từ ngày nào ? đến ngày nào?\nĐể có thể check mỗi ngày hoặc mỗi tuần.",
+        "D4": "Doing"
+      }
+    },
+    {
+      "row": "5",
+      "cells": {
+        "C5": "1. Cột Số lượng vé: đổi thành \"SL Kho\"\n2. Thêm cột: \n- Đã bán (SL đã bán)\n- SL còn (SL còn lại) \n\nSL Kho - Đã bán = SL còn\n\n3. Trạng thái: \n- \"Còn\" (Còn vé)\n- \"Đã Bán\" (Đã bán hết)\n4. Thao tác: thêm 3 nút \n- \"Xoá\" : Xoá vé đó\n- \"Khoá\" : Khoá dữ liệu không cho nhân viên chỉnh sửa từ sau giờ chốt xổ.\n- \"Sửa\" : Sửa vé sai",
+        "D5": "Done"
+      }
+    },
+    {
+      "row": "6",
+      "cells": {
+        "C6": "Sau 18h30 chốt xổ vé số cả 3 miền, cần đẩy ngày kế lên và hiện sáng. Hiện tại chưa đẩy lên.",
+        "D6": "Done"
+      }
+    },
+    {
+      "row": "7",
+      "cells": {
+        "C7": "Vé số loại có x00000: là vé đặc biệt.\n- 1 vé thanh toán là 1.600.000đ. \n- Số lượng: 160 vé.\n- Khách mua 1 lần là hết 160 vé đó luôn.\n- Trên App ẩn mất số đó (khi có 1 khách mua), CMS thì báo hết vé giúp c.\nLoại không có x đầu là Thường.\n- 1 vé thanh toán là 10.000đ. \n\nCó hiển thị ảnh vé số trên app khi bấm vào mua. Trên app của mình không có.",
+        "D7": "Done"
+      }
+    },
+    {
+      "row": "8",
+      "cells": {
+        "C8": "1. Số lượng vé cần hiển thị trên app.\n2. Hiện nút số lượng vé, để khách bấm chọn mua. Hoặc nút -....+ (Vì max vé số chỉ có 16 vé cho 1 số)",
+        "D8": "Done"
+      }
+    },
+    {
+      "row": "9",
+      "cells": {
+        "C9": "1. Số lượng vé CMS còn 6, mà mới mua có 1 vé, quay lại App báo hết vé.\n- Cần hiển thị số lượng vé còn lại sau khi khách mua.",
+        "D9": "Done"
+      }
+    }
+  ]
+}

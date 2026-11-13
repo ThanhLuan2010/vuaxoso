@@ -1,0 +1,17 @@
+{
+  "sheet": "🔥Chú ý",
+  "rows": [
+    {
+      "row": "1",
+      "cells": {
+        "B1": "Lô 2 số: đánh từ 00 đến 99.\nĐề: đánh từ 00 đến 99.\nLô 3 số: đánh từ 000 đến 999.\n3 Càng: đánh từ 000 đến 999.\nLô 4 số: đánh từ 0000 đến 9999.\n4 Càng: đánh từ 000 đến 999.\n\n=> Cho nhập tay hoặc chọn số.\n=> Nếu có mặt trong kết quả là thắng.\n=======\nĐề đầu: là chỉ đánh 1 số đơn từ 0 đến 9 thuộc hàng chục của giải ĐB.\nĐề đuôi: à chỉ đánh 1 số đơn từ 0 đến 9 thuộc hàng đơn vị của giải ĐB.\nXiên ĐB của Đề, hoặc 3 càng hoặc 4 càng: là chỉ đánh 1 số đơn từ 0 đến 9.\n\n=> Chỉ chọn số, không cho nhập tay.\n=> Nếu có mặt trong kết quả là thắng.\n=======\nXiên2: đánh 2 số tạo thành 1 vé liên kết bằng dấu &, các vé cách nhau bằng dấu phẩy hoặc ; hoặc khoảng trắng. VD: 00&01,00&02 là 2 vé xiên 2.\n\nXiên3: đánh 3 số tạo thành 1 vé liên kết bằng dấu &, các vé cách nhau bằng dấu phẩy hoặc ; hoặc khoảng trắng. VD: 00&01&02,00&01&03 là 2 vé xiên 3.\n\nXiên4: đánh 4 số tạo thành 1 vé liên kết bằng dấu &, các vé cách nhau bằng dấu phẩy hoặc ; hoặc khoảng trắng. VD: 00&01&02&03,00&01&02&04 là 2 vé xiên 4.\n\n=> Chỉ cho nhập tay.\n=> Nếu có mặt trong kết quả là thắng.\n=======\nLô trượt cũng tương tự xiên2,3,4\n=> Chỉ cho nhập tay.\n=> Nếu không có mặt trong kết quả là thắng.\n======="
+      }
+    },
+    {
+      "row": "2",
+      "cells": {
+        "B2": "E cài tính năng tự động xoá số trùng nếu khách nhập trùng. Và thêm tính năng phát hiện sai lỗi cú pháp giúp c. > Hiển thị thông báo popup cho khách thấy để sửa.\n\nMiền Nam + Miền Trung -> Cần thêm tỉnh để chọn đánh: trên app ko thấy chỗ chọn tỉnh.\n\nThêm tính năng báo cáo vé cược realtime về Backend và cc qua mail developervnteam@gmail.com sau khi khách đặt cược > để xử lý khi khách gian lận.\n\nCài đặt hạn chế cược cho tất cả các trò:\n- Số con nhận tối đa: max 70% cho tất cả các trò.\n- Tiền cược nhận tối đa: max 100 triệu/1 con số/ngày (tất cả các loại cược Miền Nam, Miền Trung, Miền Bắc)."
+      }
+    }
+  ]
+}
