@@ -65,6 +65,9 @@ export default function HistoryDetailScreen() {
     }
   }, [orderId, fetchOrderDetail]);
 
+  // TẤT CẢ CÁC HOOKS PHẢI ĐƯỢC GỌI Ở ĐẦU COMPONENT TRƯỚC CÁC LỆNH RETURN ĐIỀU KIỆN
+  const isWinning = ticket?.isWinner === true || (ticket?.prizeAmount != null && Number(ticket.prizeAmount) > 0);
+
   // Đồng bộ kết quả chi tiết của kỳ quay từ backend nếu cần
   useEffect(() => {
     const fetchDrawResult = async () => {
@@ -72,13 +75,21 @@ export default function HistoryDetailScreen() {
         // 1. Ưu tiên sử dụng draw đã được đính kèm từ backend (qua getOrderById)
         if (ticket?.draw) {
           setDrawInfo(ticket.draw);
-          if (ticket.draw.status === 'open' || (ticket.draw.closeTime && new Date(ticket.draw.closeTime).getTime() > Date.now())) {
-            return; // Kỳ quay đang mở hoặc ở tương lai -> dừng ngay, không query kết quả cũ!
+          if (ticket.draw.status === 'completed' && ticket.draw.winningNumbers?.length > 0) {
+            return;
+          }
+          if (ticket.draw.status === 'open') {
+            return;
           }
         }
 
-        // 2. Nếu vé có ngày quay ở tương lai, không gọi API kết quả
-        if (ticket?.drawDate) {
+        // Nếu vé đã có winningNumbers trực tiếp từ backend thì không cần query gì thêm
+        if (ticket?.winningNumbers && ticket.winningNumbers.length > 0) {
+          return;
+        }
+
+        // 2. Nếu vé chưa completed và có ngày quay ở tương lai, không gọi API kết quả cũ
+        if (ticket?.drawDate && ticket?.status !== 'completed' && !isWinning) {
           const parts = ticket.drawDate.split('/');
           if (parts.length === 3) {
             const drawDayStart = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]), 0, 0, 0);
@@ -100,6 +111,9 @@ export default function HistoryDetailScreen() {
           const targetProv = (ticket.provinceName || '').toLowerCase().trim();
 
           const found = res.data.find((d: any) => {
+            // Chỉ lấy kết quả đã completed và có winningNumbers
+            if (d.status !== 'completed' || !d.winningNumbers || d.winningNumbers.length === 0) return false;
+
             // Kiểm tra khớp ObjectId chính xác nếu có
             if (ticket.draw?._id && String(d._id) === String(ticket.draw._id)) return true;
             if (ticket.drawId && String(d._id) === String(ticket.drawId)) return true;
@@ -142,29 +156,39 @@ export default function HistoryDetailScreen() {
     if (ticket) {
       fetchDrawResult();
     }
-  }, [ticket?.gameType, ticket?.drawId, ticket?.region, ticket?.provinceName, ticket?.drawDate, ticket?.draw]);
+  }, [ticket?.gameType, ticket?.drawId, ticket?.region, ticket?.provinceName, ticket?.drawDate, ticket?.draw, ticket?.status, ticket?.winningNumbers, isWinning]);
 
   const onRefresh = useCallback(() => {
     fetchOrderDetail(true);
   }, [fetchOrderDetail]);
 
-  // TẤT CẢ CÁC HOOKS PHẢI ĐƯỢC GỌI Ở ĐẦU COMPONENT TRƯỚC CÁC LỆNH RETURN ĐIỀU KIỆN
-  const isWinning = ticket?.isWinner === true || (ticket?.prizeAmount != null && Number(ticket.prizeAmount) > 0);
-
   const winningNumbersList = useMemo(() => {
-    // 1. Nếu kỳ quay có trạng thái 'open' (đang mở đặt cược), chắc chắn 100% chưa có kết quả
-    if (drawInfo?.status === 'open' || ticket?.draw?.status === 'open') {
+    // 1. ƯU TIÊN SỐ 1: Nếu vé đã có kết quả trúng/trượt (winningNumbers) được lưu trực tiếp trên vé
+    const fromTicket = parseWinningNumbers(ticket?.winningNumbers);
+    if (fromTicket.length > 0) {
+      return fromTicket;
+    }
+
+    // 2. ƯU TIÊN SỐ 2: Nếu kỳ quay đính kèm (draw) đã có kết quả và completed
+    const drawObj = drawInfo || ticket?.draw || ticket?.drawResult;
+    if (drawObj?.status === 'completed') {
+      const fromDraw = parseWinningNumbers(drawObj.winningNumbers);
+      if (fromDraw.length > 0) return fromDraw;
+    }
+
+    // 3. Nếu vé đang chờ ('pending') hoặc kỳ quay đang mở ('open') -> chắc chắn chưa có kết quả
+    if (drawObj?.status === 'open') {
       return [];
     }
 
-    // 2. Nếu thời gian chốt cược của kỳ quay nằm trong tương lai, chưa có kết quả
-    const targetCloseTime = drawInfo?.closeTime || ticket?.draw?.closeTime;
-    if (targetCloseTime && new Date(targetCloseTime).getTime() > Date.now()) {
+    // 4. Nếu thời gian chốt cược của kỳ quay nằm trong tương lai và chưa có cờ trúng thưởng
+    const targetCloseTime = drawObj?.closeTime;
+    if (targetCloseTime && new Date(targetCloseTime).getTime() > Date.now() && !isWinning && ticket?.status !== 'completed') {
       return [];
     }
 
-    // 3. Nếu ngày quay là ngày tương lai (ví dụ 13/11 mà nay là 12/11), chưa có kết quả
-    if (ticket?.drawDate) {
+    // 5. Nếu ngày quay là ngày tương lai và chưa có cờ trúng thưởng
+    if (ticket?.drawDate && !isWinning && ticket?.status !== 'completed') {
       const parts = ticket.drawDate.split('/');
       if (parts.length === 3) {
         const drawDateStart = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]), 0, 0, 0);
@@ -174,15 +198,6 @@ export default function HistoryDetailScreen() {
       }
     }
 
-    // 4. Nếu vé đang chờ ('pending') và chưa có cờ trúng thưởng, và drawInfo không phải là completed
-    if (ticket?.status === 'pending' && !isWinning && drawInfo?.status !== 'completed' && ticket?.draw?.status !== 'completed') {
-      return [];
-    }
-
-    const fromTicket = parseWinningNumbers(ticket?.winningNumbers);
-    if (fromTicket.length > 0) return fromTicket;
-    const fromDraw = parseWinningNumbers(drawInfo?.winningNumbers || ticket?.draw?.winningNumbers || ticket?.drawResult?.winningNumbers);
-    if (fromDraw.length > 0 && (drawInfo?.status === 'completed' || ticket?.draw?.status === 'completed' || ticket?.status === 'completed')) return fromDraw;
     return [];
   }, [ticket?.winningNumbers, drawInfo?.winningNumbers, drawInfo?.status, drawInfo?.closeTime, ticket?.draw, ticket?.drawResult, ticket?.drawDate, ticket?.status, isWinning]);
 
