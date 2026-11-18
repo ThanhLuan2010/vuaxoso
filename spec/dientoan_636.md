@@ -70,3 +70,17 @@
   - Tiền cược: $210 \times 10.000 = \mathbf{2.100.000đ}$.
   - Backend xử lý trơn tru và lưu toàn bộ 210 tổ hợp.
 
+---
+
+## 5. QUY CHUẨN HIỂN THỊ GIAO DIỆN VÉ TRÚNG THƯỞNG
+
+1. **Hiển thị bóng trúng trên danh sách lịch sử (`HistoryTicketCard`)**:
+   - Quả bóng trùng khớp với kết quả mở thưởng được tô nền đỏ viền hồng (`ticketBallWinning`).
+   - Chữ số bên trong bóng trúng **bắt buộc là màu trắng `#FFF`** với chữ đậm (`fontWeight: 'bold'`), tuyệt đối không để màu đỏ trùng màu nền làm mất số.
+2. **Hiển thị hàng vé trúng trong chi tiết vé (`HistoryDetailScreen`)**:
+   - Đối với các game ma trận / bóng số (Điện toán 6/36, Mega 6/45, Power 6/55, Keno, Bingo 18):
+     - Các con số khớp mở thưởng được bôi đậm màu đỏ trong khung pill hồng nhạt (`#FFF1F2`).
+     - **Không ghi chú chữ `(Trúng)` sau từng con bóng đơn lẻ** ở các hàng thua (tránh hiểu lầm vé thua là vé trúng).
+     - Chỉ hàng/bảng nào đạt điều kiện trúng thưởng thực tế (ví dụ: khớp từ 3 số trở lên trong Điện toán 6/36) mới được highlight viền hồng, nền hồng và có nhãn **(Trúng)** kèm số tiền thưởng tương ứng.
+
+

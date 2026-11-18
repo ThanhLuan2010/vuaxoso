@@ -32,39 +32,39 @@ export default function Header() {
           >
             <Menu size={24} color="#0F2942" />
           </TouchableOpacity>
-        <View style={styles.welcomeContainer}>
-          <Text style={styles.welcomeLabel}>Xin chào</Text>
-          <Text style={styles.userName}>{user?.name || 'Guest'}</Text>
+          <View style={styles.welcomeContainer}>
+            <Text style={styles.welcomeLabel}>Xin chào</Text>
+            <Text style={styles.userName}>{user?.name || 'Guest'}</Text>
+          </View>
+        </View>
+
+        <View style={styles.rightRow}>
+          {/* Nút Nạp/Rút viền đen/xanh */}
+          <TouchableOpacity 
+            style={styles.walletBtn}
+            onPress={() => navigation.navigate('Wallet')}
+          >
+            <Text style={styles.walletBtnText}>Nạp/rút</Text>
+          </TouchableOpacity>
+
+          {/* Chuông thông báo */}
+          <TouchableOpacity 
+            style={styles.bellBtn}
+            onPress={() => navigation.navigate('Notifications')}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Bell size={24} color="#0F2942" />
+            {unreadCount > 0 ? (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </Text>
+              </View>
+            ) : null}
+          </TouchableOpacity>
         </View>
       </View>
-
-      <View style={styles.rightRow}>
-        {/* Nút Nạp/Rút viền đen/xanh */}
-        <TouchableOpacity 
-          style={styles.walletBtn}
-          onPress={() => navigation.navigate('Wallet')}
-        >
-          <Text style={styles.walletBtnText}>Nạp/rút</Text>
-        </TouchableOpacity>
-
-        {/* Chuông thông báo */}
-        <TouchableOpacity 
-          style={styles.bellBtn}
-          onPress={() => navigation.navigate('Notifications')}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Bell size={24} color="#0F2942" />
-          {unreadCount > 0 ? (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </Text>
-            </View>
-          ) : null}
-        </TouchableOpacity>
-      </View>
-    </View>
-    <DrawerMenu visible={isDrawerVisible} onClose={() => setIsDrawerVisible(false)} />
+      <DrawerMenu visible={isDrawerVisible} onClose={() => setIsDrawerVisible(false)} />
     </>
   );
 }

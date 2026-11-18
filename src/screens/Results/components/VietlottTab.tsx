@@ -92,11 +92,16 @@ export default function VietlottTab() {
 
               {winningNumbers.length > 0 ? (
                 <View style={styles.vlBallRow}>
-                  {winningNumbers.map((num: string, i: number) => (
-                    <View key={i} style={[styles.vlBall, { backgroundColor: color }, isKeno && styles.vlBallKeno]}>
-                      <Text style={[styles.vlBallText, isKeno && styles.vlBallTextKeno]}>{num}</Text>
-                    </View>
-                  ))}
+                  {winningNumbers.map((num: string, i: number) => {
+                    const isLottoWithBonus = ['power_655', 'lotto_535', 'lotto_570'].includes(game.code);
+                    const isBonusBall = isLottoWithBonus && i === winningNumbers.length - 1;
+                    const ballColor = isBonusBall ? '#FF5C00' : color;
+                    return (
+                      <View key={i} style={[styles.vlBall, { backgroundColor: ballColor }, isKeno && styles.vlBallKeno]}>
+                        <Text style={[styles.vlBallText, isKeno && styles.vlBallTextKeno]}>{num}</Text>
+                      </View>
+                    );
+                  })}
                 </View>
               ) : (
                 <View style={{ height: 32, justifyContent: 'center' }}>

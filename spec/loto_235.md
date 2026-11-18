@@ -55,3 +55,18 @@
   - Chi phí = $2.000 \times 27 = \mathbf{54.000đ}$.
   - Về 2 nháy $\rightarrow$ Thưởng $2.000 \times 99 \times 2 = \mathbf{396.000đ}$.
 
+---
+
+## 4. QUY CHUẨN KỲ QUAY & GIAO DIỆN CHỌN KỲ (DRAW CYCLES SPEC)
+- **Hiển thị kỳ quay**: Đồng nhất chuẩn theo format `${drawCode} - ${dateStr}` (ví dụ: `#1001 - 18/11/2026 18:15`).
+- **Giờ đóng & Giờ mở thưởng**:
+  - Giờ chốt cược: 18:10 hàng ngày (trước giờ quay 5 phút).
+  - Giờ mở thưởng: 18:15 hàng ngày (đồng bộ theo Xổ số Miền Bắc).
+- **Giao diện chọn kỳ**:
+  - Khi nhấn vào thanh `Kỳ quay`, hiển thị Modal/Bottom Sheet danh sách kỳ quay tiêu chuẩn (`isStandardDrawPickerVisible`) giống các game xổ số khác (Max 3D, Max 4D, Thần tài 4, Mega 6/45...).
+  - Loại bỏ hoàn toàn popup chọn số lượng kỳ rời rạc (`1 kỳ, 2 kỳ, 5 kỳ, 10 kỳ`).
+  - Danh sách hiển thị các kỳ quay sắp tới với mã kỳ, ngày giờ mở thưởng, radio/checkbox và nút `Xác nhận`.
+  - Mặc định khi vào game luôn chọn kỳ quay gần nhất (`index 0`).
+  - Khi người dùng xác nhận kỳ mới: cập nhật `selectedDrawIndex`, lưu `selectedDraws = [picked.id]`, và tự động đồng bộ lại đồng hồ đếm ngược `countdown` tương ứng với `closeTime` của kỳ đã chọn.
+
+

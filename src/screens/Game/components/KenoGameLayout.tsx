@@ -52,8 +52,11 @@ export default function KenoGameLayout({ route, navigation }: any) {
       const curDraw = (drawCycles && drawCycles.length > 0)
         ? (drawCycles.find((d: any) => (payload.drawIds || selectedDraws)?.includes(d.id)) || drawCycles[0])
         : null;
+      const drawCodePrefix = curDraw?.drawCode
+        ? (String(curDraw.drawCode).startsWith('#') ? `Kỳ ${curDraw.drawCode} - ` : `Kỳ #${curDraw.drawCode} - `)
+        : '';
       const drawDateStr = curDraw 
-        ? `${curDraw.drawCode ? `Kỳ #${curDraw.drawCode} - ` : ''}${curDraw.dateStr || curDraw.date || ''}` 
+        ? `${drawCodePrefix}${curDraw.dateStr || curDraw.date || ''}` 
         : (payload.drawDate || undefined);
 
       addToCart({
@@ -75,8 +78,11 @@ export default function KenoGameLayout({ route, navigation }: any) {
       const curDraw = (drawCycles && drawCycles.length > 0)
         ? (drawCycles.find((d: any) => (payload.drawIds || selectedDraws)?.includes(d.id)) || drawCycles[0])
         : null;
+      const drawCodePrefix = curDraw?.drawCode
+        ? (String(curDraw.drawCode).startsWith('#') ? `Kỳ ${curDraw.drawCode} - ` : `Kỳ #${curDraw.drawCode} - `)
+        : '';
       const drawDateStr = curDraw 
-        ? `${curDraw.drawCode ? `Kỳ #${curDraw.drawCode} - ` : ''}${curDraw.dateStr || curDraw.date || ''}` 
+        ? `${drawCodePrefix}${curDraw.dateStr || curDraw.date || ''}` 
         : (payload.drawDate || undefined);
 
       navigation.navigate('GamePayment', {
@@ -405,7 +411,7 @@ export default function KenoGameLayout({ route, navigation }: any) {
     const cost = numCombos * 10000 * drawCount;
 
     processCheckout({
-      gameId: 'bao_keno',
+      gameId: 'keno',
       gameName: 'KENO',
       playType: `Bao ${baoType} - Bậc ${baoBac} (${drawCount} kỳ)`,
       drawIds: selectedDraws,
@@ -470,8 +476,8 @@ export default function KenoGameLayout({ route, navigation }: any) {
     const totalCost = activeBoards.length * 10000 * drawCount;
 
     processCheckout({
-      gameId: 'clln_keno',
-      gameName: 'KENO - CL/LN',
+      gameId: 'keno',
+      gameName: 'KENO',
       playType: `Chẵn Lẻ / Lớn Nhỏ (${drawCount} kỳ)`,
       drawIds: selectedDraws,
       boards: activeBoards.map(board => ({

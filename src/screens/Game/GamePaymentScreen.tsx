@@ -72,6 +72,8 @@ export default function GamePaymentScreen({ route, navigation }: any) {
       const itemsPayload = boards.map((board: any) => ({
         id: board.id,
         numbers: board.isTC ? ['TC'] : (Array.isArray(board.numbers) ? board.numbers : [board.numbers]),
+        specialNumbers: board.specialNumbers,
+        special_numbers: board.specialNumbers,
         cost: board.cost || 10000,
         baseCost: board.baseCost || board.unitAmount || board.multiplier || 10000,
         unitAmount: board.unitAmount || board.multiplier || 10000,
@@ -80,7 +82,7 @@ export default function GamePaymentScreen({ route, navigation }: any) {
 
       // If drawIds is passed (Matrix/Keno games), create an order for each draw
       // If drawDate is passed (KienThiet games), just pass drawId as drawDate for now, or fetch active draw
-      const targetDrawIds = drawIds && drawIds.length > 0 ? drawIds : [drawDate || 'DUMMY_DRAW_ID'];
+      const targetDrawIds = drawIds && drawIds.length > 0 ? drawIds : [route.params?.drawId || drawDate || 'DUMMY_DRAW_ID'];
 
       const ordersPayload = targetDrawIds.map((drawId: string) => ({
         gameType: gameId,
@@ -247,7 +249,11 @@ export default function GamePaymentScreen({ route, navigation }: any) {
                               ? `Danh sách bộ số: ${board.numbers.join(', ')}`
                               : (gameId === 'max_3d' && board.numbers.length === 6)
                                 ? `${board.numbers.slice(0, 3).join(' ')} | ${board.numbers.slice(3, 6).join(' ')}`
-                                : (Array.isArray(board.numbers) ? board.numbers.join(', ') : board.numbers)}
+                                : (gameId === 'dientoan_123' && board.numbers.length === 6)
+                                  ? `${board.numbers[0]} | ${board.numbers.slice(1, 3).join('')} | ${board.numbers.slice(3, 6).join('')}`
+                                  : (gameId === 'than_tai_4' && board.numbers.length === 4)
+                                    ? board.numbers.join('')
+                                    : (Array.isArray(board.numbers) ? board.numbers.join(', ') : board.numbers)}
                         </Text>
                       )}
                     </View>
@@ -329,7 +335,11 @@ export default function GamePaymentScreen({ route, navigation }: any) {
                           ? `Danh sách bộ số: ${board.numbers.join(', ')}`
                           : (gameId === 'max_3d' && board.numbers.length === 6)
                             ? `${board.numbers.slice(0, 3).join(' ')} | ${board.numbers.slice(3, 6).join(' ')}`
-                            : board.numbers.join(' ')}
+                            : (gameId === 'dientoan_123' && board.numbers.length === 6)
+                              ? `${board.numbers[0]} | ${board.numbers.slice(1, 3).join('')} | ${board.numbers.slice(3, 6).join('')}`
+                              : (gameId === 'than_tai_4' && board.numbers.length === 4)
+                                ? board.numbers.join('')
+                                : board.numbers.join(' ')}
                   </Text>
                 </View>
               )}

@@ -25,6 +25,15 @@ function App(): React.JSX.Element {
       const body = remoteMessage?.notification?.body || data.body || '';
       const content = `${title} ${body}`;
 
+      const isBatch = content.match(/thanh toán thành công \d+ vé/i) && !content.match(/thanh toán thành công 1 vé/i);
+      if (isBatch) {
+        navigate('MainTabs', {
+          screen: 'History',
+          params: { initialTab: 'Chờ in' },
+        });
+        return;
+      }
+
       const orderId = data.orderId || data.id || content.match(/ORD_[\w-]+/)?.[0];
       if (orderId) {
         navigate('HistoryDetail', { orderId });

@@ -83,6 +83,7 @@ export default function GameCard({ item, activeDraw, onPress, isHorizontal = fal
   const isDienToan636 = item.code === 'dientoan_636';
   const isTruotLoto = item.code === 'truot_loto';
   const isThanTai4 = item.code === 'than_tai_4';
+  const isDienToan123 = item.code === 'dientoan_123';
   const isBao636 = item.code === 'bao_636';
   const isBaoLoto2 = item.code === 'bao_loto_2';
   const isBingo18 = item.code === 'bingo18';
@@ -284,6 +285,12 @@ export default function GameCard({ item, activeDraw, onPress, isHorizontal = fal
             <Text style={styles.thanTaiBlue}>ĐT 1-2-3</Text>
           </View>
         )}
+        {isDienToan123 && (
+          <View style={styles.lotoBadgeContainer}>
+            <Text style={styles.dientoanGrayText}>ĐIỆN TOÁN</Text>
+            <Text style={[styles.dientoan636Big, { color: '#0055A5' }]}>1-2-3</Text>
+          </View>
+        )}
         {isBao636 && (
           <Text style={styles.bao636Title}>
             <Text style={styles.baoBlueItalic}>BAO </Text>
@@ -324,6 +331,7 @@ export default function GameCard({ item, activeDraw, onPress, isHorizontal = fal
             {isDienToan636 && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.goldRateText}>🏆 6 Tỷ Đồng</Text>}
             {isTruotLoto && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.orangeRateText}>🏆 x12 lần</Text>}
             {isThanTai4 && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.orangeRateText}>🏆 x1220 lần</Text>}
+            {isDienToan123 && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.orangeRateText}>🏆 x40.000 lần</Text>}
             {isBingo18 && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.orangeRateText}>6 phút - 1 kỳ</Text>}
             {isBao636 && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.orangeRateText}>Chọn nhanh - Trúng lớn</Text>}
             {isBaoLoto2 && <Text numberOfLines={1} ellipsizeMode="middle" style={styles.orangeRateText}>Chọn nhanh - Trúng lớn</Text>}

@@ -24,8 +24,8 @@ const TAB_STATUS_MAP: Record<string, string> = {
 };
 
 const FILTER_MAP: Record<string, string[]> = {
-  Vietlott: ['keno', 'bao_keno', 'power_655', 'mega_645', 'max_3d', 'max_3d_pro', 'max_4d', 'lotto_535', 'lotto_570'],
-  'Điện toán': ['loto_235', 'loto_cap', 'dientoan_636', 'bao_loto_2', 'than_tai_4', 'bao_636', 'truot_loto'],
+  Vietlott: ['keno', 'bao_keno', 'power_655', 'mega_645', 'max_3d', 'max_3d_plus', 'max_3d_pro', 'max_4d', 'lotto_535', 'lotto_570'],
+  'Điện toán': ['loto_235', 'loto_cap', 'dientoan_636', 'bao_loto_2', 'than_tai_4', 'dientoan_123', 'bao_636', 'truot_loto'],
   'Kiến Thiết': ['kienthiet', 'kienthiet_MB', 'kienthiet_MN', 'kienthiet_MT'],
   'Lô Đề': ['xoso_3mien', 'lode', 'MB', 'MT', 'MN', 'mb', 'mt', 'mn', 'lode_3mien'],
 };

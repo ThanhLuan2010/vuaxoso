@@ -35,7 +35,7 @@ export default function HomeScreen({ navigation }: any) {
   );
 
   const vietlottGames = games.filter(g => (g.type === 'vietlott' || g.code === 'bingo18') && g.code !== 'max_3d_pro' && g.code !== 'mua_chung' && g.code !== 'clln_keno');
-  const dientoanGames = games.filter(g => g.type === 'dientoan' && g.code !== 'bingo18');
+  const dientoanGames = games.filter(g => g.type === 'dientoan' && g.code !== 'bingo18' && g.code !== 'dientoan_123');
   const lodeFromApi = games.find(g => g.code === 'xoso_3mien');
   const lodeItem = lodeFromApi ? {
     _id: lodeFromApi._id || 'xoso_3mien',
@@ -80,6 +80,7 @@ export default function HomeScreen({ navigation }: any) {
       gameId === 'truot_loto' ||
       gameId === 'bao_636' ||
       gameId === 'than_tai_4' ||
+      gameId === 'dientoan_123' ||
       gameId === 'lotto_535' ||
       gameId === 'lotto_570' ||
       gameId === 'bingo18'

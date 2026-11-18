@@ -39,3 +39,15 @@ Người chơi chọn các con số từ `00` đến `99`. Điều kiện trúng
   - Tiền cược: 50.000đ.
   - Tất cả 10 số không về $\rightarrow$ Thưởng $50.000 \times 12 = \mathbf{600.000đ}$.
 
+---
+
+## 4. QUY CHUẨN HIỂN THỊ GIAO DIỆN (UI LIMIT & HIGHLIGHT)
+1. **Giới hạn tối đa 10 số / bộ số trên thẻ vé & chi tiết vé**:
+   - Khi vé có nhiều hơn 10 bộ số (ví dụ: người chơi đánh dàn nhiều bộ số trượt như 110 bộ trượt xiên):
+     - **Trên thẻ vé danh sách (`HistoryTicketCard`)**: Chỉ hiển thị tối đa **10 bộ số đầu tiên**. Phần còn lại phải hiển thị nút `+[X] Xem thêm` (ví dụ `+100 Xem thêm`). Tuyệt đối không show tràn lan làm vỡ layout hoặc kéo dài thẻ vé.
+     - **Trên màn hình chi tiết vé (`HistoryDetailScreen`)**: Dãy cược hiển thị tối đa 10 bộ số đầu tiên kèm nút `+[X] Xem thêm`. Chỉ khi bấm vào `Xem thêm` mới hiển thị modal popup ("Tất cả [N] số") cuộn xem toàn bộ danh sách.
+2. **Quy tắc Highlight trúng thưởng**:
+   - Bộ số trượt nào trúng thưởng sẽ được highlight màu đỏ (`#E11D48`), nền hồng nhạt (`#FFF1F2`) và có nhãn `(Trúng)`.
+   - Các bộ số chưa đạt giải giữ màu đen mặc định (`#0F2942`).
+
+

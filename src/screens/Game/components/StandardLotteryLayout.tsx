@@ -73,8 +73,11 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
       const curDraw = (drawCycles && drawCycles.length > 0)
         ? (drawCycles.find((d: any) => (payload.drawIds || selectedDraws)?.includes(d.id)) || drawCycles[0])
         : null;
+      const drawCodePrefix = curDraw?.drawCode
+        ? (curDraw.drawCode.startsWith('#') ? `Kỳ ${curDraw.drawCode} - ` : `Kỳ #${curDraw.drawCode} - `)
+        : '';
       const drawDateStr = curDraw 
-        ? `${curDraw.drawCode ? `Kỳ #${curDraw.drawCode} - ` : ''}${curDraw.dateStr || curDraw.date || ''}` 
+        ? `${drawCodePrefix}${curDraw.dateStr || curDraw.date || ''}` 
         : (payload.drawDate || undefined);
 
       addToCart({
@@ -85,6 +88,8 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
         cost: totalCost,
         baseCost: payload.boards[0]?.cost || 10000,
         quantity: payload.drawIds ? payload.drawIds.length : 1,
+        drawId: curDraw?.id,
+        drawCode: curDraw?.drawCode,
         drawDate: payload.drawDate || drawDateStr,
         provinceName: payload.provinceName || route.params?.provinceName,
         boards: payload.boards, // Quan trọng: lưu lại danh sách boards gốc để checkout bóc tách lại
@@ -96,12 +101,17 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
       const curDraw = (drawCycles && drawCycles.length > 0)
         ? (drawCycles.find((d: any) => (payload.drawIds || selectedDraws)?.includes(d.id)) || drawCycles[0])
         : null;
+      const drawCodePrefix = curDraw?.drawCode
+        ? (curDraw.drawCode.startsWith('#') ? `Kỳ ${curDraw.drawCode} - ` : `Kỳ #${curDraw.drawCode} - `)
+        : '';
       const drawDateStr = curDraw 
-        ? `${curDraw.drawCode ? `Kỳ #${curDraw.drawCode} - ` : ''}${curDraw.dateStr || curDraw.date || ''}` 
+        ? `${drawCodePrefix}${curDraw.dateStr || curDraw.date || ''}` 
         : (payload.drawDate || undefined);
 
       navigation.navigate('GamePayment', {
         ...payload,
+        drawId: curDraw?.id,
+        drawCode: curDraw?.drawCode,
         drawDate: payload.drawDate || drawDateStr,
         provinceName: payload.provinceName || route.params?.provinceName,
       });
@@ -112,6 +122,12 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
 
 
   // General Game configurations
+  const isThanTaiOrDt123 = gameId === 'than_tai_4' || gameId === 'dientoan_123';
+  const [subGameTab, setSubGameTab] = useState<'than_tai_4' | 'dientoan_123'>(
+    (initialTab === 'Điện toán 1-2-3' || gameId === 'dientoan_123') ? 'dientoan_123' : 'than_tai_4'
+  );
+  const activeGameId = isThanTaiOrDt123 ? subGameTab : gameId;
+
   const isLottoGame = gameId === 'lotto_535' || gameId === 'lotto_570';
   const isKenoGame = gameId === 'keno' || gameId === 'bao_keno' || gameId === 'clln_keno' || (typeof gameId === 'string' && gameId.includes('keno'));
   let gameName = '';
@@ -180,10 +196,16 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
     requiredSelectCount = 6;
     initialJackpot = '2.000.000.000 đ';
     initialCountdown = 9900;
-  } else if (gameId === 'than_tai_4') {
-    gameName = 'THẦN TÀI & ĐT 1-2-3';
+  } else if (activeGameId === 'than_tai_4') {
+    gameName = 'THẦN TÀI 4';
     maxNumber = 9;
     requiredSelectCount = 4;
+    initialJackpot = '';
+    initialCountdown = 9700;
+  } else if (activeGameId === 'dientoan_123') {
+    gameName = 'ĐIỆN TOÁN 1-2-3';
+    maxNumber = 9;
+    requiredSelectCount = 6;
     initialJackpot = '';
     initialCountdown = 9700;
   } else if (gameId === 'truot_loto') {
@@ -236,8 +258,11 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
   const [loto235Bao2Multiplier, setLoto235Bao2Multiplier] = useState<number>(10000);
   const [isLotoMultiplierModalVisible, setIsLotoMultiplierModalVisible] = useState(false);
   const [activeMultiplierBoardIndex, setActiveMultiplierBoardIndex] = useState<number | null>(null);
-  const [loto235DrawCount, setLoto235DrawCount] = useState<number>(1);
-  const [isLoto235DrawPickerVisible, setIsLoto235DrawPickerVisible] = useState(false);
+
+  useEffect(() => {
+    setSelectedDrawIndex(0);
+    setTempSelectedDrawIndex(0);
+  }, [gameId]);
 
   // Loto Cap States
   const [lotoCapPlayType, setLotoCapPlayType] = useState<string>('Lô tô 2 cặp');
@@ -280,8 +305,11 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
   };
 
   const getRequiredNumbersCount = (type: string) => {
-    if (gameId === 'than_tai_4') {
-      return thanTaiPlayType === 'Thần tài 4' ? 4 : 6;
+    if (activeGameId === 'than_tai_4') {
+      return 4;
+    }
+    if (activeGameId === 'dientoan_123') {
+      return 6;
     }
     if (gameId === 'dientoan_636') {
       return dientoan636PlayType === 'Cơ bản' ? 6 : dientoan636BaoType;
@@ -306,8 +334,12 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
   };
 
   const handleAutoPickBoard = (index: number) => {
-    if (gameId === 'than_tai_4') {
+    if (activeGameId === 'than_tai_4') {
       handleThanTaiAutoPickBoard(index);
+      return;
+    }
+    if (activeGameId === 'dientoan_123') {
+      handleDienToan123AutoPickBoard(index);
       return;
     }
     if (gameId === 'dientoan_636') {
@@ -352,7 +384,7 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
   };
 
   const handleClearBoard = (index: number) => {
-    if (gameId === 'than_tai_4') {
+    if (isThanTaiOrDt123) {
       handleThanTaiClearBoard(index);
       return;
     }
@@ -382,8 +414,12 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
   };
 
   const handleChọnNhanh = () => {
-    if (gameId === 'than_tai_4') {
+    if (activeGameId === 'than_tai_4') {
       handleThanTaiChọnNhanh();
+      return;
+    }
+    if (activeGameId === 'dientoan_123') {
+      handleDienToan123ChọnNhanh();
       return;
     }
     if (gameId === 'dientoan_636') {
@@ -473,7 +509,7 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
 
   const getCostPerBoard = (type: string, multiplier = 10000) => {
     const factor = multiplier / 10000;
-    if (gameId === 'max_3d' || gameId === 'max_4d' || gameId === 'than_tai_4') {
+    if (gameId === 'max_3d' || gameId === 'max_4d' || gameId === 'than_tai_4' || gameId === 'dientoan_123') {
       return multiplier;
     }
     if (gameId === 'power_655' || gameId === 'mega_645') {
@@ -516,8 +552,8 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
     setActiveBoardIndex(index);
     const boardToEdit = standardBoards[index];
 
-    if (gameId === 'max_3d' || gameId === 'max_4d' || gameId === 'than_tai_4' || gameId === 'loto_235') {
-      const reqCount = gameId === 'than_tai_4' ? (thanTaiPlayType === 'Thần tài 4' ? 4 : 6) : gameId === 'loto_235' ? getLoto235RequiredCount(loto235PlayType) : getRequiredNumbersCount(standardPlayType);
+    if (gameId === 'max_3d' || gameId === 'max_4d' || isThanTaiOrDt123 || gameId === 'loto_235') {
+      const reqCount = activeGameId === 'than_tai_4' ? 4 : activeGameId === 'dientoan_123' ? 6 : gameId === 'loto_235' ? getLoto235RequiredCount(loto235PlayType) : getRequiredNumbersCount(standardPlayType);
       const initialSlots = Array(reqCount).fill('');
       if (boardToEdit && boardToEdit.numbers) {
         for (let i = 0; i < reqCount; i++) {
@@ -602,7 +638,7 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
   };
 
   const handleMax3dDigitPress = (digit: string) => {
-    const reqCount = gameId === 'than_tai_4' ? (thanTaiPlayType === 'Thần tài 4' ? 4 : 6) : gameId === 'loto_235' ? getLoto235RequiredCount(loto235PlayType) : getRequiredNumbersCount(standardPlayType);
+    const reqCount = activeGameId === 'than_tai_4' ? 4 : activeGameId === 'dientoan_123' ? 6 : gameId === 'loto_235' ? getLoto235RequiredCount(loto235PlayType) : getRequiredNumbersCount(standardPlayType);
     const updated = [...tempMax3dSlots];
     updated[activeSlotIndex] = digit;
     setTempMax3dSlots(updated);
@@ -614,13 +650,13 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
   };
 
   const handleMax3dClear = () => {
-    const reqCount = gameId === 'than_tai_4' ? (thanTaiPlayType === 'Thần tài 4' ? 4 : 6) : gameId === 'loto_235' ? getLoto235RequiredCount(loto235PlayType) : getRequiredNumbersCount(standardPlayType);
+    const reqCount = activeGameId === 'than_tai_4' ? 4 : activeGameId === 'dientoan_123' ? 6 : gameId === 'loto_235' ? getLoto235RequiredCount(loto235PlayType) : getRequiredNumbersCount(standardPlayType);
     setTempMax3dSlots(Array(reqCount).fill(''));
     setActiveSlotIndex(0);
   };
 
   const handleMax3dRandom = () => {
-    const reqCount = gameId === 'than_tai_4' ? (thanTaiPlayType === 'Thần tài 4' ? 4 : 6) : gameId === 'loto_235' ? getLoto235RequiredCount(loto235PlayType) : getRequiredNumbersCount(standardPlayType);
+    const reqCount = activeGameId === 'than_tai_4' ? 4 : activeGameId === 'dientoan_123' ? 6 : gameId === 'loto_235' ? getLoto235RequiredCount(loto235PlayType) : getRequiredNumbersCount(standardPlayType);
     const randomSlots = Array.from({ length: reqCount }, () =>
       Math.floor(Math.random() * 10).toString()
     );
@@ -629,7 +665,7 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
   };
 
   const handleMax3dConfirm = () => {
-    const reqCount = gameId === 'than_tai_4' ? (thanTaiPlayType === 'Thần tài 4' ? 4 : 6) : gameId === 'loto_235' ? getLoto235RequiredCount(loto235PlayType) : getRequiredNumbersCount(standardPlayType);
+    const reqCount = activeGameId === 'than_tai_4' ? 4 : activeGameId === 'dientoan_123' ? 6 : gameId === 'loto_235' ? getLoto235RequiredCount(loto235PlayType) : getRequiredNumbersCount(standardPlayType);
     if (tempMax3dSlots.some((s) => s === '')) {
       Alert.alert('Thông báo', 'Vui lòng điền đầy đủ các ô số.');
       return;
@@ -647,8 +683,12 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
   };
 
   const handleStandardCheckout = () => {
-    if (gameId === 'than_tai_4') {
+    if (activeGameId === 'than_tai_4') {
       handleThanTaiCheckout();
+      return;
+    }
+    if (activeGameId === 'dientoan_123') {
+      handleDienToan123Checkout();
       return;
     }
     if (gameId === 'dientoan_636') {
@@ -1133,7 +1173,7 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
 
   // Than Tai 4 helper functions
   const handleThanTaiAutoPickBoard = (index: number) => {
-    const reqCount = thanTaiPlayType === 'Thần tài 4' ? 4 : 6;
+    const reqCount = 4;
     const chosen: string[] = [];
     for (let i = 0; i < reqCount; i++) {
       const rand = Math.floor(Math.random() * 10).toString();
@@ -1162,7 +1202,7 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
     const updated = standardBoards.map((board) => {
       const hasContent = board.numbers.length > 0;
       if (!hasContent && !board.isTC) {
-        const reqCount = thanTaiPlayType === 'Thần tài 4' ? 4 : 6;
+        const reqCount = 4;
         const chosen: string[] = [];
         for (let i = 0; i < reqCount; i++) {
           const rand = Math.floor(Math.random() * 10).toString();
@@ -1185,16 +1225,81 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
       Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Vui lòng chọn số cho ít nhất 1 dãy.' });
       return;
     }
-    const reqCount = thanTaiPlayType === 'Thần tài 4' ? 4 : 6;
+    const reqCount = 4;
     const invalidBoard = activeBoards.find((b) => b.numbers.length !== reqCount);
     if (invalidBoard) {
-      Toast.show({ type: 'error', text1: 'Lỗi', text2: `Dãy ${invalidBoard.id} chưa chọn đủ số.` });
+      Toast.show({ type: 'error', text1: 'Lỗi', text2: `Dãy ${invalidBoard.id} chưa chọn đủ 4 chữ số.` });
       return;
     }
     processCheckout({
-      gameId,
-      gameName,
-      playType: thanTaiPlayType,
+      gameId: 'than_tai_4',
+      gameName: 'THẦN TÀI 4',
+      playType: 'Thần tài 4',
+      drawIds: selectedDraws,
+      boards: activeBoards.map(b => ({
+        id: b.id,
+        isTC: false,
+        numbers: b.numbers,
+        cost: b.multiplier || 10000
+      })),
+      totalCost: activeBoards.reduce((sum, b) => sum + (b.multiplier || 10000), 0)
+    });
+  };
+
+  // Dien Toan 1-2-3 helper functions
+  const handleDienToan123AutoPickBoard = (index: number) => {
+    const reqCount = 6;
+    const chosen: string[] = [];
+    for (let i = 0; i < reqCount; i++) {
+      const rand = Math.floor(Math.random() * 10).toString();
+      chosen.push(rand);
+    }
+    const updated = [...standardBoards];
+    updated[index] = {
+      ...updated[index],
+      numbers: chosen,
+      isTC: false
+    };
+    setStandardBoards(updated);
+  };
+
+  const handleDienToan123ChọnNhanh = () => {
+    const updated = standardBoards.map((board) => {
+      const hasContent = board.numbers.length > 0;
+      if (!hasContent && !board.isTC) {
+        const reqCount = 6;
+        const chosen: string[] = [];
+        for (let i = 0; i < reqCount; i++) {
+          const rand = Math.floor(Math.random() * 10).toString();
+          chosen.push(rand);
+        }
+        return {
+          ...board,
+          numbers: chosen,
+          isTC: false
+        };
+      }
+      return board;
+    });
+    setStandardBoards(updated);
+  };
+
+  const handleDienToan123Checkout = () => {
+    const activeBoards = standardBoards.slice(0, 5).filter((b) => b.numbers.length > 0);
+    if (activeBoards.length === 0) {
+      Toast.show({ type: 'error', text1: 'Lỗi', text2: 'Vui lòng chọn số cho ít nhất 1 dãy.' });
+      return;
+    }
+    const reqCount = 6;
+    const invalidBoard = activeBoards.find((b) => b.numbers.length !== reqCount);
+    if (invalidBoard) {
+      Toast.show({ type: 'error', text1: 'Lỗi', text2: `Dãy ${invalidBoard.id} chưa chọn đủ 6 chữ số (3 bộ số).` });
+      return;
+    }
+    processCheckout({
+      gameId: 'dientoan_123',
+      gameName: 'ĐIỆN TOÁN 1-2-3',
+      playType: 'Điện toán 1-2-3',
       drawIds: selectedDraws,
       boards: activeBoards.map(b => ({
         id: b.id,
@@ -1417,7 +1522,7 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
   };
 
   const getLoto235TotalCost = () => {
-    const numDraws = (selectedDraws && selectedDraws.length > 0) ? selectedDraws.length : (loto235DrawCount || 1);
+    const numDraws = (selectedDraws && selectedDraws.length > 0) ? selectedDraws.length : 1;
     if (loto235PlayType === 'Bao 2 số') {
       let count = loto235Bao2Numbers.length;
       if (loto235Bao2Filter === 'ĐẦU' || loto235Bao2Filter === 'ĐUÔI') {
@@ -1464,15 +1569,16 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
       const activeBoards = standardBoards.slice(0, 5).filter((b) => b.numbers.length > 0);
       let totalCost = activeBoards.reduce((sum, b) => sum + (b.multiplier || 10000), 0);
       if (totalCost === 0) return null;
-      let estimatedWin = 0;
-      if (thanTaiPlayType === 'Thần tài 4') {
-        const baseCostSum = activeBoards.reduce((sum, b) => sum + (b.multiplier || 10000), 0);
-        estimatedWin = baseCostSum * 10000;
-      } else if (thanTaiPlayType === 'Điện toán 1-2-3') {
-        const baseCostSum = activeBoards.reduce((sum, b) => sum + (b.multiplier || 10000), 0);
-        estimatedWin = baseCostSum * 1080;
-      }
-      return { multiplier: 1, totalCost, estimatedWin };
+      let estimatedWin = totalCost * 1220;
+      return { multiplier: 1220, totalCost, estimatedWin };
+    }
+
+    if (isDienToan123) {
+      const activeBoards = standardBoards.slice(0, 5).filter((b) => b.numbers.length > 0);
+      let totalCost = activeBoards.reduce((sum, b) => sum + (b.multiplier || 10000), 0);
+      if (totalCost === 0) return null;
+      let estimatedWin = totalCost * 40000;
+      return { multiplier: 40000, totalCost, estimatedWin };
     }
 
     if (!multiplier) return null;
@@ -1588,51 +1694,13 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
       const res = await api.get('/draws/active');
       const draws = res.data;
       // Map UI gameId to backend game code
-      let mappedGameCode = gameId;
+      let mappedGameCode = isThanTaiOrDt123 ? subGameTab : gameId;
       if (gameId === 'bao_keno' || gameId === 'clln_keno') mappedGameCode = 'keno';
       if (gameId === 'max_3d' && standardPlayType === 'Max3D Pro') mappedGameCode = 'max_3d_pro';
+      // Các game Lô tô ăn theo đài Xổ số Miền Bắc -> Dùng chung 100% kỳ quay của MB
+      if (['loto_235', 'loto_cap', 'truot_loto', 'bao_loto_2'].includes(gameId)) mappedGameCode = 'MB';
 
       const nowMs = Date.now();
-
-      const activeDrawsForCurrent = (draws || []).filter(
-        (d: any) => d.game && d.game.code === mappedGameCode && new Date(d.closeTime).getTime() > nowMs
-      );
-
-      if ((mappedGameCode === 'truot_loto' || mappedGameCode === 'loto_cap') && activeDrawsForCurrent.length === 0) {
-        const generatedDraws: any[] = [];
-        const now = new Date();
-        const todayCutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 10, 0);
-        let startDayOffset = 0;
-        if (now.getTime() >= todayCutoff.getTime()) {
-          startDayOffset = 1;
-        }
-
-        for (let i = 0; i < 10; i++) {
-          const drawDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + startDayOffset + i, 18, 10, 0);
-          const day = String(drawDate.getDate()).padStart(2, '0');
-          const month = String(drawDate.getMonth() + 1).padStart(2, '0');
-          const year = drawDate.getFullYear();
-          const dateFormatted = `${day}/${month}/${year} 18:15`;
-          const drawNum = 1612 + startDayOffset + i;
-          const drawCode = `#${drawNum}`;
-
-          generatedDraws.push({
-            id: `truot_${year}${month}${day}`,
-            drawCode: drawCode,
-            label: `${drawCode} - ${dateFormatted}`,
-            timeStr: '18:15:00',
-            dateStr: dateFormatted,
-            closeTime: drawDate.toISOString(),
-          });
-        }
-        setDrawCycles(generatedDraws);
-        setSelectedDrawIndex(0);
-        setSelectedDraws([generatedDraws[0].id]);
-        const closeTimeMs = new Date(generatedDraws[0].closeTime).getTime();
-        setCountdown(Math.max(0, Math.floor((closeTimeMs - Date.now()) / 1000)));
-        setIsDrawLoading(false);
-        return;
-      }
 
       if (mappedGameCode === 'max_4d' && (!draws || draws.filter((d: any) => d.game && d.game.code === 'max_4d' && new Date(d.closeTime).getTime() > nowMs).length === 0)) {
         const generatedDraws: any[] = [];
@@ -1682,7 +1750,7 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
           const closeTime = new Date(d.closeTime);
           const isLotto535 = mappedGameCode === 'lotto_535';
           // For lotto_535, closeTime is cutoff (12h/20h), draw time is 1 hour later (13h/21h)
-          const displayTime = isLotto535 ? new Date(closeTime.getTime() + 60 * 60 * 1000) : (d.drawTime ? new Date(d.drawTime) : closeTime);
+          const displayTime = isLotto535 ? (d.drawTime ? new Date(d.drawTime) : new Date(closeTime.getTime() + 60 * 60 * 1000)) : (d.drawTime ? new Date(d.drawTime) : closeTime);
 
           const day = String(displayTime.getDate()).padStart(2, '0');
           const month = String(displayTime.getMonth() + 1).padStart(2, '0');
@@ -1692,10 +1760,15 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
           const secs = String(displayTime.getSeconds()).padStart(2, '0');
           const dateFormatted = `${day}/${month}/${year} ${hrs}:${mins}`;
 
+          const closeHrs = String(closeTime.getHours()).padStart(2, '0');
+          const closeMins = String(closeTime.getMinutes()).padStart(2, '0');
+
           return {
             id: d._id,
             drawCode: d.drawCode,
-            label: `${d.drawCode} - ${dateFormatted}`,
+            label: isLotto535
+              ? `${d.drawCode} - Đóng ${closeHrs}:${closeMins} - Xổ ${hrs}:${mins} (${day}/${month})`
+              : `${d.drawCode} - ${dateFormatted}`,
             timeStr: `${hrs}:${mins}:${secs}`,
             dateStr: dateFormatted,
             closeTime: d.closeTime,
@@ -1742,12 +1815,12 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
   useFocusEffect(
     useCallback(() => {
       fetchActiveDraw();
-    }, [gameId, standardPlayType])
+    }, [gameId, standardPlayType, subGameTab])
   );
 
   useEffect(() => {
     fetchActiveDraw();
-  }, [gameId, standardPlayType]);
+  }, [gameId, standardPlayType, subGameTab]);
 
   useEffect(() => {
     if (countdown === 0) {
@@ -1785,8 +1858,9 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
   const isMax4d = gameId === 'max_4d';
 
   const isLoto235 = gameId === 'loto_235';
-  const isThanTai4 = gameId === 'than_tai_4';
-  const isDigitPicker = isMax3d || isMax4d || isThanTai4 || (isLoto235 && loto235PlayType !== 'Bao 2 số');
+  const isThanTai4 = activeGameId === 'than_tai_4';
+  const isDienToan123 = activeGameId === 'dientoan_123';
+  const isDigitPicker = isMax3d || isMax4d || isThanTai4 || isDienToan123 || (isLoto235 && loto235PlayType !== 'Bao 2 số');
   const isLotoCap = gameId === 'loto_cap';
   const isTruotLoto = gameId === 'truot_loto';
   const isDientoan636 = gameId === 'dientoan_636';
@@ -1807,19 +1881,24 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
 
       {/* Play Type Tabs */}
       <View style={styles.playTabsWrapper}>
-        {isThanTai4 ? (
+        {isThanTaiOrDt123 ? (
           <View style={{ flexDirection: 'row', borderBottomWidth: 1.5, borderBottomColor: '#EBF0F3', width: '100%' }}>
-            {['Thần tài 4', 'Điện toán 1-2-3'].map((type) => {
-              const isActive = thanTaiPlayType === type;
+            {[
+              { id: 'than_tai_4', label: 'Thần tài 4' },
+              { id: 'dientoan_123', label: 'Điện toán 1-2-3' }
+            ].map((tab) => {
+              const isActive = subGameTab === tab.id;
               return (
                 <TouchableOpacity
-                  key={type}
+                  key={tab.id}
                   style={[
                     styles.lottoTabBtn,
                     isActive && { borderBottomColor: '#E51F27', borderBottomWidth: 2 }
                   ]}
                   onPress={() => {
-                    setThanTaiPlayType(type);
+                    setSubGameTab(tab.id as any);
+                    setDrawCycles([]);
+                    setIsDrawLoading(true);
                     setStandardBoards([
                       { id: 'A', numbers: [], isTC: false, multiplier: 10000 },
                       { id: 'B', numbers: [], isTC: false, multiplier: 10000 },
@@ -1835,7 +1914,7 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
                     isActive && { color: '#0F2942', fontWeight: 'bold' },
                     !isActive && { color: '#8F9BB3' }
                   ]}>
-                    {type}
+                    {tab.label}
                   </Text>
                 </TouchableOpacity>
               );
@@ -2033,7 +2112,7 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
               );
             })}
           </View>
-        ) : !isMax4d ? (
+        ) : !isMax4d && !isThanTaiOrDt123 ? (
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -2072,7 +2151,7 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
         ) : null}
 
         {/* Dropdown Menu for Bao 13, 14, 15, 18 */}
-        {!isMax3d && !isMax4d && !isLottoGame && isBaoDropdownOpen && (
+        {!isMax3d && !isMax4d && !isLottoGame && !isThanTaiOrDt123 && isBaoDropdownOpen && (
           <View style={styles.dropdownMenu}>
             {['Bao 13', 'Bao 14', 'Bao 15', 'Bao 18'].map((type) => (
               <TouchableOpacity
@@ -2139,21 +2218,15 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
         <TouchableOpacity
           style={styles.periodBox}
           onPress={() => {
-            if (isLoto235) {
-              setIsLoto235DrawPickerVisible(true);
-            } else {
-              setTempSelectedDrawIndex(selectedDrawIndex);
-              setIsStandardDrawPickerVisible(true);
-            }
+            setTempSelectedDrawIndex(selectedDrawIndex);
+            setIsStandardDrawPickerVisible(true);
           }}
         >
           <Text style={styles.periodLabel}>Kỳ quay:</Text>
           <Text style={styles.periodValueRed}>
             {isDrawLoading || !activeDraw
               ? 'Đang tải...'
-              : isLoto235
-                ? (loto235DrawCount > 1 ? `Đã chọn ${loto235DrawCount} kỳ` : `${activeDraw.dateStr}`)
-                : `${activeDraw.drawCode} - ${activeDraw.dateStr}`}
+              : `${activeDraw.drawCode} - ${activeDraw.dateStr}`}
           </Text>
           <Text style={styles.periodTime}>
             {`${formatTime(countdown)} ▼`}
@@ -2500,7 +2573,7 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
         </ScrollView>
       ) : (
         <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.boardsScrollContent, { paddingBottom: 320 + insets.bottom }]} showsVerticalScrollIndicator={false}>
-          {((isLotoCap || isDientoan636) ? standardBoards.slice(0, 5) : standardBoards).map((board, index) => {
+          {((isLotoCap || isDientoan636 || isThanTai4 || isDienToan123) ? standardBoards.slice(0, 5) : standardBoards).map((board, index) => {
             const requiredCount = getRequiredNumbersCount(standardPlayType);
             const hasContent = board.numbers.length > 0 || board.isTC || (board.specialNumbers && board.specialNumbers.length > 0);
 
@@ -2640,79 +2713,69 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
             };
 
             const renderThanTaiCircles = () => {
-              if (thanTaiPlayType === 'Thần tài 4') {
-                return (
-                  <View style={{ flexDirection: 'row', gap: 6 }}>
-                    {Array.from({ length: 4 }).map((_, idx) => {
-                      const num = board.numbers[idx];
-                      if (num !== undefined && num !== '') {
-                        return (
-                          <View key={idx} style={[styles.filledCircle, { backgroundColor: '#0B3A60', borderColor: '#0B3A60' }]}>
-                            <Text style={styles.filledCircleText}>{num}</Text>
-                          </View>
-                        );
-                      }
+              return (
+                <View style={{ flexDirection: 'row', gap: 6 }}>
+                  {Array.from({ length: 4 }).map((_, idx) => {
+                    const num = board.numbers[idx];
+                    if (num !== undefined && num !== '') {
                       return (
-                        <View key={idx} style={[styles.emptyCircle, { borderColor: '#0B3A60' }]} />
+                        <View key={idx} style={[styles.filledCircle, { backgroundColor: '#0B3A60', borderColor: '#0B3A60' }]}>
+                          <Text style={styles.filledCircleText}>{num}</Text>
+                        </View>
                       );
-                    })}
+                    }
+                    return (
+                      <View key={idx} style={[styles.emptyCircle, { borderColor: '#0B3A60' }]} />
+                    );
+                  })}
+                </View>
+              );
+            };
+
+            const renderDienToan123Circles = () => {
+              const renderDigitCircle = (idx: number) => {
+                const num = board.numbers[idx];
+                const filled = num !== undefined && num !== '';
+                return (
+                  <View
+                    key={idx}
+                    style={[
+                      filled ? styles.filledCircle : styles.emptyCircle,
+                      { borderColor: '#0B3A60', backgroundColor: filled ? '#0B3A60' : 'transparent' }
+                    ]}
+                  >
+                    <Text style={filled ? styles.filledCircleText : { color: '#8F9BB3' }}>
+                      {filled ? num : '?'}
+                    </Text>
                   </View>
                 );
-              } else {
-                return (
-                  <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
-                    {(() => {
-                      const val1 = board.numbers[0];
-                      const filled = val1 !== undefined && val1 !== '';
-                      return (
-                        <View style={[filled ? styles.filledCircle : styles.emptyCircle, { borderColor: '#0B3A60', backgroundColor: filled ? '#0B3A60' : 'transparent', minWidth: 38, paddingHorizontal: 6 }]}>
-                          <Text style={filled ? styles.filledCircleText : { color: '#8F9BB3' }}>
-                            {filled ? val1 : '?'}
-                          </Text>
-                        </View>
-                      );
-                    })()}
+              };
 
-                    <View style={{ width: 1.5, height: 18, backgroundColor: '#D0D5DD', marginHorizontal: 2 }} />
-
-                    {(() => {
-                      const val1 = board.numbers[1];
-                      const val2 = board.numbers[2];
-                      const filled1 = val1 !== undefined && val1 !== '';
-                      const filled2 = val2 !== undefined && val2 !== '';
-                      const text = `${filled1 ? val1 : '?'}${filled2 ? val2 : '?'}`;
-                      const hasAny = filled1 || filled2;
-                      return (
-                        <View style={[hasAny ? styles.filledCircle : styles.emptyCircle, { borderColor: '#0B3A60', backgroundColor: hasAny ? '#0B3A60' : 'transparent', minWidth: 44, paddingHorizontal: 6 }]}>
-                          <Text style={hasAny ? styles.filledCircleText : { color: '#8F9BB3' }}>
-                            {text}
-                          </Text>
-                        </View>
-                      );
-                    })()}
-
-                    <View style={{ width: 1.5, height: 18, backgroundColor: '#D0D5DD', marginHorizontal: 2 }} />
-
-                    {(() => {
-                      const val1 = board.numbers[3];
-                      const val2 = board.numbers[4];
-                      const val3 = board.numbers[5];
-                      const filled1 = val1 !== undefined && val1 !== '';
-                      const filled2 = val2 !== undefined && val2 !== '';
-                      const filled3 = val3 !== undefined && val3 !== '';
-                      const text = `${filled1 ? val1 : '?'}${filled2 ? val2 : '?'}${filled3 ? val3 : '?'}`;
-                      const hasAny = filled1 || filled2 || filled3;
-                      return (
-                        <View style={[hasAny ? styles.filledCircle : styles.emptyCircle, { borderColor: '#0B3A60', backgroundColor: hasAny ? '#0B3A60' : 'transparent', minWidth: 50, paddingHorizontal: 6 }]}>
-                          <Text style={hasAny ? styles.filledCircleText : { color: '#8F9BB3' }}>
-                            {text}
-                          </Text>
-                        </View>
-                      );
-                    })()}
+              return (
+                <View style={{ flexDirection: 'row', gap: 4, alignItems: 'center' }}>
+                  {/* Bộ 1: 1 số */}
+                  <View style={{ flexDirection: 'row', gap: 4 }}>
+                    {renderDigitCircle(0)}
                   </View>
-                );
-              }
+
+                  <View style={{ width: 1.5, height: 18, backgroundColor: '#D0D5DD', marginHorizontal: 2 }} />
+
+                  {/* Bộ 2: 2 số */}
+                  <View style={{ flexDirection: 'row', gap: 4 }}>
+                    {renderDigitCircle(1)}
+                    {renderDigitCircle(2)}
+                  </View>
+
+                  <View style={{ width: 1.5, height: 18, backgroundColor: '#D0D5DD', marginHorizontal: 2 }} />
+
+                  {/* Bộ 3: 3 số */}
+                  <View style={{ flexDirection: 'row', gap: 4 }}>
+                    {renderDigitCircle(3)}
+                    {renderDigitCircle(4)}
+                    {renderDigitCircle(5)}
+                  </View>
+                </View>
+              );
             };
 
             const isSplitLayout = (isMax3d || isMax4d) && (standardPlayType === 'Max3D+' || standardPlayType === 'Max3D Pro');
@@ -2720,7 +2783,7 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
             return (
               <View key={board.id} style={styles.standardBoardRow}>
                 {/* Left Label (A, B, C...) */}
-                <Text style={[styles.standardBoardLetter, (isMax3d || isMax4d || isLottoGame || isLoto235 || isLotoCap || isDientoan636 || isThanTai4) && { color: '#0F2942' }]}>{board.id}</Text>
+                <Text style={[styles.standardBoardLetter, (isMax3d || isMax4d || isLottoGame || isLoto235 || isLotoCap || isDientoan636 || isThanTai4 || isDienToan123) && { color: '#0F2942' }]}>{board.id}</Text>
 
                 {/* Center Circles grid */}
                 {isLoto235 ? (
@@ -2740,6 +2803,8 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
                       renderDientoan636Circles()
                     ) : isThanTai4 ? (
                       renderThanTaiCircles()
+                    ) : isDienToan123 ? (
+                      renderDienToan123Circles()
                     ) : isSplitLayout ? (
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                         {/* First 3 circles */}
@@ -2815,7 +2880,7 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
 
       {/* Sticky Bottom checkout */}
       <View style={[styles.standardFooter, { paddingBottom: Math.max(16, insets.bottom) + 16 }]}>
-        {isLoto235 || isLotoCap || isDientoan636 || isThanTai4 ? (
+        {isLoto235 || isLotoCap || isDientoan636 || isThanTai4 || isDienToan123 ? (
           (isLoto235 ? loto235PlayType !== 'Bao 2 số' : isDientoan636 ? dientoan636PlayType !== 'Bao 6x36' : true) && (
             <View style={{ alignItems: 'center', width: '100%', marginBottom: 12 }}>
               <TouchableOpacity
@@ -2859,9 +2924,16 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
           </View>
         ) : isThanTai4 ? (
           <View style={[styles.standardTotalRow, { marginTop: 0, paddingTop: 4 }]}>
-            <Text style={[styles.standardTotalLabel, { color: '#00BA00', fontSize: 13 }]}>Giải thưởng:</Text>
+            <Text style={[styles.standardTotalLabel, { color: '#00BA00', fontSize: 13 }]}>Giải đặc biệt:</Text>
             <Text style={[styles.standardTotalVal, { color: '#00BA00', fontSize: 13 }]}>
-              {thanTaiPlayType === 'Thần tài 4' ? '179.000.000 VNĐ' : '139.000.000 VNĐ'}
+              12.200.000 VNĐ (x1.220 lần)
+            </Text>
+          </View>
+        ) : isDienToan123 ? (
+          <View style={[styles.standardTotalRow, { marginTop: 0, paddingTop: 4 }]}>
+            <Text style={[styles.standardTotalLabel, { color: '#00BA00', fontSize: 13 }]}>Giải nhất:</Text>
+            <Text style={[styles.standardTotalVal, { color: '#00BA00', fontSize: 13 }]}>
+              400.000.000 VNĐ (x40.000 lần)
             </Text>
           </View>
         ) : getEstimatedWinInfo() && (
@@ -2992,7 +3064,7 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
 
                       return (
                         <React.Fragment key={idx}>
-                          {isThanTai4 && thanTaiPlayType === 'Điện toán 1-2-3' ? (
+                          {isDienToan123 ? (
                             (idx === 1 || idx === 3) && (
                               <View style={{ width: 2, height: 32, backgroundColor: '#D0D5DD', marginHorizontal: 6 }} />
                             )
@@ -3123,60 +3195,6 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
         </View>
       )}
 
-      {/* Chọn kỳ mua Lô tô 235 Modal */}
-      {isLoto235DrawPickerVisible && (
-        <View style={[styles.modalOverlay, { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }]}>
-          <View style={{ width: '85%', backgroundColor: '#FFFFFF', borderRadius: 14, overflow: 'hidden' }}>
-            <View style={{ backgroundColor: '#0084FA', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14, paddingHorizontal: 16 }}>
-              <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#FFFFFF' }}>Chọn kỳ mua</Text>
-              <TouchableOpacity onPress={() => setIsLoto235DrawPickerVisible(false)}>
-                <X size={20} color="#FFFFFF" />
-              </TouchableOpacity>
-            </View>
-
-            <View style={{ paddingVertical: 8, paddingHorizontal: 16 }}>
-              {[1, 2, 5, 10].map((count, index) => {
-                const isSelected = loto235DrawCount === count;
-                return (
-                  <TouchableOpacity
-                    key={count}
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      paddingVertical: 14,
-                      borderBottomWidth: index === 3 ? 0 : 1,
-                      borderBottomColor: '#F0F2F5',
-                    }}
-                    onPress={() => {
-                      setLoto235DrawCount(count);
-                      if (drawCycles && drawCycles.length > 0) {
-                        setSelectedDraws(drawCycles.slice(0, count).map((d: any) => d.id));
-                      }
-                      setIsLoto235DrawPickerVisible(false);
-                    }}
-                  >
-                    <Text style={{ fontSize: 15, fontWeight: '600', color: '#0F2942' }}>
-                      {count} kỳ
-                    </Text>
-                    <View
-                      style={{
-                        width: 20,
-                        height: 20,
-                        borderRadius: 10,
-                        borderWidth: isSelected ? 6 : 1.5,
-                        borderColor: isSelected ? '#E51F27' : '#D0D5DD',
-                        backgroundColor: '#FFFFFF',
-                      }}
-                    />
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-        </View>
-      )}
-
       {/* Chọn kỳ mua Standard Modal */}
       {isStandardDrawPickerVisible && (
         <View style={[styles.modalOverlay, { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, justifyContent: 'flex-end' }]}>
@@ -3224,6 +3242,14 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
                 style={styles.drawConfirmBtn}
                 onPress={() => {
                   setSelectedDrawIndex(tempSelectedDrawIndex);
+                  const picked = standardDrawCycles[tempSelectedDrawIndex];
+                  if (picked) {
+                    setSelectedDraws([picked.id]);
+                    if (picked.closeTime) {
+                      const closeTimeMs = new Date(picked.closeTime).getTime();
+                      setCountdown(Math.max(0, Math.floor((closeTimeMs - Date.now()) / 1000)));
+                    }
+                  }
                   setIsStandardDrawPickerVisible(false);
                 }}
               >

@@ -47,20 +47,27 @@ export default function GameLayoutBScreen({ route, navigation }: any) {
       const res = await api.get('/draws/active');
       const draws = res.data;
 
+      let mappedGameCode = gameId;
+      // Các game Lô tô ăn theo đài Xổ số Miền Bắc -> Dùng chung 100% kỳ quay của MB
+      if (['bao_loto_2', 'loto_235', 'loto_cap', 'truot_loto'].includes(gameId)) {
+        mappedGameCode = 'MB';
+      }
+
       // Filter active draws for this game in the future
       const activeDraws = (draws || [])
-        .filter((d: any) => d.game && d.game.code === gameId && new Date(d.closeTime).getTime() > nowMs)
+        .filter((d: any) => d.game && d.game.code === mappedGameCode && new Date(d.closeTime).getTime() > nowMs)
         .slice(0, 10);
 
       if (activeDraws.length > 0) {
         const formatted = activeDraws.map((d: any) => {
           const closeTime = new Date(d.closeTime);
-          const day = String(closeTime.getDate()).padStart(2, '0');
-          const month = String(closeTime.getMonth() + 1).padStart(2, '0');
-          const year = closeTime.getFullYear();
-          const hrs = String(closeTime.getHours()).padStart(2, '0');
-          const mins = String(closeTime.getMinutes()).padStart(2, '0');
-          const secs = String(closeTime.getSeconds()).padStart(2, '0');
+          const displayTime = d.drawTime ? new Date(d.drawTime) : closeTime;
+          const day = String(displayTime.getDate()).padStart(2, '0');
+          const month = String(displayTime.getMonth() + 1).padStart(2, '0');
+          const year = displayTime.getFullYear();
+          const hrs = String(displayTime.getHours()).padStart(2, '0');
+          const mins = String(displayTime.getMinutes()).padStart(2, '0');
+          const secs = String(displayTime.getSeconds()).padStart(2, '0');
           const dateFormatted = `${day}/${month}/${year} ${hrs}:${mins}`;
           return {
             id: d._id,
@@ -178,8 +185,11 @@ export default function GameLayoutBScreen({ route, navigation }: any) {
       const curDraw = (drawCycles && drawCycles.length > 0)
         ? (drawCycles.find((d: any) => (payload.drawIds || selectedDraws)?.includes(d.id)) || drawCycles[0])
         : null;
+      const drawCodePrefix = curDraw?.drawCode
+        ? (String(curDraw.drawCode).startsWith('#') ? `Kỳ ${curDraw.drawCode} - ` : `Kỳ #${curDraw.drawCode} - `)
+        : '';
       const drawDateStr = curDraw 
-        ? `${curDraw.drawCode ? `Kỳ #${curDraw.drawCode} - ` : ''}${curDraw.dateStr || curDraw.date || ''}` 
+        ? `${drawCodePrefix}${curDraw.dateStr || curDraw.date || ''}` 
         : (payload.drawDate || undefined);
 
       addToCart({
@@ -192,8 +202,10 @@ export default function GameLayoutBScreen({ route, navigation }: any) {
         unitAmount: payload.unitAmount || payload.boards[0]?.unitAmount,
         multiplier: payload.multiplier || payload.boards[0]?.multiplier,
         quantity: payload.drawIds ? payload.drawIds.length : 1,
+        drawId: curDraw?.id,
+        drawCode: curDraw?.drawCode,
         drawDate: payload.drawDate || drawDateStr,
-        provinceName: payload.provinceName || route.params?.provinceName,
+        provinceName: payload.provinceName || route.params?.provinceName || (['bao_loto_2', 'loto_235', 'loto_cap', 'truot_loto'].includes(gameId) ? 'Miền Bắc' : undefined),
         boards: payload.boards,
       });
 
@@ -203,14 +215,19 @@ export default function GameLayoutBScreen({ route, navigation }: any) {
       const curDraw = (drawCycles && drawCycles.length > 0)
         ? (drawCycles.find((d: any) => (payload.drawIds || selectedDraws)?.includes(d.id)) || drawCycles[0])
         : null;
+      const drawCodePrefix = curDraw?.drawCode
+        ? (String(curDraw.drawCode).startsWith('#') ? `Kỳ ${curDraw.drawCode} - ` : `Kỳ #${curDraw.drawCode} - `)
+        : '';
       const drawDateStr = curDraw 
-        ? `${curDraw.drawCode ? `Kỳ #${curDraw.drawCode} - ` : ''}${curDraw.dateStr || curDraw.date || ''}` 
+        ? `${drawCodePrefix}${curDraw.dateStr || curDraw.date || ''}` 
         : (payload.drawDate || undefined);
 
       navigation.navigate('GamePayment', {
         ...payload,
+        drawId: curDraw?.id,
+        drawCode: curDraw?.drawCode,
         drawDate: payload.drawDate || drawDateStr,
-        provinceName: payload.provinceName || route.params?.provinceName,
+        provinceName: payload.provinceName || route.params?.provinceName || (['bao_loto_2', 'loto_235', 'loto_cap', 'truot_loto'].includes(gameId) ? 'Miền Bắc' : undefined),
       });
     }
   };
@@ -595,6 +612,11 @@ export default function GameLayoutBScreen({ route, navigation }: any) {
                 style={styles.drawConfirmBtn}
                 onPress={() => {
                   setSelectedDraws(tempSelectedDraws);
+                  const firstSelected = drawCycles.find(d => tempSelectedDraws.includes(d.id)) || drawCycles[0];
+                  if (firstSelected?.closeTime) {
+                    const closeTimeMs = new Date(firstSelected.closeTime).getTime();
+                    setCountdown(Math.max(0, Math.floor((closeTimeMs - Date.now()) / 1000)));
+                  }
                   setIsDrawPickerVisible(false);
                 }}
               >

@@ -23,7 +23,8 @@ Hệ thống tài liệu này định nghĩa chi tiết toàn bộ các quy lu�
 | `loto_235` | LÔ TÔ 2, 3, 5 SỐ & BAO LÔ TÔ 2 | Điện Toán / Lô Tô | [`loto_235.md`](./loto_235.md) |
 | `loto_cap` | LÔ TÔ 2, 3, 4 CẶP SỐ | Điện Toán / Lô Tô Cặp | [`loto_cap.md`](./loto_cap.md) |
 | `truot_loto` | TRƯỢT LÔ TÔ 4-8-10 CẶP | Điện Toán / Lô Tô Trượt | [`truot_loto.md`](./truot_loto.md) |
-| `than_tai_4` | THẦN TÀI 4 & ĐIỆN TOÁN 1-2-3 | Điện Toán | [`than_tai_4.md`](./than_tai_4.md) |
+| `than_tai_4` | THẦN TÀI 4 | Điện Toán | [`than_tai_4.md`](./than_tai_4.md) |
+| `dientoan_123` | ĐIỆN TOÁN 1-2-3 | Điện Toán | [`dientoan_123.md`](./dientoan_123.md) |
 | `lotto_535`, `lotto_570` | LOTTO 5/35 & MEGA MILLIONS (5/70) | Xổ Số Quốc Tế / Điện Toán | [`lotto_535_570.md`](./lotto_535_570.md) |
 
 ---
@@ -108,4 +109,17 @@ Mỗi trò chơi bắt buộc phải được kiểm thử đầy đủ các c�
    │── Quá thời gian chốt vé (Cutoff Time) -> Chặn cược
    │── Trùng lặp số trong 1 bảng -> Chặn xác nhận
    └── Số lượng số chưa đủ hoặc vượt quá quy định -> Báo lỗi
+
+---
+
+## 4. QUY CHUẨN HIỂN THỊ GIAO DIỆN LỊCH SỬ & CHI TIẾT VÉ (UI DISPLAY STANDARDS)
+
+1. **Giới hạn tối đa 10 số / bộ số (Limit 10 & "Xem thêm")**:
+   - Khi một vé hoặc một dãy cược có nhiều hơn 10 số hoặc nhiều hơn 10 bộ số (ví dụ: vé Lô Trượt Xiên 110 bộ số, Đề dàn 100 số, Bao Lô dàn 50 số...):
+     - **Trên thẻ vé ngoài danh sách lịch sử (`HistoryTicketCard`)**: BẮT BUỘC chỉ hiển thị tối đa **10 số / bộ số đầu tiên**. Tuyệt đối không render toàn bộ dàn số làm thẻ vé kéo dài tràn màn hình. Hiển thị nút/nhãn `+[X] Xem thêm` (ví dụ: `+100 Xem thêm`). Bấm vào sẽ mở màn hình Chi tiết vé (`HistoryDetailScreen`).
+     - **Trên màn hình Chi tiết vé (`HistoryDetailScreen`)**: Dãy cược cũng chỉ hiển thị tối đa **10 số / bộ số đầu tiên** kèm nút `+[X] Xem thêm`. Chỉ khi người dùng bấm vào nút này mới mở Modal Bottom Sheet ("Tất cả [N] số") hiển thị toàn bộ danh sách đầy đủ có đánh số thứ tự `#1, #2, ...`.
+2. **Quy tắc bóng số trúng thưởng**:
+   - Trên danh sách vé: Quả bóng trúng thưởng có nền đỏ (`ticketBallWinning`). Chữ số bên trong bóng **bắt buộc là màu trắng `#FFF`** in đậm (`fontWeight: 'bold'`), không để màu chữ đỏ trùng màu nền bóng.
+   - Trên chi tiết vé: Với các game ma trận (Điện toán 6/36, Mega 6/45, Power 6/55, Keno), các con bóng khớp kết quả được bôi đỏ nổi bật nhưng **không gắn chữ `(Trúng)` sau từng bóng đơn lẻ** ở các hàng thua. Chỉ hàng nào đạt giải thưởng mới có nhãn **(Trúng)** và viền hồng nổi bật.
+
 

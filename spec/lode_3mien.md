@@ -157,3 +157,42 @@ $$\text{Cost} = \text{Số lượng con số} \times \text{Tiền cược mỗi 
 - Lúc 18:15 cố tình đặt vé MB hôm nay $\rightarrow$ **Bị chặn**.
 - Đặt vé cho ngày mai (tương lai) $\rightarrow$ Hợp lệ, chấp nhận đặt cược.
 
+---
+
+## 4. QUY CHUẨN HIỂN THỊ ĐƠN CƯỢC NHIỀU VÉ XIÊN / LÔ TÔ CẶP / TRƯỢT TRÊN MOBILE
+- **Vấn đề thực tế**: Khi người chơi đánh nhiều cặp xiên, lô tô cặp hoặc nhiều bộ số trượt (ví dụ: vé Lô tô 2 cặp gồm 5 dãy A, B, C, D, E hoặc dàn 110 bộ số xiên/trượt), việc dò kết quả thủ công giữa các dòng số đen rất khó khăn.
+- **Quy tắc hiển thị (Highlighting)**:
+  1. **Cặp số / Bộ số trúng (Winning Combo / Item)**:
+     - Đối với các dãy cược theo hàng (Dãy A, B, C, D, E...): nếu cặp số trúng thưởng (ví dụ: Dãy B `32 59`), số cược chuyển sang **Màu đỏ `#E11D48`**, in đậm (`bold`), kèm note **`(Trúng)`** ngay bên cạnh.
+     - Hàng chứa cặp số/bộ số trúng được phủ nền hồng nhẹ (`#FFF1F2`) với viền hồng (`#FECDD3`), nhãn dãy (ví dụ: `B`) và giá tiền cược cũng chuyển màu đỏ nổi bật.
+     - Áp dụng đồng bộ trên cả: màn hình Chi tiết vé (`HistoryDetailScreen`), thẻ vé trong Danh sách lịch sử (`HistoryTicketCard`), và Modal xem tất cả dãy số.
+  2. **Bộ số chưa trúng đủ hoặc trượt**:
+     - Các con số giữ màu chữ đen mặc định (`#0F2942`), không có note `(Trúng)`, nền trong suốt bình thường.
+  3. **Chuẩn hóa hiển thị Kỳ QSMT**:
+     - Loại bỏ hoàn toàn lỗi lặp dấu hash (như `Kỳ ##1046`), hiển thị đồng nhất `Kỳ #1046 - [Ngày giờ]`. Tránh lặp chuỗi `(#1046)` nếu ngày giờ đã chứa mã kỳ quay.
+  4. **Giới hạn hiển thị tối đa 10 số / bộ số trên thẻ vé & chi tiết vé**:
+     - **Quy tắc bắt buộc**: Khi một dãy cược có nhiều hơn 10 số hoặc nhiều hơn 10 bộ số (ví dụ: vé Lô Trượt Xiên gồm 110 bộ số, Đề dàn 100 số, Bao lô dàn 50 số...):
+       - Trên **Thẻ vé lịch sử (`HistoryTicketCard`)**: BẮT BUỘC chỉ hiển thị tối đa **10 số / bộ số đầu tiên**. Tuyệt đối không render toàn bộ dàn số làm thẻ vé kéo dài quá khổ toàn màn hình. Phần còn lại phải ẩn đi và hiển thị nút/nhãn `+[X] Xem thêm` (ví dụ: `+100 Xem thêm`). Khi bấm nút sẽ mở sang màn hình Chi tiết vé (`HistoryDetailScreen`).
+       - Trên **Chi tiết vé (`HistoryDetailScreen`)**: Dãy cược cũng chỉ hiển thị tối đa **10 số / bộ số đầu tiên**, kèm nút `+[X] Xem thêm`. Chỉ khi người dùng bấm vào nút này mới mở Modal Popup ("Tất cả [N] số") hiển thị toàn bộ danh sách đầy đủ có đánh số thứ tự `#1, #2, ...`.
+
+---
+
+## 5. QUY CHUẨN TÔ XANH GIẢI TRÚNG TRÊN BẢNG KẾT QUẢ MỞ THƯỞNG
+- **Nguyên tắc phân biệt theo loại cược (playType)**:
+  1. **Đề đầu đuôi (Miền Nam & Miền Trung)**:
+     - **CHỈ áp dụng cho Giải Đặc Biệt (GĐB) và Giải Tám (G8)**.
+     - Nếu số cược trùng với 2 số cuối của Giải Đặc Biệt hoặc Giải Tám $\rightarrow$ Tô xanh giải đó và hiện nhãn `[Trúng]`.
+     - Tuyệt đối **KHÔNG** tô xanh các giải khác (Giải Nhất, Nhì, Ba, Tư, Năm, Sáu, Bảy) dù số cược có trùng với 2 số cuối của các giải đó (tránh nhầm lẫn với Bao Lô).
+  2. **Đề đầu đuôi (Miền Bắc)**:
+     - **CHỈ áp dụng cho Giải Đặc Biệt (GĐB) và Giải Bảy (G7)**.
+  3. **Đề ĐB / Đề đuôi**:
+     - **CHỈ áp dụng cho Giải Đặc Biệt**.
+  4. **Đề Giải 1**:
+     - **CHỈ áp dụng cho Giải Nhất**.
+  5. **Bao Lô 2, 3, 4 số**:
+     - Áp dụng kiểm tra trên **TẤT CẢ các giải** trong bảng kết quả.
+  6. **Lô Trượt**:
+     - **KHÔNG tô xanh trúng** trên bảng kết quả mở thưởng (vì người chơi thắng khi các con số cược KHÔNG xuất hiện trong bảng giải).
+
+
+

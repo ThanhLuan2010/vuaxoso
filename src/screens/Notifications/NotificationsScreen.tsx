@@ -52,7 +52,7 @@ export default function NotificationsScreen() {
       const dateStr = `${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${dateObj.getFullYear()}`;
       const timeStr = `${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}:${String(dateObj.getSeconds()).padStart(2, '0')}`;
       
-      const rawOrderId = n.orderId || n.data?.orderId || n.order?._id || n.order?.orderId || n.metadata?.orderId || (n.title + ' ' + n.body).match(/ORD_[\w-]+/)?.[0];
+      const rawOrderId = n.orderId || n.data?.orderId || n.order?._id || n.order?.orderId || n.metadata?.orderId || (n.title + ' ' + n.body).match(/(?:ORD_[\w-]+|[a-zA-Z]+_\d{7})/)?.[0];
 
       const item: NotificationItem = {
         id: n._id || n.id,
@@ -121,7 +121,20 @@ export default function NotificationsScreen() {
 
 
   const handleNotificationPress = (item: NotificationItem) => {
-    const targetOrderId = item.orderId || (item.title + ' ' + item.body).match(/ORD_[\w-]+/)?.[0];
+    // Nếu là thông báo gộp nhiều vé (ví dụ thông báo cũ "thanh toán thành công X vé"), điều hướng vào màn hình Lịch Sử để xem toàn bộ danh sách vé
+    const isBatchNotification =
+      (item.body || '').match(/thanh toán thành công \d+ vé/i) &&
+      !(item.body || '').match(/thanh toán thành công 1 vé/i);
+
+    if (isBatchNotification) {
+      navigation.navigate('MainTabs', {
+        screen: 'History',
+        params: { initialTab: 'Chờ in' },
+      });
+      return;
+    }
+
+    const targetOrderId = item.orderId || (item.title + ' ' + item.body).match(/(?:ORD_[\w-]+|[a-zA-Z]+_\d{7})/)?.[0];
     if (targetOrderId) {
       navigation.navigate('HistoryDetail', { orderId: targetOrderId });
       return;

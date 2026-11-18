@@ -19,22 +19,14 @@ import { ChevronLeft, Trophy, X, Award } from 'lucide-react-native';
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../theme/theme';
 import api from '../../services/api';
 import { useOrderDetailQuery } from '../../hooks/queries';
-
-const parseWinningNumbers = (raw: any): string[] => {
-  if (!raw) return [];
-  if (Array.isArray(raw)) return raw.map(String);
-  if (typeof raw === 'string') {
-    return raw.split(/[,;\s]+/).map(s => s.trim()).filter(Boolean);
-  }
-  return [];
-};
+import { evaluateWinningCombo, parseWinningNumbers, ComboEvalResult, isPrizeRowMatch, isCombinationBet, evaluateItemCombo, parseMaxGameDigits, calculateTicketWinningStatus, parseBingo18Dice } from '../../utils/lotteryResultHelper';
 
 export default function HistoryDetailScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const route = useRoute();
   const { ticket: initialTicket, orderId } = (route.params as any) || {};
-  
+
   const [ticket, setTicket] = useState<any>(initialTicket);
   const [loading, setLoading] = useState(!initialTicket);
   const [refreshing, setRefreshing] = useState(false);
@@ -66,7 +58,7 @@ export default function HistoryDetailScreen() {
   }, [orderId, fetchOrderDetail]);
 
   // TẤT CẢ CÁC HOOKS PHẢI ĐƯỢC GỌI Ở ĐẦU COMPONENT TRƯỚC CÁC LỆNH RETURN ĐIỀU KIỆN
-  const isWinning = ticket?.isWinner === true || (ticket?.prizeAmount != null && Number(ticket.prizeAmount) > 0);
+  const rawServerIsWinning = ticket?.isWinner === true || (ticket?.prizeAmount != null && Number(ticket.prizeAmount) > 0);
 
   // Đồng bộ kết quả chi tiết của kỳ quay từ backend nếu cần
   useEffect(() => {
@@ -89,7 +81,7 @@ export default function HistoryDetailScreen() {
         }
 
         // 2. Nếu vé chưa completed và có ngày quay ở tương lai, không gọi API kết quả cũ
-        if (ticket?.drawDate && ticket?.status !== 'completed' && !isWinning) {
+        if (ticket?.drawDate && ticket?.status !== 'completed' && !rawServerIsWinning) {
           const parts = ticket.drawDate.split('/');
           if (parts.length === 3) {
             const drawDayStart = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]), 0, 0, 0);
@@ -120,10 +112,23 @@ export default function HistoryDetailScreen() {
 
             // Kiểm tra mã kỳ quay
             const dCode = (d.drawCode || '').replace(/^#/, '').trim();
-            const isCodeMatch = cleanDrawId && dCode === cleanDrawId;
-            if (!isCodeMatch) return false;
+            const isCodeMatch = Boolean(cleanDrawId && (dCode === cleanDrawId || cleanDrawId === (d.drawCode || '').trim()));
 
-            // NẾU KHỚP MÃ KỲ QUAY: BẮT BUỘC PHẢI KHỚP CẢ ĐÀI LẪN NGÀY!
+            // Kiểm tra khớp ngày quay (cho các vé đặt theo ngày hoặc virtual drawId như truot_20261117)
+            let isDateMatch = false;
+            const dCloseTime = d.closeTime || d.drawTime;
+            if (dCloseTime) {
+              const dt = new Date(dCloseTime);
+              const dVnDate = dt.toLocaleDateString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
+              const dIsoDate = dt.toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).replace(/-/g, '');
+              if (ticket.drawDate && dVnDate === ticket.drawDate) isDateMatch = true;
+              if (cleanDrawId && (cleanDrawId === dVnDate || cleanDrawId.includes(dIsoDate))) isDateMatch = true;
+            }
+
+            // Nếu không khớp mã và không khớp ngày thì loại
+            if (!isCodeMatch && !isDateMatch) return false;
+
+            // NẾU KHỚP: BẮT BUỘC PHẢI KHỚP CẢ ĐÀI NẾU CÓ ĐÀI!
             if (targetProv) {
               const dProvName = (d.province?.name || d.provinceName || d.provinceId || '').toLowerCase().trim();
               if (dProvName && !dProvName.includes(targetProv) && !targetProv.includes(dProvName)) {
@@ -131,8 +136,7 @@ export default function HistoryDetailScreen() {
               }
             }
 
-            if (ticket.drawDate) {
-              const dCloseTime = d.closeTime || d.drawTime;
+            if (ticket.drawDate && isCodeMatch && !isDateMatch) {
               if (dCloseTime) {
                 const dt = new Date(dCloseTime);
                 const dVnDate = dt.toLocaleDateString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
@@ -156,7 +160,7 @@ export default function HistoryDetailScreen() {
     if (ticket) {
       fetchDrawResult();
     }
-  }, [ticket?.gameType, ticket?.drawId, ticket?.region, ticket?.provinceName, ticket?.drawDate, ticket?.draw, ticket?.status, ticket?.winningNumbers, isWinning]);
+  }, [ticket?.gameType, ticket?.drawId, ticket?.region, ticket?.provinceName, ticket?.drawDate, ticket?.draw, ticket?.status, ticket?.winningNumbers, rawServerIsWinning]);
 
   const onRefresh = useCallback(() => {
     fetchOrderDetail(true);
@@ -183,12 +187,12 @@ export default function HistoryDetailScreen() {
 
     // 4. Nếu thời gian chốt cược của kỳ quay nằm trong tương lai và chưa có cờ trúng thưởng
     const targetCloseTime = drawObj?.closeTime;
-    if (targetCloseTime && new Date(targetCloseTime).getTime() > Date.now() && !isWinning && ticket?.status !== 'completed') {
+    if (targetCloseTime && new Date(targetCloseTime).getTime() > Date.now() && !rawServerIsWinning && ticket?.status !== 'completed') {
       return [];
     }
 
     // 5. Nếu ngày quay là ngày tương lai và chưa có cờ trúng thưởng
-    if (ticket?.drawDate && !isWinning && ticket?.status !== 'completed') {
+    if (ticket?.drawDate && !rawServerIsWinning && ticket?.status !== 'completed') {
       const parts = ticket.drawDate.split('/');
       if (parts.length === 3) {
         const drawDateStart = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]), 0, 0, 0);
@@ -199,28 +203,69 @@ export default function HistoryDetailScreen() {
     }
 
     return [];
-  }, [ticket?.winningNumbers, drawInfo?.winningNumbers, drawInfo?.status, drawInfo?.closeTime, ticket?.draw, ticket?.drawResult, ticket?.drawDate, ticket?.status, isWinning]);
+  }, [ticket?.winningNumbers, drawInfo?.winningNumbers, drawInfo?.status, drawInfo?.closeTime, ticket?.draw, ticket?.drawResult, ticket?.drawDate, ticket?.status, rawServerIsWinning]);
+
+  const ticketWinningStatus = useMemo(() => {
+    return calculateTicketWinningStatus(ticket, winningNumbersList);
+  }, [ticket, winningNumbersList]);
+
+  const isWinning = ticketWinningStatus.isWinning;
+
+  const extractSpecialNumbers = (itemObj: any, ticketObj: any): string[] => {
+    const raw = itemObj?.specialNumbers ?? itemObj?.special_numbers ?? ticketObj?.specialNumbers ?? ticketObj?.special_numbers;
+    if (Array.isArray(raw)) return raw.map((s: any) => String(s).trim()).filter(Boolean);
+    if (typeof raw === 'string' && raw.trim()) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed.map((s: any) => String(s).trim()).filter(Boolean);
+      } catch { }
+      return raw.split(/[\s,]+/).map(s => s.trim()).filter(Boolean);
+    }
+    return [];
+  };
 
   const userBetNumbers = useMemo(() => {
     const set = new Set<string>();
-    if (Array.isArray(ticket?.items)) {
-      ticket.items.forEach((it: any) => {
-        if (Array.isArray(it.numbers)) {
-          it.numbers.forEach((n: any) => {
-            const s = String(n).trim();
-            if (s) set.add(s);
-          });
-        }
-      });
-    }
-    if (Array.isArray(ticket?.numbers)) {
-      ticket.numbers.forEach((n: any) => {
+    const processNumbers = (rawNums: any) => {
+      if (!rawNums) return;
+      const list: string[] = Array.isArray(rawNums)
+        ? rawNums.map(String)
+        : (typeof rawNums === 'string' ? rawNums.split(/[\s,]+/).map(s => s.trim()).filter(Boolean) : []);
+
+      list.forEach(n => {
         const s = String(n).trim();
         if (s) set.add(s);
       });
+
+      const joined = list.map(n => String(n).trim()).join('');
+      if (joined) set.add(joined);
+
+      if (list.length === 6) {
+        set.add(`${list[0]}${list[1]}${list[2]}`);
+        set.add(`${list[3]}${list[4]}${list[5]}`);
+        set.add(String(list[0]));
+        set.add(`${list[1]}${list[2]}`);
+        set.add(`${list[3]}${list[4]}${list[5]}`);
+      } else if (list.length === 2 && list[0].length === 3 && list[1].length === 3) {
+        set.add(list[0]);
+        set.add(list[1]);
+      }
+    };
+
+    if (Array.isArray(ticket?.items)) {
+      ticket.items.forEach((it: any) => {
+        processNumbers(it.numbers);
+        const itSpecials = extractSpecialNumbers(it, null);
+        itSpecials.forEach((sn) => set.add(sn));
+      });
     }
+    if (ticket?.numbers) {
+      processNumbers(ticket.numbers);
+    }
+    const ticketSpecials = extractSpecialNumbers(null, ticket);
+    ticketSpecials.forEach((sn) => set.add(sn));
     return set;
-  }, [ticket?.items, ticket?.numbers]);
+  }, [ticket?.items, ticket?.numbers, ticket?.specialNumbers, ticket?.special_numbers]);
 
   if (loading) {
     return (
@@ -243,6 +288,7 @@ export default function HistoryDetailScreen() {
 
   const isKienThiet = ticket?.gameType?.startsWith('kienthiet');
   const isLode = ['xoso_3mien', 'lode', 'MB', 'MT', 'MN', 'mb', 'mt', 'mn', 'lode_3mien'].includes(ticket?.gameType);
+  const isDienToan123 = (ticket?.gameType || '').toLowerCase() === 'dientoan_123';
   let ticketTypeStr = 'GAME';
   if (isKienThiet) {
     const parts = ticket.gameType.split('_');
@@ -257,6 +303,18 @@ export default function HistoryDetailScreen() {
     } else {
       ticketTypeStr = 'LÔ ĐỀ 3 MIỀN';
     }
+  } else if (isDienToan123) {
+    ticketTypeStr = 'ĐIỆN TOÁN 1-2-3';
+  } else if (ticket?.gameType === 'than_tai_4') {
+    ticketTypeStr = 'THẦN TÀI 4';
+  } else if (ticket?.gameType === 'max_3d') {
+    ticketTypeStr = 'MAX 3D';
+  } else if (ticket?.gameType === 'max_3d_plus') {
+    ticketTypeStr = 'MAX 3D+';
+  } else if (ticket?.gameType === 'max_3d_pro') {
+    ticketTypeStr = 'MAX 3D PRO';
+  } else if (ticket?.gameType === 'max_4d') {
+    ticketTypeStr = 'MAX 4D';
   } else if (ticket?.gameType) {
     ticketTypeStr = ticket.gameType.replace(/_/g, ' ').toUpperCase();
   }
@@ -265,7 +323,9 @@ export default function HistoryDetailScreen() {
   const formattedPrice = ticket?.totalCost ? ticket.totalCost.toLocaleString('vi-VN') + 'đ' : '0đ';
   const dateObj = new Date(ticket?.createdAt || Date.now());
   const timeStr = `⏰${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}:${String(dateObj.getSeconds()).padStart(2, '0')} - ${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${dateObj.getFullYear()}`;
-  const prizeAmount = ticket?.prizeAmount ? ticket.prizeAmount.toLocaleString('vi-VN') + 'đ' : '0 đ';
+  const prizeAmount = ticketWinningStatus.prizeAmount > 0
+    ? ticketWinningStatus.prizeAmount.toLocaleString('vi-VN') + 'đ'
+    : (ticket?.prizeAmount ? ticket.prizeAmount.toLocaleString('vi-VN') + 'đ' : '0 đ');
   const getImageUrl = (path: string) => {
     if (!path) return '';
     if (path.startsWith('http://') || path.startsWith('https://')) return path;
@@ -286,18 +346,62 @@ export default function HistoryDetailScreen() {
 
   const imageUrl = hasRealImage ? { uri: getImageUrl(ticket.ticketImageUrl) } : null;
 
-  const isMatchNumber = (winNum: string) => {
-    if (!winNum || typeof winNum !== 'string') return false;
-    const cleanWin = winNum.trim();
-    if (!cleanWin) return false;
-    if (userBetNumbers.has(cleanWin)) return true;
-    const isDau = ticket?.playType?.toLowerCase()?.includes('đầu');
-    for (const bet of userBetNumbers) {
-      if (!bet) continue;
-      if (isDau && bet.length >= 2 && cleanWin.startsWith(bet)) return true;
-      if (bet.length >= 2 && cleanWin.endsWith(bet)) return true;
+  const isMatchNumber = (winNum: string, rowLabel?: string) => {
+    return isPrizeRowMatch(winNum, rowLabel, ticket, userBetNumbers);
+  };
+
+  const renderHighlightedCombo = (
+    itemStr: string,
+    evalResult: ComboEvalResult,
+    isWinningCombo: boolean,
+    fontSize = 15
+  ) => {
+    if (!itemStr.includes('&')) {
+      return (
+        <Text
+          style={{
+            fontSize,
+            color: isWinningCombo ? '#E11D48' : '#0F2942',
+            fontWeight: isWinningCombo ? 'bold' : '500',
+          }}
+        >
+          {itemStr}
+        </Text>
+      );
     }
-    return false;
+
+    const parts = itemStr.split('&');
+    return (
+      <Text style={{ fontSize }}>
+        {parts.map((p, pIdx) => {
+          const cleanP = p.trim();
+          const isHit = evalResult.hitNumbers.has(cleanP) || evalResult.hitNumbers.has(cleanP.padStart(2, '0'));
+          const isRed = isWinningCombo || isHit;
+          return (
+            <React.Fragment key={pIdx}>
+              <Text
+                style={{
+                  color: isRed ? '#E11D48' : '#0F2942',
+                  fontWeight: isRed ? 'bold' : '500',
+                }}
+              >
+                {p}
+              </Text>
+              {pIdx < parts.length - 1 && (
+                <Text
+                  style={{
+                    color: isWinningCombo ? '#E11D48' : '#0F2942',
+                    fontWeight: isWinningCombo ? 'bold' : '500',
+                  }}
+                >
+                  &
+                </Text>
+              )}
+            </React.Fragment>
+          );
+        })}
+      </Text>
+    );
   };
 
   const getPrizeRows = (numbers: string[], gameType?: string, provinceOrRegion?: string) => {
@@ -305,6 +409,24 @@ export default function HistoryDetailScreen() {
 
     const provStr = (provinceOrRegion || '').toLowerCase();
     const gType = (gameType || '').toLowerCase();
+
+    if (gType === 'max_3d' || gType === 'max_3d_pro' || gType === 'max_3d_plus') {
+      return [
+        { label: 'Đặc biệt', isSpecial: true, numbers: numbers.slice(0, 2) },
+        { label: 'Giải Nhất', isSpecial: false, numbers: numbers.slice(2, 6) },
+        { label: 'Giải Nhì', isSpecial: false, numbers: numbers.slice(6, 12) },
+        { label: 'Giải Ba', isSpecial: false, numbers: numbers.slice(12, 20) },
+      ].filter(row => row.numbers.length > 0);
+    }
+
+    if (gType === 'max_4d') {
+      return [
+        { label: 'Giải Nhất', isSpecial: true, numbers: numbers.slice(0, 1) },
+        { label: 'Giải Nhì', isSpecial: false, numbers: numbers.slice(1, 3) },
+        { label: 'Giải Ba', isSpecial: false, numbers: numbers.slice(3, 6) },
+      ].filter(row => row.numbers.length > 0);
+    }
+
     const isMB =
       numbers.length >= 27 ||
       gType.includes('mb') ||
@@ -360,7 +482,8 @@ export default function HistoryDetailScreen() {
       }
     }
     if (ticket?.drawDate) {
-      return ticket.drawTime ? `${ticket.drawTime} - ${ticket.drawDate}` : ticket.drawDate;
+      const cleanDrawDate = String(ticket.drawDate).replace(/#+/g, '#');
+      return ticket.drawTime ? `${ticket.drawTime} - ${cleanDrawDate}` : cleanDrawDate;
     }
     const dt = new Date(ticket?.createdAt || Date.now());
     const vnDate = dt.toLocaleDateString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
@@ -382,9 +505,9 @@ export default function HistoryDetailScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
       {renderHeader()}
-      
-      <ScrollView 
-        contentContainerStyle={styles.content} 
+
+      <ScrollView
+        contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
@@ -400,36 +523,256 @@ export default function HistoryDetailScreen() {
 
           {ticket?.items && ticket.items.length > 0 ? (
             <>
-              {ticket.items.slice(0, 10).map((item: any, idx: number) => (
-                <View key={idx} style={styles.ticketRow}>
-                  <Text style={styles.ticketLabel}>{item.id || String.fromCharCode(65 + idx)}</Text>
-                  <View style={styles.ticketNumbers}>
-                    {item.numbers?.slice(0, 10).map((n: string, i: number) => {
-                      const isWinningNumber = ticket.winningNumbers && ticket.winningNumbers.includes(n);
+              {ticket.items.slice(0, 10).map((item: any, idx: number) => {
+                const itemEval = evaluateItemCombo(item, ticket, winningNumbersList);
+                const isCombo = itemEval.isComboBet;
+                const isItemWinning = isWinning && itemEval.isWinning;
+
+                return (
+                  <View
+                    key={idx}
+                    style={[
+                      styles.ticketRow,
+                      isItemWinning && {
+                        backgroundColor: '#FFF1F2',
+                        borderRadius: 8,
+                        paddingHorizontal: 8,
+                        paddingVertical: 6,
+                        marginVertical: 2,
+                        borderWidth: 1,
+                        borderColor: '#FECDD3',
+                      }
+                    ]}
+                  >
+                    <Text style={[styles.ticketLabel, isItemWinning && { color: '#E11D48', fontWeight: 'bold' }]}>
+                      {item.id || String.fromCharCode(65 + idx)}
+                    </Text>
+
+                    {(() => {
+                      const rawItemNums: string[] = Array.isArray(item.numbers)
+                        ? item.numbers
+                        : (typeof item.numbers === 'string' ? [item.numbers] : []);
+                      const hasEmbeddedAmp = rawItemNums.some((n: string) => n.includes('&'));
+                      const hasMore = rawItemNums.length > 10;
+                      const displayList = hasMore ? rawItemNums.slice(0, 10) : rawItemNums;
+                      const isMatrixGame = [
+                        'dientoan_636', 'bao_636', 'mega_645', 'power_655', 'max_3d', 'max_3d_pro', 'max_3d_plus', 'max_4d',
+                        'lotto_535', 'lotto_570', 'keno', 'bao_keno', 'clln_keno', 'bingo18', 'than_tai_4', 'dientoan_123'
+                      ].includes((ticket?.gameType || '').toLowerCase());
+                      const shouldNoWrap = displayList.length <= 7;
+
+                      const maxInfo = parseMaxGameDigits(rawItemNums, ticket?.gameType, item.playType || ticket?.playType);
+                      if (maxInfo) {
+                        if (maxInfo.isSplit) {
+                          return (
+                            <View style={[styles.ticketNumbers, { flexWrap: 'nowrap', alignItems: 'center', gap: 4 }]}>
+                              <View style={{ flexDirection: 'row', gap: 4 }}>
+                                {maxInfo.set1.map((d: string, di: number) => {
+                                  const isHit = itemEval.hitIndices?.has(di) ?? false;
+                                  return (
+                                    <View key={`s1-${di}`} style={[styles.ticketBallCircle, isHit && styles.ticketBallCircleWinning]}>
+                                      <Text style={[styles.ticketBallCircleText, isHit && { color: '#FFF' }]}>{d}</Text>
+                                    </View>
+                                  );
+                                })}
+                              </View>
+                              <View style={{ width: 1.5, height: 20, backgroundColor: '#D0D5DD', marginHorizontal: 2 }} />
+                              <View style={{ flexDirection: 'row', gap: 4 }}>
+                                {(maxInfo.set2 || []).map((d: string, di: number) => {
+                                  const isHit = itemEval.hitIndices?.has(di + 3) ?? false;
+                                  return (
+                                    <View key={`s2-${di}`} style={[styles.ticketBallCircle, isHit && styles.ticketBallCircleWinning]}>
+                                      <Text style={[styles.ticketBallCircleText, isHit && { color: '#FFF' }]}>{d}</Text>
+                                    </View>
+                                  );
+                                })}
+                              </View>
+                              {isItemWinning && (
+                                <Text style={{ color: '#E11D48', fontSize: 12, fontWeight: 'bold', marginLeft: 4 }}>(Trúng)</Text>
+                              )}
+                            </View>
+                          );
+                        }
+
+                        return (
+                          <View style={[styles.ticketNumbers, { flexWrap: 'nowrap', alignItems: 'center', gap: 4 }]}>
+                            {maxInfo.set1.map((d: string, di: number) => {
+                              const isHit = itemEval.hitIndices?.has(di) ?? false;
+                              return (
+                                <View key={`d-${di}`} style={[styles.ticketBallCircle, isHit && styles.ticketBallCircleWinning]}>
+                                  <Text style={[styles.ticketBallCircleText, isHit && { color: '#FFF' }]}>{d}</Text>
+                                </View>
+                              );
+                            })}
+                            {isItemWinning && (
+                              <Text style={{ color: '#E11D48', fontSize: 12, fontWeight: 'bold', marginLeft: 4 }}>(Trúng)</Text>
+                            )}
+                          </View>
+                        );
+                      }
+
+                      if (isDienToan123 && (rawItemNums.length === 6 || rawItemNums.length === 3)) {
+                        let b1 = '', b2 = '', b3 = '';
+                        if (rawItemNums.length === 6) {
+                          b1 = rawItemNums[0];
+                          b2 = `${rawItemNums[1]}${rawItemNums[2]}`;
+                          b3 = `${rawItemNums[3]}${rawItemNums[4]}${rawItemNums[5]}`;
+                        } else {
+                          b1 = rawItemNums[0];
+                          b2 = rawItemNums[1];
+                          b3 = rawItemNums[2];
+                        }
+
+                        const isB1Win = itemEval.hitIndices ? itemEval.hitIndices.has(0) : itemEval.hitNumbers?.has(b1);
+                        const isB2Win = itemEval.hitIndices
+                          ? (rawItemNums.length === 6 ? (itemEval.hitIndices.has(1) && itemEval.hitIndices.has(2)) : itemEval.hitIndices.has(1))
+                          : itemEval.hitNumbers?.has(b2);
+                        const isB3Win = itemEval.hitIndices
+                          ? (rawItemNums.length === 6 ? (itemEval.hitIndices.has(3) && itemEval.hitIndices.has(4) && itemEval.hitIndices.has(5)) : itemEval.hitIndices.has(2))
+                          : itemEval.hitNumbers?.has(b3);
+
+                        const renderSet = (val: string, isWinSet: boolean) => (
+                          <View
+                            style={[
+                              { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 4 },
+                              isWinSet && { backgroundColor: '#FFF1F2', borderColor: '#FECDD3', borderWidth: 0.5 }
+                            ]}
+                          >
+                            <Text
+                              style={{
+                                fontSize: 16,
+                                color: isWinSet ? '#E11D48' : '#0F2942',
+                                fontWeight: isWinSet ? 'bold' : '600',
+                                letterSpacing: 0.5,
+                              }}
+                            >
+                              {val}
+                            </Text>
+                          </View>
+                        );
+
+                        return (
+                          <View style={[styles.ticketNumbers, { flexWrap: 'nowrap', alignItems: 'center', gap: 0 }]}>
+                            {renderSet(b1, Boolean(isB1Win))}
+                            <Text style={{ color: '#94A3B8', fontWeight: 'bold', marginHorizontal: 8, fontSize: 14 }}>|</Text>
+                            {renderSet(b2, Boolean(isB2Win))}
+                            <Text style={{ color: '#94A3B8', fontWeight: 'bold', marginHorizontal: 8, fontSize: 14 }}>|</Text>
+                            {renderSet(b3, Boolean(isB3Win))}
+                          </View>
+                        );
+                      }
+
+                      if (isCombo && !hasEmbeddedAmp && rawItemNums.length <= 10) {
+                        return (
+                          <View style={styles.ticketNumbers}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
+                              <Text
+                                style={{
+                                  fontSize: 15,
+                                  color: isItemWinning ? '#E11D48' : '#0F2942',
+                                  fontWeight: isItemWinning ? 'bold' : '600',
+                                }}
+                              >
+                                {rawItemNums.join(' ')}
+                              </Text>
+                              {isItemWinning && (
+                                <Text style={{ color: '#E11D48', fontSize: 13, fontWeight: 'bold', marginLeft: 6 }}>
+                                  (Trúng)
+                                </Text>
+                              )}
+                            </View>
+                          </View>
+                        );
+                      }
+
                       return (
-                        <Text 
-                          key={i} 
-                          style={[
-                            styles.ticketNumText,
-                            isWinningNumber && { color: '#E51F27', fontWeight: 'bold' }
-                          ]}
-                        >
-                          {n}
-                        </Text>
+                        <View style={[styles.ticketNumbers, shouldNoWrap && { flexWrap: 'nowrap', alignItems: 'center', gap: 2 }]}>
+                          {displayList.map((n: string, i: number) => {
+                            const evalRes = evaluateWinningCombo(n, ticket, winningNumbersList);
+                            const isWinningNum = isWinning && (
+                              (itemEval.hitIndices && itemEval.hitIndices.size > 0)
+                                ? itemEval.hitIndices.has(i)
+                                : evalRes.isWinning
+                            );
+
+                            return (
+                              <View
+                                key={i}
+                                style={[
+                                  { flexDirection: 'row', alignItems: 'center', marginRight: 3 },
+                                  isWinningNum && { backgroundColor: '#FFF1F2', paddingHorizontal: 4, paddingVertical: 1, borderRadius: 4, borderWidth: 0.5, borderColor: '#FECDD3' }
+                                ]}
+                              >
+                                {renderHighlightedCombo(n, evalRes, isWinningNum, 14)}
+                                {isWinningNum && !isMatrixGame && (
+                                  <Text style={{ color: '#E11D48', fontSize: 11, fontWeight: 'bold', marginLeft: 4 }}>
+                                    (Trúng)
+                                  </Text>
+                                )}
+                              </View>
+                            );
+                          })}
+                          {isItemWinning && !isMatrixGame && (
+                            <View style={{ backgroundColor: '#FFF1F2', borderColor: '#FECDD3', borderWidth: 0.5, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, marginLeft: 4, alignSelf: 'center' }}>
+                              <Text style={{ color: '#E11D48', fontSize: 10, fontWeight: 'bold' }}>Trúng</Text>
+                            </View>
+                          )}
+                          {(() => {
+                            const itemSpecials = extractSpecialNumbers(item, ticket);
+                            if (itemSpecials.length === 0) return null;
+                            return (
+                              <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 2, flexShrink: 0 }}>
+                                <Text style={{ color: '#94A3B8', fontWeight: 'bold', marginRight: 4, fontSize: 13 }}>|</Text>
+                                {itemSpecials.map((sn: string, si: number) => {
+                                  const drawSpecial = winningNumbersList.length > 5 ? String(winningNumbersList[5]).trim().padStart(2, '0') : null;
+                                  const isSpecialMatched = drawSpecial ? String(sn).trim().padStart(2, '0') === drawSpecial : false;
+                                  return (
+                                    <View
+                                      key={`spec-${si}`}
+                                      style={[
+                                        { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 5, backgroundColor: '#FFF7ED', borderWidth: 0.5, borderColor: '#FDBA74', marginRight: 2 },
+                                        isSpecialMatched && { backgroundColor: '#FFEDD5', borderColor: '#EA580C', borderWidth: 1 }
+                                      ]}
+                                    >
+                                      <Text style={{ color: '#EA580C', fontWeight: 'bold', fontSize: 13 }}>
+                                        ★ {sn}
+                                      </Text>
+                                    </View>
+                                  );
+                                })}
+                              </View>
+                            );
+                          })()}
+                          {hasMore && (
+                            <View style={{ width: '100%', marginTop: 8 }}>
+                              <TouchableOpacity
+                                onPress={() => {
+                                  setSelectedNumbers(rawItemNums);
+                                  setAllNumbersModalVisible(true);
+                                }}
+                                style={{ alignSelf: 'flex-start', paddingVertical: 4 }}
+                              >
+                                <Text style={{ color: '#0084FA', fontWeight: 'bold', fontSize: 14 }}>
+                                  +{rawItemNums.length - 10} Xem thêm
+                                </Text>
+                              </TouchableOpacity>
+                            </View>
+                          )}
+                        </View>
                       );
-                    })}
-                    {item.numbers?.length > 10 && (
-                      <TouchableOpacity onPress={() => {
-                        setSelectedNumbers(item.numbers);
-                        setAllNumbersModalVisible(true);
-                      }}>
-                        <Text style={[styles.ticketNumText, { color: '#0084FA', fontWeight: 'bold' }]}>+{item.numbers.length - 10} Xem thêm</Text>
-                      </TouchableOpacity>
-                    )}
+                    })()}
+
+                    <View style={{ alignItems: 'flex-end' }}>
+                      <Text style={[styles.ticketPrice, isItemWinning && { color: '#E11D48', fontWeight: 'bold' }]}>
+                        {item.cost?.toLocaleString('vi-VN')}đ
+                      </Text>
+                      {isItemWinning && !isCombo && (
+                        <Text style={{ color: '#E11D48', fontSize: 11, fontWeight: 'bold' }}>(Trúng)</Text>
+                      )}
+                    </View>
                   </View>
-                  <Text style={styles.ticketPrice}>{item.cost.toLocaleString('vi-VN')}đ</Text>
-                </View>
-              ))}
+                );
+              })}
               {ticket.items.length > 10 && (
                 <TouchableOpacity onPress={() => setAllItemsModalVisible(true)} style={{ padding: 12, alignItems: 'center' }}>
                   <Text style={{ color: '#0084FA', fontWeight: 'bold' }}>Xem thêm {ticket.items.length - 10} dãy số khác...</Text>
@@ -440,28 +783,220 @@ export default function HistoryDetailScreen() {
             <View style={styles.ticketRow}>
               <Text style={styles.ticketLabel}>A</Text>
               <View style={styles.ticketNumbers}>
-                {ticket.numbers?.slice(0, 10).map((n: string, i: number) => {
-                    const isWinningNumber = ticket.winningNumbers && ticket.winningNumbers.includes(n);
+                {(() => {
+                  const rawTicketNums: string[] = Array.isArray(ticket.numbers)
+                    ? ticket.numbers
+                    : (typeof ticket.numbers === 'string' ? [ticket.numbers] : []);
+                  const hasEmbeddedAmp = rawTicketNums.some((n: string) => n.includes('&'));
+                  const itemEval = evaluateItemCombo({ numbers: ticket.numbers }, ticket, winningNumbersList);
+                  const isCombo = itemEval.isComboBet;
+                  const isItemWinning = isWinning && itemEval.isWinning;
+                  const hasMore = rawTicketNums.length > 10;
+                  const displayList = hasMore ? rawTicketNums.slice(0, 10) : rawTicketNums;
+                  const isMatrixGame = [
+                    'dientoan_636', 'bao_636', 'mega_645', 'power_655', 'max_3d', 'max_3d_pro', 'max_3d_plus', 'max_4d',
+                    'lotto_535', 'lotto_570', 'keno', 'bao_keno', 'clln_keno', 'bingo18', 'than_tai_4', 'dientoan_123'
+                  ].includes((ticket?.gameType || '').toLowerCase());
+                  const shouldNoWrap = displayList.length <= 7;
+
+                  const maxInfo = parseMaxGameDigits(rawTicketNums, ticket?.gameType, ticket?.playType);
+                  if (maxInfo) {
+                    if (maxInfo.isSplit) {
+                      return (
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                          <View style={{ flexDirection: 'row', gap: 4 }}>
+                            {maxInfo.set1.map((d: string, di: number) => {
+                              const isHit = itemEval.hitIndices?.has(di) ?? false;
+                              return (
+                                <View key={`d1-${di}`} style={[styles.ticketBallCircle, isHit && styles.ticketBallCircleWinning]}>
+                                  <Text style={[styles.ticketBallCircleText, isHit && { color: '#FFF' }]}>{d}</Text>
+                                </View>
+                              );
+                            })}
+                          </View>
+                          <View style={{ width: 1.5, height: 20, backgroundColor: '#D0D5DD', marginHorizontal: 2 }} />
+                          <View style={{ flexDirection: 'row', gap: 4 }}>
+                            {(maxInfo.set2 || []).map((d: string, di: number) => {
+                              const isHit = itemEval.hitIndices?.has(di + 3) ?? false;
+                              return (
+                                <View key={`d2-${di}`} style={[styles.ticketBallCircle, isHit && styles.ticketBallCircleWinning]}>
+                                  <Text style={[styles.ticketBallCircleText, isHit && { color: '#FFF' }]}>{d}</Text>
+                                </View>
+                              );
+                            })}
+                          </View>
+                          {isItemWinning && (
+                            <Text style={{ color: '#E11D48', fontSize: 12, fontWeight: 'bold', marginLeft: 4 }}>(Trúng)</Text>
+                          )}
+                        </View>
+                      );
+                    }
+
                     return (
-                      <Text 
-                        key={i} 
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                        {maxInfo.set1.map((d: string, di: number) => {
+                          const isHit = itemEval.hitIndices?.has(di) ?? false;
+                          return (
+                            <View key={`d-${di}`} style={[styles.ticketBallCircle, isHit && styles.ticketBallCircleWinning]}>
+                              <Text style={[styles.ticketBallCircleText, isHit && { color: '#FFF' }]}>{d}</Text>
+                            </View>
+                          );
+                        })}
+                        {isItemWinning && (
+                          <Text style={{ color: '#E11D48', fontSize: 12, fontWeight: 'bold', marginLeft: 4 }}>(Trúng)</Text>
+                        )}
+                      </View>
+                    );
+                  }
+
+                  if (isDienToan123 && (rawTicketNums.length === 6 || rawTicketNums.length === 3)) {
+                    let b1 = '', b2 = '', b3 = '';
+                    if (rawTicketNums.length === 6) {
+                      b1 = rawTicketNums[0];
+                      b2 = `${rawTicketNums[1]}${rawTicketNums[2]}`;
+                      b3 = `${rawTicketNums[3]}${rawTicketNums[4]}${rawTicketNums[5]}`;
+                    } else {
+                      b1 = rawTicketNums[0];
+                      b2 = rawTicketNums[1];
+                      b3 = rawTicketNums[2];
+                    }
+
+                    const isB1Win = itemEval.hitIndices ? itemEval.hitIndices.has(0) : itemEval.hitNumbers?.has(b1);
+                    const isB2Win = itemEval.hitIndices
+                      ? (rawTicketNums.length === 6 ? (itemEval.hitIndices.has(1) && itemEval.hitIndices.has(2)) : itemEval.hitIndices.has(1))
+                      : itemEval.hitNumbers?.has(b2);
+                    const isB3Win = itemEval.hitIndices
+                      ? (rawTicketNums.length === 6 ? (itemEval.hitIndices.has(3) && itemEval.hitIndices.has(4) && itemEval.hitIndices.has(5)) : itemEval.hitIndices.has(2))
+                      : itemEval.hitNumbers?.has(b3);
+
+                    const renderSet = (val: string, isWinSet: boolean) => (
+                      <View
                         style={[
-                          styles.ticketNumText,
-                          isWinningNumber && { color: '#E51F27', fontWeight: 'bold' }
+                          { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 4 },
+                          isWinSet && { backgroundColor: '#FFF1F2', borderColor: '#FECDD3', borderWidth: 0.5 }
                         ]}
                       >
-                        {n}
-                      </Text>
+                        <Text
+                          style={{
+                            fontSize: 16,
+                            color: isWinSet ? '#E11D48' : '#0F2942',
+                            fontWeight: isWinSet ? 'bold' : '600',
+                            letterSpacing: 0.5,
+                          }}
+                        >
+                          {val}
+                        </Text>
+                      </View>
                     );
-                  })}
-                {ticket.numbers?.length > 10 && (
-                  <TouchableOpacity onPress={() => {
-                    setSelectedNumbers(ticket.numbers);
-                    setAllNumbersModalVisible(true);
-                  }}>
-                    <Text style={[styles.ticketNumText, { color: '#0084FA', fontWeight: 'bold' }]}>+{ticket.numbers.length - 10} Xem thêm</Text>
-                  </TouchableOpacity>
-                )}
+
+                    return (
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        {renderSet(b1, Boolean(isB1Win))}
+                        <Text style={{ color: '#94A3B8', fontWeight: 'bold', marginHorizontal: 8, fontSize: 14 }}>|</Text>
+                        {renderSet(b2, Boolean(isB2Win))}
+                        <Text style={{ color: '#94A3B8', fontWeight: 'bold', marginHorizontal: 8, fontSize: 14 }}>|</Text>
+                        {renderSet(b3, Boolean(isB3Win))}
+                      </View>
+                    );
+                  }
+
+                  if (isCombo && !hasEmbeddedAmp && rawTicketNums.length <= 10) {
+                    return (
+                      <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <Text
+                          style={{
+                            fontSize: 15,
+                            color: isItemWinning ? '#E11D48' : '#0F2942',
+                            fontWeight: isItemWinning ? 'bold' : '600',
+                          }}
+                        >
+                          {rawTicketNums.join(' ')}
+                        </Text>
+                        {isItemWinning && (
+                          <Text style={{ color: '#E11D48', fontSize: 13, fontWeight: 'bold', marginLeft: 6 }}>
+                            (Trúng)
+                          </Text>
+                        )}
+                      </View>
+                    );
+                  }
+
+                  return (
+                    <View style={[{ flexDirection: 'row', alignItems: 'center' }, shouldNoWrap && { flexWrap: 'nowrap', gap: 2 }]}>
+                      {displayList.map((n: string, i: number) => {
+                        const evalRes = evaluateWinningCombo(n, ticket, winningNumbersList);
+                        const isWinningNum = isWinning && (
+                          (itemEval.hitIndices && itemEval.hitIndices.size > 0)
+                            ? itemEval.hitIndices.has(i)
+                            : evalRes.isWinning
+                        );
+
+                        return (
+                          <View
+                            key={i}
+                            style={[
+                              { flexDirection: 'row', alignItems: 'center', marginRight: 3 },
+                              isWinningNum && { backgroundColor: '#FFF1F2', paddingHorizontal: 4, paddingVertical: 1, borderRadius: 4, borderWidth: 0.5, borderColor: '#FECDD3' }
+                            ]}
+                          >
+                            {renderHighlightedCombo(n, evalRes, isWinningNum, 14)}
+                            {isWinningNum && !isMatrixGame && (
+                              <Text style={{ color: '#E11D48', fontSize: 11, fontWeight: 'bold', marginLeft: 4 }}>
+                                (Trúng)
+                              </Text>
+                            )}
+                          </View>
+                        );
+                      })}
+                      {isItemWinning && !isMatrixGame && (
+                        <View style={{ backgroundColor: '#FFF1F2', borderColor: '#FECDD3', borderWidth: 0.5, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, marginLeft: 4, alignSelf: 'center' }}>
+                          <Text style={{ color: '#E11D48', fontSize: 10, fontWeight: 'bold' }}>Trúng</Text>
+                        </View>
+                      )}
+                      {(() => {
+                        const ticketSpecials = extractSpecialNumbers(null, ticket);
+                        if (ticketSpecials.length === 0) return null;
+                        return (
+                          <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 2, flexShrink: 0 }}>
+                            <Text style={{ color: '#94A3B8', fontWeight: 'bold', marginRight: 4, fontSize: 13 }}>|</Text>
+                            {ticketSpecials.map((sn: string, si: number) => {
+                              const drawSpecial = winningNumbersList.length > 5 ? String(winningNumbersList[5]).trim().padStart(2, '0') : null;
+                              const isSpecialMatched = drawSpecial ? String(sn).trim().padStart(2, '0') === drawSpecial : false;
+                              return (
+                                <View
+                                  key={`spec-${si}`}
+                                  style={[
+                                    { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 5, backgroundColor: '#FFF7ED', borderWidth: 0.5, borderColor: '#FDBA74', marginRight: 2 },
+                                    isSpecialMatched && { backgroundColor: '#FFEDD5', borderColor: '#EA580C', borderWidth: 1 }
+                                  ]}
+                                >
+                                  <Text style={{ color: '#EA580C', fontWeight: 'bold', fontSize: 13 }}>
+                                    ★ {sn}
+                                  </Text>
+                                </View>
+                              );
+                            })}
+                          </View>
+                        );
+                      })()}
+                      {hasMore && (
+                        <View style={{ width: '100%', marginTop: 8 }}>
+                          <TouchableOpacity
+                            onPress={() => {
+                              setSelectedNumbers(rawTicketNums);
+                              setAllNumbersModalVisible(true);
+                            }}
+                            style={{ alignSelf: 'flex-start', paddingVertical: 4 }}
+                          >
+                            <Text style={{ color: '#0084FA', fontWeight: 'bold', fontSize: 14 }}>
+                              +{rawTicketNums.length - 10} Xem thêm
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      )}
+                    </View>
+                  );
+                })()}
               </View>
               <Text style={styles.ticketPrice}>{formattedPrice}</Text>
             </View>
@@ -488,13 +1023,25 @@ export default function HistoryDetailScreen() {
             <Text style={styles.infoLabel}>Kỳ QSMT</Text>
             {(() => {
               const rawCode = ticket?.drawCode || ticket?.draw?.drawCode || drawInfo?.drawCode || (ticket?.drawId && ticket?.drawId !== ticket?.drawDate && !ticket.drawId.match(/^[0-9a-f]{24}$/i) ? ticket.drawId : '');
-              const drawCodeStr = rawCode ? (String(rawCode).startsWith('#') ? rawCode : `#${rawCode}`) : '';
+              const cleanCode = rawCode ? String(rawCode).replace(/^#+/, '') : '';
+              const drawCodeStr = cleanCode ? `#${cleanCode}` : '';
+              let cleanDrawDate = ticket?.drawDate ? String(ticket.drawDate).replace(/#+/g, '#') : '';
+
+              let displayStr = 'Đang cập nhật';
+              if (cleanDrawDate) {
+                if (drawCodeStr && !cleanDrawDate.includes(drawCodeStr) && !cleanDrawDate.includes(cleanCode)) {
+                  displayStr = `${cleanDrawDate} (${drawCodeStr})`;
+                } else {
+                  displayStr = cleanDrawDate;
+                }
+              } else if (drawCodeStr) {
+                displayStr = drawCodeStr;
+              } else if (ticket?.drawId) {
+                displayStr = ticket.drawId;
+              }
+
               return (
-                <Text style={styles.infoValue}>
-                  {ticket?.drawDate
-                    ? (drawCodeStr ? `${ticket.drawDate} (${drawCodeStr})` : ticket.drawDate)
-                    : (drawCodeStr || ticket?.drawId || 'Đang cập nhật')}
-                </Text>
+                <Text style={styles.infoValue}>{displayStr}</Text>
               );
             })()}
           </View>
@@ -529,7 +1076,14 @@ export default function HistoryDetailScreen() {
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                 <Trophy size={18} color="#0A3B7C" />
                 <Text style={styles.resultSectionTitle}>
-                  Kết quả kỳ quay: <Text style={{ color: COLORS.primary }}>{ticket?.drawId || drawInfo?.drawCode || 'Đang cập nhật'}</Text>
+                  Kết quả kỳ quay: <Text style={{ color: COLORS.primary }}>
+                    {(() => {
+                      const raw = ticket?.drawCode || ticket?.draw?.drawCode || drawInfo?.drawCode || ticket?.drawId;
+                      if (!raw) return 'Đang cập nhật';
+                      const clean = String(raw).replace(/^#+/, '');
+                      return `#${clean}`;
+                    })()}
+                  </Text>
                 </Text>
               </View>
             </View>
@@ -547,7 +1101,9 @@ export default function HistoryDetailScreen() {
 
             {winningNumbersList.length > 0 ? (
               <View style={styles.resultNumbersContainer}>
-                {(isLode || isKienThiet || ['loto_235', 'loto_cap', 'bao_loto_2', 'truot_loto'].includes(ticket?.gameType)) && winningNumbersList.length >= 8 ? (
+                {((isLode || isKienThiet || ['loto_235', 'loto_cap', 'bao_loto_2', 'truot_loto'].includes(ticket?.gameType)) && winningNumbersList.length >= 8) ||
+                  (['max_3d', 'max_3d_pro', 'max_3d_plus'].includes(ticket?.gameType) && winningNumbersList.length >= 2) ||
+                  (ticket?.gameType === 'max_4d' && winningNumbersList.length >= 1) ? (
                   <View style={styles.prizeTableContainer}>
                     {getPrizeRows(
                       winningNumbersList,
@@ -571,7 +1127,7 @@ export default function HistoryDetailScreen() {
                           </View>
                           <View style={styles.prizeNumbersCol}>
                             {row.numbers.map((num, nIdx) => {
-                              const isMatch = isMatchNumber(num);
+                              const isMatch = isMatchNumber(num, row.label);
                               return (
                                 <View
                                   key={nIdx}
@@ -590,7 +1146,7 @@ export default function HistoryDetailScreen() {
                                   >
                                     {num}
                                   </Text>
-                                  {isMatch && (
+                                  {isMatch && isWinning && ticket?.isWinner && (
                                     <View style={styles.matchBadge}>
                                       <Text style={styles.matchBadgeText}>Trúng</Text>
                                     </View>
@@ -603,6 +1159,84 @@ export default function HistoryDetailScreen() {
                       );
                     })}
                   </View>
+                ) : isDienToan123 && (winningNumbersList.length === 6 || winningNumbersList.length === 3) ? (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginVertical: 8 }}>
+                    {(() => {
+                      let w1 = '', w2 = '', w3 = '';
+                      if (winningNumbersList.length === 6) {
+                        w1 = winningNumbersList[0];
+                        w2 = `${winningNumbersList[1]}${winningNumbersList[2]}`;
+                        w3 = `${winningNumbersList[3]}${winningNumbersList[4]}${winningNumbersList[5]}`;
+                      } else {
+                        w1 = winningNumbersList[0];
+                        w2 = winningNumbersList[1];
+                        w3 = winningNumbersList[2];
+                      }
+                      const match1 = isMatchNumber(w1);
+                      const match2 = isMatchNumber(w2);
+                      const match3 = isMatchNumber(w3);
+                      return (
+                        <>
+                          <View style={[styles.winningTag, { minWidth: 38 }, match1 && styles.winningTagMatch]}>
+                            <Text style={[styles.winningTagText, match1 && styles.winningTagTextMatch]}>{w1}</Text>
+                          </View>
+                          <Text style={{ color: '#94A3B8', fontWeight: 'bold', marginHorizontal: 4, fontSize: 16 }}>|</Text>
+                          <View style={[styles.winningTag, { minWidth: 46 }, match2 && styles.winningTagMatch]}>
+                            <Text style={[styles.winningTagText, match2 && styles.winningTagTextMatch]}>{w2}</Text>
+                          </View>
+                          <Text style={{ color: '#94A3B8', fontWeight: 'bold', marginHorizontal: 4, fontSize: 16 }}>|</Text>
+                          <View style={[styles.winningTag, { minWidth: 54 }, match3 && styles.winningTagMatch]}>
+                            <Text style={[styles.winningTagText, match3 && styles.winningTagTextMatch]}>{w3}</Text>
+                          </View>
+                        </>
+                      );
+                    })()}
+                  </View>
+                ) : ((ticket?.gameType || '').toLowerCase() === 'bingo18' || (ticket?.gameType || '').toLowerCase() === 'bingo_18') ? (
+                  <View style={{ flexDirection: 'column', alignItems: 'center', marginVertical: 8, gap: 8 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                      {(() => {
+                        const dice = parseBingo18Dice(winningNumbersList);
+                        const displayDice = dice.length === 3 ? dice.map(String) : winningNumbersList;
+                        return displayDice.map((numStr: string, idx: number) => {
+                          const isMatch = isMatchNumber(numStr);
+                          return (
+                            <View
+                              key={idx}
+                              style={[
+                                styles.winningTag,
+                                { minWidth: 44, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
+                                isMatch && styles.winningTagMatch
+                              ]}
+                            >
+                              <Text
+                                style={[
+                                  styles.winningTagText,
+                                  { fontSize: 16, fontWeight: 'bold' },
+                                  isMatch && styles.winningTagTextMatch
+                                ]}
+                              >
+                                {numStr}
+                              </Text>
+                            </View>
+                          );
+                        });
+                      })()}
+                    </View>
+                    {(() => {
+                      const dice = parseBingo18Dice(winningNumbersList);
+                      if (dice.length === 3) {
+                        const sum = dice[0] + dice[1] + dice[2];
+                        const taiXiu = sum >= 12 ? 'Tài' : (sum <= 9 ? 'Xỉu' : 'Hoà');
+                        return (
+                          <Text style={{ fontSize: 13, color: '#475569', fontWeight: '500' }}>
+                            Tổng: <Text style={{ fontWeight: 'bold', color: COLORS.primary }}>{sum}</Text> ({taiXiu})
+                          </Text>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </View>
                 ) : (
                   <View style={styles.winningGrid}>
                     {winningNumbersList.map((num: string, idx: number) => {
@@ -612,11 +1246,6 @@ export default function HistoryDetailScreen() {
                           <Text style={[styles.winningTagText, isMatch && styles.winningTagTextMatch]}>
                             {num}
                           </Text>
-                          {isMatch && (
-                            <View style={styles.matchBadge}>
-                              <Text style={styles.matchBadgeText}>Trúng</Text>
-                            </View>
-                          )}
                         </View>
                       );
                     })}
@@ -641,8 +1270,8 @@ export default function HistoryDetailScreen() {
               <View style={styles.ticketImageContainer}>
                 <Text style={styles.ticketImageLabel}>Hình ảnh vé thực tế:</Text>
                 <TouchableOpacity style={{ width: '100%' }} onPress={() => setImageViewerVisible(true)}>
-                  <Image 
-                    source={imageUrl} 
+                  <Image
+                    source={imageUrl}
                     style={styles.mockTicketImage}
                     resizeMode="cover"
                   />
@@ -656,11 +1285,11 @@ export default function HistoryDetailScreen() {
       {/* Modal xem ảnh phóng to: chỉ khi có ảnh thực tế */}
       {hasRealImage && imageUrl && (
         <Modal visible={imageViewerVisible} transparent={true} animationType="fade" onRequestClose={() => setImageViewerVisible(false)}>
-          <View style={{flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center'}}>
-            <TouchableOpacity style={{position: 'absolute', top: Math.max(insets.top, 20), right: 20, zIndex: 10}} onPress={() => setImageViewerVisible(false)}>
-              <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold', padding: 10}}>ĐÓNG</Text>
+          <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center' }}>
+            <TouchableOpacity style={{ position: 'absolute', top: Math.max(insets.top, 20), right: 20, zIndex: 10 }} onPress={() => setImageViewerVisible(false)}>
+              <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold', padding: 10 }}>ĐÓNG</Text>
             </TouchableOpacity>
-            <Image source={imageUrl} style={{width: '95%', height: '80%'}} resizeMode="contain" />
+            <Image source={imageUrl} style={{ width: '95%', height: '80%' }} resizeMode="contain" />
           </View>
         </Modal>
       )}
@@ -678,14 +1307,217 @@ export default function HistoryDetailScreen() {
             <FlatList
               data={ticket?.items || []}
               keyExtractor={(it, idx) => (it.id || idx).toString()}
-              renderItem={({ item, index }) => (
-                <View style={{ paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' }}>
-                  <Text style={{ color: '#7F8E9C', fontWeight: 'bold', marginBottom: 4 }}>Dãy {item.id || String.fromCharCode(65 + index)} - Cược: {item.cost?.toLocaleString('vi-VN')}đ</Text>
-                  <Text style={{ fontSize: 16, color: '#0F2942', fontWeight: '500' }}>
-                    {item.numbers?.join(' ')}
-                  </Text>
-                </View>
-              )}
+              renderItem={({ item, index }) => {
+                const itemEval = evaluateItemCombo(item, ticket, winningNumbersList);
+                const isCombo = itemEval.isComboBet;
+                const isItemWinning = itemEval.isWinning;
+
+                return (
+                  <View
+                    style={[
+                      { paddingVertical: 12, paddingHorizontal: 8, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
+                      isItemWinning && {
+                        backgroundColor: '#FFF1F2',
+                        borderColor: '#FECDD3',
+                        borderWidth: 1,
+                        borderRadius: 8,
+                        marginVertical: 3,
+                      }
+                    ]}
+                  >
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                      <Text style={{ color: isItemWinning ? '#E11D48' : '#7F8E9C', fontWeight: 'bold' }}>
+                        Dãy {item.id || String.fromCharCode(65 + index)} - Cược: {item.cost?.toLocaleString('vi-VN')}đ
+                      </Text>
+                      {isItemWinning && (
+                        <View style={{ backgroundColor: '#E11D48', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
+                          <Text style={{ color: '#FFF', fontSize: 10, fontWeight: 'bold' }}>Trúng</Text>
+                        </View>
+                      )}
+                    </View>
+
+                    {(() => {
+                      const rawNums = Array.isArray(item.numbers)
+                        ? item.numbers
+                        : (typeof item.numbers === 'string' ? [item.numbers] : []);
+                      const maxInfo = parseMaxGameDigits(rawNums, ticket?.gameType, item.playType || ticket?.playType);
+                      if (maxInfo) {
+                        if (maxInfo.isSplit) {
+                          return (
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                              <View style={{ flexDirection: 'row', gap: 4 }}>
+                                {maxInfo.set1.map((d: string, di: number) => {
+                                  const isHit = itemEval.hitIndices?.has(di) ?? false;
+                                  return (
+                                    <View key={`modal-s1-${di}`} style={[styles.ticketBallCircle, isHit && styles.ticketBallCircleWinning]}>
+                                      <Text style={styles.ticketBallCircleText}>{d}</Text>
+                                    </View>
+                                  );
+                                })}
+                              </View>
+                              <View style={{ width: 1.5, height: 20, backgroundColor: '#D0D5DD', marginHorizontal: 2 }} />
+                              <View style={{ flexDirection: 'row', gap: 4 }}>
+                                {(maxInfo.set2 || []).map((d: string, di: number) => {
+                                  const isHit = itemEval.hitIndices?.has(di + 3) ?? false;
+                                  return (
+                                    <View key={`modal-s2-${di}`} style={[styles.ticketBallCircle, isHit && styles.ticketBallCircleWinning]}>
+                                      <Text style={styles.ticketBallCircleText}>{d}</Text>
+                                    </View>
+                                  );
+                                })}
+                              </View>
+                              {isItemWinning && (
+                                <Text style={{ color: '#E11D48', fontSize: 12, fontWeight: 'bold', marginLeft: 4 }}>(Trúng)</Text>
+                              )}
+                            </View>
+                          );
+                        }
+
+                        return (
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                            {maxInfo.set1.map((d: string, di: number) => {
+                              const isHit = itemEval.hitIndices?.has(di) ?? false;
+                              return (
+                                <View key={`modal-d-${di}`} style={[styles.ticketBallCircle, isHit && styles.ticketBallCircleWinning]}>
+                                  <Text style={styles.ticketBallCircleText}>{d}</Text>
+                                </View>
+                              );
+                            })}
+                            {isItemWinning && (
+                              <Text style={{ color: '#E11D48', fontSize: 12, fontWeight: 'bold', marginLeft: 4 }}>(Trúng)</Text>
+                            )}
+                          </View>
+                        );
+                      }
+
+                      return isCombo ? (
+                        <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
+                          <Text
+                            style={{
+                              fontSize: 16,
+                              color: isItemWinning ? '#E11D48' : '#0F2942',
+                              fontWeight: isItemWinning ? 'bold' : '600',
+                            }}
+                          >
+                            {Array.isArray(item.numbers) ? item.numbers.join(' ') : String(item.numbers || '')}
+                          </Text>
+                          {isItemWinning && (
+                            <Text style={{ color: '#E11D48', fontSize: 13, fontWeight: 'bold', marginLeft: 6 }}>
+                              (Trúng)
+                            </Text>
+                          )}
+                        </View>
+                      ) : isDienToan123 && (item.numbers?.length === 6 || item.numbers?.length === 3) ? (
+                        (() => {
+                          const rawNums = item.numbers;
+                          let b1 = '', b2 = '', b3 = '';
+                          if (rawNums.length === 6) {
+                            b1 = rawNums[0];
+                            b2 = `${rawNums[1]}${rawNums[2]}`;
+                            b3 = `${rawNums[3]}${rawNums[4]}${rawNums[5]}`;
+                          } else {
+                            b1 = rawNums[0];
+                            b2 = rawNums[1];
+                            b3 = rawNums[2];
+                          }
+                          const isB1Win = itemEval.hitIndices ? itemEval.hitIndices.has(0) : itemEval.hitNumbers?.has(b1);
+                          const isB2Win = itemEval.hitIndices
+                            ? (rawNums.length === 6 ? (itemEval.hitIndices.has(1) && itemEval.hitIndices.has(2)) : itemEval.hitIndices.has(1))
+                            : itemEval.hitNumbers?.has(b2);
+                          const isB3Win = itemEval.hitIndices
+                            ? (rawNums.length === 6 ? (itemEval.hitIndices.has(3) && itemEval.hitIndices.has(4) && itemEval.hitIndices.has(5)) : itemEval.hitIndices.has(2))
+                            : itemEval.hitNumbers?.has(b3);
+
+                          const renderSet = (val: string, isWinSet: boolean) => (
+                            <View
+                              style={[
+                                { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 4 },
+                                isWinSet && { backgroundColor: '#FFF1F2', borderColor: '#FECDD3', borderWidth: 0.5 }
+                              ]}
+                            >
+                              <Text
+                                style={{
+                                  fontSize: 16,
+                                  color: isWinSet ? '#E11D48' : '#0F2942',
+                                  fontWeight: isWinSet ? 'bold' : '600',
+                                  letterSpacing: 0.5,
+                                }}
+                              >
+                                {val}
+                              </Text>
+                            </View>
+                          );
+
+                          return (
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                              {renderSet(b1, Boolean(isB1Win))}
+                              <Text style={{ color: '#94A3B8', fontWeight: 'bold', marginHorizontal: 8, fontSize: 14 }}>|</Text>
+                              {renderSet(b2, Boolean(isB2Win))}
+                              <Text style={{ color: '#94A3B8', fontWeight: 'bold', marginHorizontal: 8, fontSize: 14 }}>|</Text>
+                              {renderSet(b3, Boolean(isB3Win))}
+                            </View>
+                          );
+                        })()
+                      ) : (
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                          {item.numbers?.map((n: string, nIdx: number) => {
+                            const evalRes = evaluateWinningCombo(n, ticket, winningNumbersList);
+                            const isWinningCombo = (itemEval.hitIndices && itemEval.hitIndices.size > 0)
+                              ? itemEval.hitIndices.has(nIdx)
+                              : evalRes.isWinning;
+                            const isMatrixGame = [
+                              'dientoan_636', 'bao_636', 'mega_645', 'power_655', 'max_3d', 'max_3d_pro', 'max_4d',
+                              'lotto_535', 'lotto_570', 'keno', 'bao_keno', 'clln_keno', 'bingo18', 'than_tai_4', 'dientoan_123'
+                            ].includes((ticket?.gameType || '').toLowerCase());
+                            return (
+                              <View
+                                key={nIdx}
+                                style={[
+                                  { flexDirection: 'row', alignItems: 'center' },
+                                  isWinningCombo && { backgroundColor: '#FFF1F2', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 0.5, borderColor: '#FECDD3' }
+                                ]}
+                              >
+                                {renderHighlightedCombo(n, evalRes, isWinningCombo, 15)}
+                                {isWinningCombo && !isMatrixGame && (
+                                  <View style={{ backgroundColor: '#E11D48', paddingHorizontal: 4, paddingVertical: 1, borderRadius: 4, marginLeft: 4 }}>
+                                    <Text style={{ color: '#FFF', fontSize: 9, fontWeight: 'bold' }}>Trúng</Text>
+                                  </View>
+                                )}
+                              </View>
+                            );
+                          })}
+                          {(() => {
+                            const itemSpecials = extractSpecialNumbers(item, ticket);
+                            if (itemSpecials.length === 0) return null;
+                            return (
+                              <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 4 }}>
+                                <Text style={{ color: '#94A3B8', fontWeight: 'bold', marginRight: 6 }}>|</Text>
+                                {itemSpecials.map((sn: string, si: number) => {
+                                  const drawSpecial = winningNumbersList.length > 5 ? String(winningNumbersList[5]).trim().padStart(2, '0') : null;
+                                  const isSpecialMatched = drawSpecial ? String(sn).trim().padStart(2, '0') === drawSpecial : false;
+                                  return (
+                                    <View
+                                      key={`spec-${si}`}
+                                      style={[
+                                        { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, backgroundColor: '#FFF7ED', borderWidth: 0.5, borderColor: '#FDBA74', marginRight: 4 },
+                                        isSpecialMatched && { backgroundColor: '#FFEDD5', borderColor: '#EA580C', borderWidth: 1 }
+                                      ]}
+                                    >
+                                      <Text style={{ color: '#EA580C', fontWeight: 'bold', fontSize: 13 }}>
+                                        ★ {sn}
+                                      </Text>
+                                    </View>
+                                  );
+                                })}
+                              </View>
+                            );
+                          })()}
+                        </View>
+                      );
+                    })()}
+                  </View>
+                );
+              }}
               initialNumToRender={20}
               maxToRenderPerBatch={50}
               windowSize={5}
@@ -708,13 +1540,42 @@ export default function HistoryDetailScreen() {
               data={selectedNumbers}
               keyExtractor={(_, index) => index.toString()}
               renderItem={({ item, index }) => {
-                const isWinningNumber = ticket?.winningNumbers && ticket.winningNumbers.includes(item);
+                const evalRes = evaluateWinningCombo(item, ticket, winningNumbersList);
+                const isWinningCombo = evalRes.isWinning;
                 return (
-                  <View style={{ paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F0F0F0', flexDirection: 'row' }}>
-                    <Text style={{ width: 40, color: '#7F8E9C', fontWeight: 'bold' }}>#{index + 1}</Text>
-                    <Text style={{ fontSize: 16, color: isWinningNumber ? '#E51F27' : '#0F2942', fontWeight: isWinningNumber ? 'bold' : '500' }}>
-                      {item}
-                    </Text>
+                  <View
+                    style={[
+                      {
+                        paddingVertical: 12,
+                        paddingHorizontal: 8,
+                        borderBottomWidth: 1,
+                        borderBottomColor: '#F0F0F0',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      },
+                      isWinningCombo && {
+                        backgroundColor: '#FFF1F2',
+                        borderColor: '#FECDD3',
+                        borderWidth: 1,
+                        borderRadius: 8,
+                        marginVertical: 3,
+                      }
+                    ]}
+                  >
+                    <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, paddingRight: 8 }}>
+                      <Text style={{ width: 44, color: isWinningCombo ? '#E11D48' : '#7F8E9C', fontWeight: 'bold' }}>
+                        #{index + 1}
+                      </Text>
+                      <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap' }}>
+                        {renderHighlightedCombo(item, evalRes, isWinningCombo, 16)}
+                      </View>
+                    </View>
+                    {isWinningCombo && (
+                      <View style={{ backgroundColor: '#E11D48', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
+                        <Text style={{ color: '#FFF', fontSize: 11, fontWeight: 'bold' }}>TRÚNG</Text>
+                      </View>
+                    )}
                   </View>
                 );
               }}
@@ -804,18 +1665,36 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: COLORS.gray600,
-    marginRight: SPACING.md,
+    marginRight: 8,
   },
   ticketNumbers: {
     flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: 4,
   },
   ticketNumText: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#0A3B7C',
+  },
+  ticketBallCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#E0115F',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  ticketBallCircleWinning: {
+    backgroundColor: '#E11D48',
+    borderWidth: 1.5,
+    borderColor: '#BE123C',
+  },
+  ticketBallCircleText: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   ticketPrice: {
     fontSize: 14,
@@ -1052,4 +1931,9 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     textAlign: 'center',
   },
+  _ticketBallCircleWinning: {
+    backgroundColor: '#E11D48',
+  },
+
+
 });

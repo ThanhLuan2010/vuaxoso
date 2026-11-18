@@ -12,46 +12,43 @@
 ## 2. CÁC HÌNH THỨC CHƠI & CƠ CẤU GIẢI THƯỞNG
 
 ### 2.1. HÌNH THỨC "CƠ BẢN"
-Người chơi đặt cược vào số lần xuất hiện của các con số:
-1. **Một số trùng (Đơn số)**: Chọn 1 số từ `1` đến `6`.
-   - Nếu xuất hiện **1 lần**: Thưởng $\mathbf{1.2 \times}$ tiền cược (12.000đ cho mỗi 10.000đ).
-   - Nếu xuất hiện **2 lần**: Thưởng $\mathbf{2.0 \times}$ tiền cược (20.000đ).
-   - Nếu xuất hiện **3 lần**: Thưởng $\mathbf{3.0 \times}$ tiền cược (30.000đ).
-2. **Hai số trùng (Đôi)**: Chọn 1 bộ 2 số giống nhau trong `{11, 22, 33, 44, 55, 66}`.
-   - Trúng thưởng khi kết quả có ít nhất 2 số đã chọn $\rightarrow$ Thưởng $\mathbf{7.5 \times}$ tiền cược (75.000đ).
-3. **Ba số trùng (Bộ ba)**:
-   - **Bộ ba cụ thể**: Chọn chính xác 1 bộ trong `{111, 222, 333, 444, 555, 666}` $\rightarrow$ Thưởng $\mathbf{120 \times}$ tiền cược (1.200.000đ).
-   - **Bộ ba bất kỳ**: Trúng khi kết quả ra bất kỳ bộ 3 số nào giống nhau $\rightarrow$ Thưởng $\mathbf{20 \times}$ tiền cược (200.000đ).
+Người chơi đặt cược vào số lần xuất hiện của các con số (theo bảng tỉ lệ hệ thống):
+1. **Một số (Đơn số)**: Chọn 1 số từ `1` đến `6`.
+   - Điều kiện: Trúng 1 số $\rightarrow$ Thưởng **$2\times$** tiền cược (20.000đ cho mỗi 10.000đ).
+2. **Hai số trùng**: Chọn 1 bộ 2 số giống nhau trong `{11, 22, 33, 44, 55, 66}`.
+   - Điều kiện: Trúng 2 giống nhau $\rightarrow$ Thưởng **$3\times$** tiền cược (30.000đ cho mỗi 10.000đ).
+3. **Ba số trùng**: Chọn 1 bộ trong `{111, 222, 333, 444, 555, 666}`.
+   - Điều kiện: Trúng 3 giống nhau $\rightarrow$ Thưởng **$4\times$** tiền cược (40.000đ cho mỗi 10.000đ).
 
 ### 2.2. HÌNH THỨC "CỘNG TỔNG"
 Người chơi dự đoán chính xác tổng điểm của 3 quả bóng (từ `3` đến `18`):
 
 | Tổng Điểm | Tỉ Lệ Thưởng (x lần cược) | Tiền Thưởng cho 10.000đ | Ghi Chú |
 | :---: | :---: | :--- | :--- |
-| **Tổng 3** | **120x** | 1.200.000đ | Chỉ có 1 kết quả (1,1,1) |
-| **Tổng 4** | **40x** | 400.000đ | (1,1,2) |
-| **Tổng 5** | **20x** | 200.000đ | |
-| **Tổng 6** | **13x** | 130.000đ | |
-| **Tổng 7** | **8.5x** | 85.000đ | |
-| **Tổng 8** | **6.5x** | 65.000đ | |
-| **Tổng 9** | **5.5x** | 55.000đ | |
-| **Tổng 10** | **5.0x** | 50.000đ | |
-| **Tổng 11** | **5.0x** | 50.000đ | |
-| **Tổng 12** | **5.5x** | 55.000đ | |
-| **Tổng 13** | **6.5x** | 65.000đ | |
-| **Tổng 14** | **8.5x** | 85.000đ | |
-| **Tổng 15** | **13x** | 130.000đ | |
-| **Tổng 16** | **20x** | 200.000đ | |
-| **Tổng 17** | **40x** | 400.000đ | |
-| **Tổng 18** | **120x** | 1.200.000đ | Chỉ có 1 kết quả (6,6,6) |
+| **Tổng 3** | **120x** | 1.200.000đ | Tổng 3: thắng |
+| **Tổng 4** | **40x** | 400.000đ | Tổng 4: thắng |
+| **Tổng 5** | **20x** | 200.000đ | Tổng 5: thắng |
+| **Tổng 6** | **12x** | 120.000đ | Tổng 6: thắng |
+| **Tổng 7** | **8x** | 80.000đ | Tổng 7: thắng |
+| **Tổng 8** | **6x** | 60.000đ | Tổng 8: thắng |
+| **Tổng 9** | **5x** | 50.000đ | Tổng 9: thắng |
+| **Tổng 10** | **5x** | 50.000đ | Tổng 10: thắng |
+| **Tổng 11** | **5x** | 50.000đ | Tổng 11: thắng |
+| **Tổng 12** | **5x** | 50.000đ | Tổng 12: thắng |
+| **Tổng 13** | **6x** | 60.000đ | Tổng 13: thắng |
+| **Tổng 14** | **8x** | 80.000đ | Tổng 14: thắng |
+| **Tổng 15** | **12x** | 120.000đ | Tổng 15: thắng |
+| **Tổng 16** | **20x** | 200.000đ | Tổng 16: thắng |
+| **Tổng 17** | **40x** | 400.000đ | Tổng 17: thắng |
+| **Tổng 18** | **120x** | 1.200.000đ | Tổng 18: thắng |
 
-### 2.3. HÌNH THỨC "TÀI XỈU HOÀ" (LỚN - NHỎ - HÒA)
-- **Lớn (Tài)**: Tổng điểm từ **11 đến 18** (Ngoại trừ trường hợp ra bộ ba giống nhau như 444, 555, 666).
-  - Tỉ lệ ăn: $\mathbf{1:2.0}$ (10.000đ ăn 20.000đ).
-- **Nhỏ (Xỉu)**: Tổng điểm từ **3 đến 10** (Ngoại trừ trường hợp ra bộ ba giống nhau như 111, 222, 333).
-  - Tỉ lệ ăn: $\mathbf{1:2.0}$ (10.000đ ăn 20.000đ).
-- **Hòa**: Khi kết quả quay ra bất kỳ bộ 3 số giống nhau nào (`111, 222, 333, 444, 555, 666`).
-  - Tỉ lệ ăn: $\mathbf{1:8.0}$ (10.000đ ăn 80.000đ).
+### 2.3. HÌNH THỨC "TÀI XỈU HOÀ"
+- **Tài**: Tổng 3 số từ 12 đến 18 (hoặc theo bảng cược).
+  - Tỉ lệ ăn: **$2\times$** (10.000đ ăn 20.000đ).
+- **Hoà**: Tổng 3 số là 10 hoặc 11.
+  - Tỉ lệ ăn: **$3\times$** (10.000đ ăn 30.000đ).
+- **Xỉu**: Tổng 3 số từ 3 đến 9.
+  - Tỉ lệ ăn: **$2\times$** (10.000đ ăn 20.000đ).
 
 ---
 
