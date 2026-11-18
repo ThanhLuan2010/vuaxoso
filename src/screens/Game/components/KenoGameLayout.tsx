@@ -67,6 +67,8 @@ export default function KenoGameLayout({ route, navigation }: any) {
         cost: totalCost,
         baseCost: payload.boards[0]?.cost || 10000,
         quantity: payload.drawIds ? payload.drawIds.length : 1,
+        drawId: curDraw?.id,
+        drawCode: curDraw?.drawCode,
         drawDate: payload.drawDate || drawDateStr,
         provinceName: payload.provinceName || route.params?.provinceName,
         boards: payload.boards, // Quan trọng: lưu lại danh sách boards gốc để checkout bóc tách lại
@@ -87,6 +89,8 @@ export default function KenoGameLayout({ route, navigation }: any) {
 
       navigation.navigate('GamePayment', {
         ...payload,
+        drawId: curDraw?.id,
+        drawCode: curDraw?.drawCode,
         drawDate: payload.drawDate || drawDateStr,
         provinceName: payload.provinceName || route.params?.provinceName,
       });

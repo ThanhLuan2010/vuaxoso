@@ -51,6 +51,8 @@ export default function GameLayoutBingo18Screen({ route, navigation }: any) {
         cost: totalCost,
         baseCost: payload.boards[0]?.cost || 10000,
         quantity: payload.drawIds ? payload.drawIds.length : 1,
+        drawId: activeDraw?.id,
+        drawCode: activeDraw?.drawCode,
         drawDate: drawDateStr,
         boards: payload.boards,
       });
@@ -61,6 +63,8 @@ export default function GameLayoutBingo18Screen({ route, navigation }: any) {
       const drawDateStr = payload.drawDate || (activeDraw ? `${activeDraw.drawCode} - ${activeDraw.dateStr}` : undefined);
       navigation.navigate('GamePayment', {
         ...payload,
+        drawId: activeDraw?.id,
+        drawCode: activeDraw?.drawCode,
         drawDate: drawDateStr,
       });
     }

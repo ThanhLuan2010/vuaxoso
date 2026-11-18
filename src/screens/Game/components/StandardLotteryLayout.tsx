@@ -720,8 +720,9 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
       return;
     }
 
+    const targetGameId = (gameId === 'max_3d' && standardPlayType === 'Max3D Pro') ? 'max_3d_pro' : gameId;
     processCheckout({
-      gameId,
+      gameId: targetGameId,
       gameName,
       playType: standardPlayType,
       drawIds: selectedDraws,
@@ -957,8 +958,9 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
     if (lottoPlayType === 'Bao số chính') displayPlayType = `Bao số chính (Bao ${lottoMainBao})`;
     if (lottoPlayType === 'Bao số đặc biệt') displayPlayType = `Bao số đặc biệt (Bao ${lottoSpecialBao})`;
 
+    const targetGameId = (gameId === 'max_3d' && standardPlayType === 'Max3D Pro') ? 'max_3d_pro' : gameId;
     processCheckout({
-      gameId,
+      gameId: targetGameId,
       gameName,
       playType: displayPlayType,
       drawIds: selectedDraws,
@@ -1393,8 +1395,9 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
       return;
     }
 
+    const targetGameId = (gameId === 'max_3d' && standardPlayType === 'Max3D Pro') ? 'max_3d_pro' : gameId;
     processCheckout({
-      gameId,
+      gameId: targetGameId,
       gameName,
       playType: gameId === 'truot_loto' ? truotLotoPlayType : lotoCapPlayType,
       drawIds: selectedDraws,
@@ -1666,8 +1669,9 @@ export default function StandardLotteryLayout({ route, navigation }: any) {
     }
 
     const capNhan = getLoto235CapNhan(loto235PlayType);
+    const targetGameId = (gameId === 'max_3d' && standardPlayType === 'Max3D Pro') ? 'max_3d_pro' : gameId;
     processCheckout({
-      gameId,
+      gameId: targetGameId,
       gameName,
       playType: loto235PlayType,
       drawIds: selectedDraws,
